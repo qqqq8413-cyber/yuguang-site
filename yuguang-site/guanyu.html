@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>關於嶼光 · 嶼光映像</title>
+<style>
+  :root{
+    --paper:#f3f1ec;--paper-2:#eeece6;--ink:#171613;--muted:#a19a8d;
+    --line:rgba(23,22,19,.14);--hair:rgba(23,22,19,.08);
+    --serif:"Noto Serif TC","Songti TC",Georgia,"Times New Roman",serif;
+    --sans:"PingFang TC","Noto Sans TC","Helvetica Neue",system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 clamp(20px,5vw,64px)}
+
+  .topbar{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;
+    padding:15px clamp(20px,5vw,64px);background:var(--paper)}
+  .topbar .mark{display:flex;align-items:center;gap:11px}
+  .topbar svg{width:20px;height:auto}
+  .topbar .name{font-family:var(--serif);font-size:14px;letter-spacing:5px;text-indent:5px}
+  .topbar .back{font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted);transition:.3s}
+  .topbar .back:hover{color:var(--ink)}
+
+  .pagehead{text-align:center;padding:clamp(16px,2.4vw,32px) 0 clamp(30px,4.5vw,56px)}
+  .pagehead .kicker{font-family:var(--serif);font-size:12px;letter-spacing:6px;color:var(--muted);
+    text-transform:uppercase;margin-bottom:12px}
+  .pagehead h1{font-family:var(--serif);font-weight:500;font-size:clamp(2rem,5.4vw,3.2rem);letter-spacing:12px;text-indent:12px}
+
+  /* 宣言 */
+  .manifesto{text-align:center;max-width:20em;margin:0 auto clamp(50px,7vw,90px);
+    font-family:var(--serif);font-weight:500;font-size:clamp(1.5rem,3.6vw,2.5rem);line-height:1.7;letter-spacing:3px}
+  .manifesto .accent{color:var(--muted)}
+
+  /* 故事 */
+  .story{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(28px,5vw,72px);
+    padding:clamp(36px,5vw,64px) 0;border-top:1px solid var(--line)}
+  @media(max-width:720px){.story{grid-template-columns:1fr;gap:18px}}
+  .story .lab{font-family:var(--serif);font-size:12px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+  .story .lab .cn{display:block;font-size:1.4rem;letter-spacing:6px;color:var(--ink);margin-top:14px;text-transform:none}
+  .story .body p{color:#4f4a42;font-size:clamp(.98rem,1.6vw,1.1rem);line-height:2.2;letter-spacing:.5px;margin-bottom:22px}
+  .story .body p:last-child{margin-bottom:0}
+  .story .body .sign{font-family:var(--serif);color:var(--muted);letter-spacing:3px;margin-top:8px}
+
+  /* 價值 */
+  .values{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(28px,4vw,60px);
+    padding:clamp(44px,6vw,84px) 0;border-top:1px solid var(--line)}
+  @media(max-width:720px){.values{grid-template-columns:1fr;gap:34px}}
+  .value .ic{color:var(--ink);line-height:0;margin-bottom:20px}
+  .value .ic svg{width:44px;height:auto}
+  .value .ic svg *{vector-effect:non-scaling-stroke}
+  .value h3{font-family:var(--serif);font-weight:500;font-size:1.35rem;letter-spacing:3px;margin-bottom:12px}
+  .value .en{font-family:var(--serif);font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+  .value p{color:#5a554c;font-size:.96rem;line-height:2;letter-spacing:.5px}
+
+  /* 品牌收束 */
+  .brandband{text-align:center;padding:clamp(50px,7vw,96px) 0;border-top:1px solid var(--line)}
+  .brandband svg.logo{width:clamp(44px,6vw,64px);height:auto;color:var(--ink);margin:0 auto 22px;display:block}
+  .brandband .zh{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2rem);letter-spacing:10px;text-indent:10px}
+  .brandband .en{font-family:var(--serif);font-size:12px;letter-spacing:6px;color:var(--muted);margin-top:12px}
+
+  .cta{text-align:center;padding-bottom:clamp(56px,8vw,100px)}
+  .cta p{font-family:var(--serif);color:var(--muted);letter-spacing:3px;margin-bottom:22px;font-size:clamp(.9rem,1.8vw,1.05rem)}
+  .cta a{display:inline-block;font-family:var(--serif);letter-spacing:3px;font-size:14px;color:var(--paper);
+    background:var(--ink);padding:14px 40px;transition:.3s}
+  .cta a:hover{opacity:.85}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:.85s cubic-bezier(.19,1,.22,1)}
+  .reveal.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="logo" viewBox="0 0 192 208">
+    <g fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="butt">
+      <line x1="97" y1="8" x2="97" y2="200"/><line x1="127" y1="70" x2="165" y2="23"/>
+      <line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
+      <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>
+      <line x1="184" y1="200" x2="184" y2="172"/>
+    </g>
+  </symbol>
+</svg>
+
+<div class="topbar">
+  <a class="mark" href="index.html"><svg><use href="#logo"/></svg><span class="name">嶼光映像</span></a>
+  <a class="back" href="index.html">← 返回首頁</a>
+</div>
+
+<div class="wrap">
+  <div class="pagehead">
+    <div class="kicker">About</div>
+    <h1>關於嶼光</h1>
+  </div>
+
+  <p class="manifesto reveal">我們追逐那道<span class="accent">最真實的光</span>，<br>把它留成影像。</p>
+
+  <section class="story reveal">
+    <div class="lab">Who We Are<span class="cn">我們是誰</span></div>
+    <div class="body">
+      <p>嶼光映像是一間專注於影像創作的工作室。無論是平面攝影或動態影片，我們相信每一個品牌、每一個人，都有值得被好好記錄的故事。</p>
+      <p>「嶼」是島嶼，是每一次獨立而完整的相遇；「光」是我們的語言，用光影去描繪情緒、時間與溫度。我們不只是按下快門，而是陪你把想說的話，變成看得見的畫面。</p>
+      <p>從一次諮詢、一份企劃，到拍攝與後製，我們在意每一個細節，也在意與你合作的每一步。</p>
+      <p class="sign">— 嶼光映像 團隊</p>
+    </div>
+  </section>
+
+  <section class="values">
+    <div class="value reveal">
+      <div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="20"/><path d="M32 12v40M12 32h40M18 18l28 28M46 18L18 46"/></svg></div>
+      <div class="en">Craft</div>
+      <h3>講究細節</h3>
+      <p>從光線、構圖到節奏，每一個環節都反覆推敲，只為呈現最到位的畫面質感。</p>
+    </div>
+    <div class="value reveal">
+      <div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 52s-18-11-18-24a11 11 0 0 1 20-6 11 11 0 0 1 20 6c0 13-18 24-18 24Z"/></svg></div>
+      <div class="en">Sincerity</div>
+      <h3>真誠溝通</h3>
+      <p>先理解你的想法與目標，坦白地給建議，讓每一分預算都花在真正重要的地方。</p>
+    </div>
+    <div class="value reveal">
+      <div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="23" cy="24" r="8"/><circle cx="43" cy="24" r="8"/><path d="M11 50c0-7 5-12 12-12s12 5 12 12M35 50c0-7 5-12 12-12"/></svg></div>
+      <div class="en">Partnership</div>
+      <h3>長期陪伴</h3>
+      <p>不只完成一支作品，更希望成為你長期信任的影像夥伴，一起把故事說得更好。</p>
+    </div>
+  </section>
+
+  <section class="brandband reveal">
+    <svg class="logo"><use href="#logo"/></svg>
+    <div class="zh">嶼光映像</div>
+    <div class="en">PHOS OF ISLE</div>
+  </section>
+
+  <div class="cta reveal">
+    <p>想聊聊你的影像計畫嗎？</p>
+    <a href="lianluo.html">聯絡我們</a>
+  </div>
+</div>
+
+<script>
+  const io=new IntersectionObserver((es)=>{
+    es.forEach((e)=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target)}})
+  },{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

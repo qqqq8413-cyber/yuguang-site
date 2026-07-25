@@ -1,0 +1,53 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# 上傳的圖片存放位置
+media_folder: "images"
+public_folder: "/images"
+
+locale: "zh_Hant"
+
+collections:
+  # ── 網站設定(品牌 / 聯絡資訊) ──
+  - name: "site"
+    label: "網站設定"
+    files:
+      - name: "settings"
+        label: "品牌與聯絡資訊"
+        file: "content/site.json"
+        fields:
+          - { name: brandZh, label: "品牌中文名", widget: string }
+          - { name: brandEn, label: "品牌英文名", widget: string }
+          - { name: email,   label: "Email",     widget: string }
+          - { name: line,    label: "LINE ID",   widget: string }
+          - { name: phone,   label: "電話",       widget: string }
+          - { name: address, label: "地址",       widget: string }
+          - { name: instagram, label: "Instagram 網址", widget: string, required: false }
+          - { name: facebook,  label: "Facebook 網址",  widget: string, required: false }
+          - { name: youtube,   label: "YouTube 網址",   widget: string, required: false }
+
+  # ── 平面作品(相簿 / 照片) ──
+  - name: "photography"
+    label: "平面作品"
+    files:
+      - name: "albums"
+        label: "相簿"
+        file: "content/albums.json"
+        fields:
+          - name: albums
+            label: "相簿列表"
+            label_singular: "相簿"
+            widget: list
+            summary: "{{fields.zh}}（{{fields.photos.length}} 張）"
+            fields:
+              - { name: zh, label: "相簿名稱（中文）", widget: string }
+              - { name: en, label: "相簿名稱（英文）", widget: string, required: false }
+              - name: photos
+                label: "照片"
+                label_singular: "照片"
+                widget: list
+                summary: "{{fields.caption}}"
+                fields:
+                  - { name: image, label: "照片", widget: image }
+                  - { name: caption, label: "說明文字", widget: string, required: false }

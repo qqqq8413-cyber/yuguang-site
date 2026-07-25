@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>製作流程 · 嶼光映像</title>
+<style>
+  :root{
+    --paper:#f3f1ec;--paper-2:#eeece6;--ink:#171613;--muted:#a19a8d;
+    --line:rgba(23,22,19,.14);--hair:rgba(23,22,19,.08);
+    --serif:"Noto Serif TC","Songti TC",Georgia,"Times New Roman",serif;
+    --sans:"PingFang TC","Noto Sans TC","Helvetica Neue",system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 clamp(20px,5vw,64px)}
+
+  .topbar{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;
+    padding:15px clamp(20px,5vw,64px);background:var(--paper)}
+  .topbar .mark{display:flex;align-items:center;gap:11px}
+  .topbar svg{width:20px;height:auto}
+  .topbar .name{font-family:var(--serif);font-size:14px;letter-spacing:5px;text-indent:5px}
+  .topbar .back{font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted);transition:.3s}
+  .topbar .back:hover{color:var(--ink)}
+
+  .pagehead{text-align:center;padding:clamp(16px,2.4vw,32px) 0 clamp(34px,5vw,64px)}
+  .pagehead .kicker{font-family:var(--serif);font-size:12px;letter-spacing:6px;color:var(--muted);
+    text-transform:uppercase;margin-bottom:12px}
+  .pagehead h1{font-family:var(--serif);font-weight:500;font-size:clamp(2rem,5.4vw,3.2rem);letter-spacing:12px;text-indent:12px}
+  .pagehead .sub{font-family:var(--serif);color:var(--muted);margin-top:16px;font-size:clamp(.85rem,1.8vw,1rem);letter-spacing:3px}
+
+  /* 左右交錯步驟 */
+  .steps{display:flex;flex-direction:column;gap:clamp(56px,8vw,120px);padding-bottom:clamp(56px,8vw,110px)}
+  .step{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,80px);align-items:center}
+  .txt h3 .ic-inline{display:none}
+  @media(max-width:760px){
+    .steps{gap:clamp(32px,7vw,46px)}
+    .step{grid-template-columns:1fr;gap:22px}
+    .step .visual{display:none}
+    .txt h3{display:flex;align-items:center;gap:12px}
+    .txt h3 .ic-inline{display:inline-flex;line-height:0;flex:0 0 auto}
+    .txt h3 .ic-inline svg{width:30px;height:auto;color:var(--ink);display:block}
+    .txt h3 .ic-inline svg *{vector-effect:non-scaling-stroke}
+  }
+
+  .visual{position:relative;display:flex;align-items:center;justify-content:center;
+    padding:clamp(10px,3vw,40px)}
+  .visual .bignum{position:absolute;right:0;bottom:clamp(-18px,-1.4vw,-10px);z-index:0;
+    font-family:var(--serif);font-weight:500;font-size:clamp(6rem,12vw,10rem);line-height:.8;
+    color:rgba(23,22,19,.05);letter-spacing:-2px}
+  .visual .ic{position:relative;z-index:1;color:var(--ink);line-height:0;
+    transition:transform .6s cubic-bezier(.19,1,.22,1)}
+  .step:hover .visual .ic{transform:translateY(-5px)}
+  .visual .ic svg{width:clamp(92px,13vw,150px);height:auto;display:block}
+  .visual .ic svg *{vector-effect:non-scaling-stroke}
+
+  .txt .en{font-family:var(--serif);font-size:12px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;
+    display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .txt .en::before{content:"";width:clamp(24px,3vw,46px);height:1px;background:var(--muted)}
+  .txt h3{font-family:var(--serif);font-weight:500;font-size:clamp(1.6rem,3.2vw,2.4rem);letter-spacing:4px}
+  .txt p{color:#5a554c;font-size:clamp(.95rem,1.5vw,1.05rem);line-height:2.1;letter-spacing:.5px;margin-top:18px;max-width:30em}
+
+  /* 交錯:偶數步驟影像在右 */
+  @media(min-width:761px){
+    .step:nth-child(even) .visual{order:2}
+    .step:nth-child(even) .txt{order:1;text-align:right}
+    .step:nth-child(even) .txt .en{flex-direction:row-reverse}
+    .step:nth-child(even) .txt p{margin-left:auto}
+  }
+
+  .cta{text-align:center;padding-bottom:clamp(56px,8vw,100px)}
+  .cta p{font-family:var(--serif);color:var(--muted);letter-spacing:3px;margin-bottom:22px;font-size:clamp(.9rem,1.8vw,1.05rem)}
+  .cta a{display:inline-block;font-family:var(--serif);letter-spacing:3px;font-size:14px;color:var(--paper);
+    background:var(--ink);padding:14px 40px;transition:.3s}
+  .cta a:hover{opacity:.85}
+
+  .reveal{opacity:0;transform:translateY(30px);transition:.9s cubic-bezier(.19,1,.22,1)}
+  .reveal.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="logo" viewBox="0 0 192 208">
+    <g fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="butt">
+      <line x1="97" y1="8" x2="97" y2="200"/><line x1="127" y1="70" x2="165" y2="23"/>
+      <line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
+      <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>
+      <line x1="184" y1="200" x2="184" y2="172"/>
+    </g>
+  </symbol>
+</svg>
+
+<div class="topbar">
+  <a class="mark" href="index.html"><svg><use href="#logo"/></svg><span class="name">嶼光映像</span></a>
+  <a class="back" href="index.html">← 返回首頁</a>
+</div>
+
+<div class="wrap">
+  <div class="pagehead">
+    <div class="kicker">Process</div>
+    <h1>製作流程</h1>
+    <p class="sub">從一個念頭，到最終成品的每一步</p>
+  </div>
+
+  <div class="steps" id="steps"></div>
+
+  <div class="cta">
+    <p>準備好開始你的影像計畫了嗎？</p>
+    <a href="lianluo.html">與我們聊聊</a>
+  </div>
+</div>
+
+<script>
+/* ====== 線條 icon ====== */
+const I = {
+  chat:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 15h40a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H30l-11 8v-8h-7a4 4 0 0 1-4-4V19a4 4 0 0 1 4-4Z"/>
+    <circle cx="24" cy="29" r="1.6" fill="currentColor" stroke="none"/>
+    <circle cx="32" cy="29" r="1.6" fill="currentColor" stroke="none"/>
+    <circle cx="40" cy="29" r="1.6" fill="currentColor" stroke="none"/></svg>`,
+  doc:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 8h20l10 10v36a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z"/>
+    <path d="M38 8v10h10"/>
+    <line x1="24" y1="32" x2="41" y2="32"/><line x1="24" y1="40" x2="41" y2="40"/><line x1="24" y1="48" x2="34" y2="48"/></svg>`,
+  list:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="14" y="12" width="36" height="44" rx="3"/>
+    <rect x="25" y="8" width="14" height="8" rx="2"/>
+    <path d="M21 27l3 3 5-6"/><line x1="34" y1="28" x2="44" y2="28"/>
+    <path d="M21 41l3 3 5-6"/><line x1="34" y1="42" x2="44" y2="42"/></svg>`,
+  cam:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8" y="22" width="33" height="22" rx="3"/>
+    <path d="M41 30l14-6v18l-14-6Z"/>
+    <circle cx="18" cy="33" r="3.4"/></svg>`,
+  sliders:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="18" y1="12" x2="18" y2="52"/><line x1="32" y1="12" x2="32" y2="52"/><line x1="46" y1="12" x2="46" y2="52"/>
+    <circle cx="18" cy="24" r="4"/><circle cx="32" cy="40" r="4"/><circle cx="46" cy="20" r="4"/></svg>`,
+  box:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 10l22 12v20L32 54 10 42V22Z"/>
+    <path d="M10 22l22 12 22-12"/><line x1="32" y1="34" x2="32" y2="54"/></svg>`,
+};
+
+/* ====== 流程步驟(可自行增減與修改) ====== */
+const steps = [
+  {en:"Consultation",  zh:"需求諮詢", icon:I.chat,    desc:"先聊聊你的想法、目標與預算。無論構想是否成形，我們都會協助釐清方向，一起定義這支作品要傳達的核心。"},
+  {en:"Proposal",      zh:"企劃提案", icon:I.doc,     desc:"依需求提出腳本、風格參考與報價。確認拍攝主軸、視覺調性與時程，讓每一分預算都花在對的地方。"},
+  {en:"Pre-production",zh:"前期準備", icon:I.list,    desc:"場地勘查、器材規劃、分鏡與時程安排。所有細節在開拍前備妥，確保拍攝當天順暢有效率。"},
+  {en:"Production",    zh:"拍攝執行", icon:I.cam,     desc:"專業團隊與器材到位，掌握光線與節奏，細膩捕捉每一個關鍵畫面與情緒。"},
+  {en:"Post-production",zh:"後期製作",icon:I.sliders, desc:"剪輯、調光、配樂與字幕。反覆打磨節奏與質感，並提供一至兩次修改調整。"},
+  {en:"Delivery",     zh:"成品交付", icon:I.box,     desc:"交付各平台適用的成品規格，並保留原始素材。後續有任何需求，我們也持續支援。"},
+];
+
+const box=document.getElementById('steps');
+steps.forEach((s,i)=>{
+  const el=document.createElement('div');
+  el.className='step reveal';
+  el.innerHTML=`
+    <div class="visual">
+      <div class="ic">${s.icon}</div>
+    </div>
+    <div class="txt"><div class="en">${s.en}</div>
+      <h3><span class="ic-inline">${s.icon}</span>${s.zh}</h3><p>${s.desc}</p></div>`;
+  box.appendChild(el);
+});
+
+const io=new IntersectionObserver((es)=>{
+  es.forEach((e)=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target)}})
+},{threshold:.2});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
