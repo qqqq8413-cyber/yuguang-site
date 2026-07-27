@@ -2,7 +2,7 @@ backend:
   name: git-gateway
   branch: main
 
-# 上傳的圖片存放位置
+# 上傳的圖片存放位置（檔案在 repo 的 yuguang-site 子資料夾內）
 media_folder: "yuguang-site/images"
 public_folder: "/images"
 
@@ -51,3 +51,101 @@ collections:
                 fields:
                   - { name: image, label: "照片", widget: image }
                   - { name: caption, label: "說明文字", widget: string, required: false }
+
+  # ── 動態作品(影片) ──
+  - name: "videography"
+    label: "動態作品"
+    files:
+      - name: "videos"
+        label: "影片"
+        file: "yuguang-site/content/videos.json"
+        fields:
+          - name: videos
+            label: "影片列表"
+            label_singular: "影片"
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - { name: title,  label: "影片標題", widget: string }
+              - { name: cat,    label: "分類（會自動變成上方選項）", widget: string }
+              - { name: client, label: "客戶", widget: string, required: false }
+              - { name: year,   label: "年份", widget: string, required: false }
+              - { name: yt,     label: "YouTube 影片 ID（網址 watch?v= 後那串）", widget: string, required: false }
+
+  # ── 器材租賃 ──
+  - name: "rental"
+    label: "器材租賃"
+    files:
+      - name: "gear"
+        label: "器材"
+        file: "yuguang-site/content/gear.json"
+        fields:
+          - name: gear
+            label: "器材列表"
+            label_singular: "器材"
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { name: name,  label: "器材名稱", widget: string }
+              - { name: cat,   label: "分類（會自動變成側欄選項）", widget: string }
+              - { name: price, label: "日租價（數字）", widget: number, value_type: int, min: 0 }
+              - { name: image, label: "器材照片", widget: image, required: false }
+              - { name: spec,  label: "規格（用 ・ 分隔，例如：全片幅・4K・雙原生ISO）", widget: string }
+              - { name: desc,  label: "介紹說明", widget: text }
+
+  # ── 製作流程 ──
+  - name: "process"
+    label: "製作流程"
+    files:
+      - name: "steps"
+        label: "流程步驟"
+        file: "yuguang-site/content/process.json"
+        fields:
+          - name: steps
+            label: "步驟列表"
+            label_singular: "步驟"
+            widget: list
+            summary: "{{fields.zh}}"
+            fields:
+              - { name: zh, label: "步驟名稱（中文）", widget: string }
+              - { name: en, label: "步驟名稱（英文）", widget: string, required: false }
+              - name: icon
+                label: "圖示"
+                widget: select
+                options:
+                  - { label: "對話框", value: chat }
+                  - { label: "文件", value: doc }
+                  - { label: "清單", value: list }
+                  - { label: "攝影機", value: cam }
+                  - { label: "調控滑桿", value: sliders }
+                  - { label: "包裝盒", value: box }
+              - { name: desc, label: "步驟說明", widget: text }
+
+  # ── 關於嶼光 ──
+  - name: "about"
+    label: "關於嶼光"
+    files:
+      - name: "about"
+        label: "關於頁內容"
+        file: "yuguang-site/content/about.json"
+        fields:
+          - { name: manifesto, label: "開頭大字宣言", widget: text }
+          - { name: storyHeading, label: "故事區小標（中文）", widget: string }
+          - { name: story, label: "故事段落", widget: list, field: { name: p, label: "段落", widget: text } }
+          - { name: sign, label: "署名", widget: string, required: false }
+          - name: values
+            label: "核心價值(三個)"
+            label_singular: "價值"
+            widget: list
+            summary: "{{fields.zh}}"
+            fields:
+              - name: icon
+                label: "圖示"
+                widget: select
+                options:
+                  - { label: "光圈", value: aperture }
+                  - { label: "愛心", value: heart }
+                  - { label: "夥伴", value: people }
+              - { name: en, label: "英文標籤", widget: string, required: false }
+              - { name: zh, label: "價值標題（中文）", widget: string }
+              - { name: desc, label: "說明", widget: text }
