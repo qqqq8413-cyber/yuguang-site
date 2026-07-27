@@ -174,9 +174,10 @@ fetch('content/albums.json').then(r=>r.json()).then(data=>{
   buildIndex();
 }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
+function opt(u,w){if(!u)return u;if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
 function coverBg(a){
   const first=(a.photos&&a.photos[0])?a.photos[0].image:null;
-  return first ? `background-image:url('${first}');background-size:cover;background-position:center`
+  return first ? `background-image:url('${opt(first,800)}');background-size:cover;background-position:center`
                : `background:linear-gradient(150deg,${a.grad[0]},${a.grad[1]})`;
 }
 function buildIndex(){
@@ -210,7 +211,7 @@ function openAlbum(i){
       current.shots.push({image:p.image, cap});
       const s=document.createElement('div');
       s.className='shot';
-      s.innerHTML=`<img src="${p.image}" loading="lazy" alt="${cap}"><span class="plus">＋</span>`;
+      s.innerHTML=`<img src="${opt(p.image,700)}" loading="lazy" decoding="async" alt="${cap}"><span class="plus">＋</span>`;
       s.addEventListener('click',()=>openLB(n));
       masonry.appendChild(s);
     });
@@ -254,7 +255,7 @@ let lbIndex=0;
 function openLB(n){lbIndex=n;renderLB();lb.classList.add('open')}
 function renderLB(){
   const s=current.shots[lbIndex];
-  lbImg.style.background = s.image ? `url('${s.image}') center/contain no-repeat` : s.grad;
+  lbImg.style.background = s.image ? `url('${opt(s.image,1600)}') center/contain no-repeat` : s.grad;
   lbCap.textContent=s.cap;
 }
 function move(d){lbIndex=(lbIndex+d+current.shots.length)%current.shots.length;renderLB()}

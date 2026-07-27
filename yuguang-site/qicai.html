@@ -274,8 +274,9 @@ fetch('content/gear.json').then(r=>r.json()).then(data=>{
   buildCats(catBox,'cat');buildCats(mbCats,'mb-cat');render();
 }).catch(()=>{document.getElementById('grid').innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無器材資料</p>';});
 
-function gbg(g){
-  return g.image ? `background-image:url('${g.image}');background-size:cover;background-position:center`
+function opt(u,w){if(!u)return u;if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
+function gbg(g,w){w=w||800;
+  return g.image ? `background-image:url('${opt(g.image,w)}');background-size:cover;background-position:center`
                  : `background:linear-gradient(150deg,${g.grad[0]},${g.grad[1]})`;
 }
 function buildCats(container,cls){
@@ -328,7 +329,7 @@ const catalogView=document.getElementById('catalogView');
 const detailView=document.getElementById('detailView');
 function openDetail(id){
   const g=gear[id];
-  document.getElementById('dBg').style.cssText=gbg(g);
+  document.getElementById('dBg').style.cssText=gbg(g,1200);
   document.getElementById('dTag').textContent=g.cat;
   document.getElementById('dName').textContent=g.name;
   document.getElementById('dPrice').textContent='NT$ '+g.price.toLocaleString();
