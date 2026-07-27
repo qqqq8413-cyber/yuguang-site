@@ -8,6 +8,11 @@ public_folder: "/images"
 
 locale: "zh_Hant"
 
+# 品牌與網站連結(顯示在後台)
+site_url: "https://super-bombolone-186f83.netlify.app"
+display_url: "https://super-bombolone-186f83.netlify.app"
+logo_url: "/images/logo.svg"
+
 collections:
   # ── 網站設定(品牌 / 聯絡資訊) ──
   - name: "site"
