@@ -1,10 +1,38 @@
 {
   "albums": [
-    { "zh": "人像寫真", "en": "Portrait",  "photos": [] },
-    { "zh": "活動紀錄", "en": "Event",     "photos": [] },
-    { "zh": "商品攝影", "en": "Product",   "photos": [] },
-    { "zh": "空間建築", "en": "Space",     "photos": [] },
-    { "zh": "美食料理", "en": "Cuisine",   "photos": [] },
-    { "zh": "風景紀行", "en": "Landscape", "photos": [] }
+    {
+      "zh": "人像寫真",
+      "en": "Portrait",
+      "photos": [
+        {
+          "image": "/images/img_0050-2.png"
+        }
+      ]
+    },
+    {
+      "zh": "活動紀錄",
+      "en": "Event",
+      "photos": []
+    },
+    {
+      "zh": "商品攝影",
+      "en": "Product",
+      "photos": []
+    },
+    {
+      "zh": "空間建築",
+      "en": "Space",
+      "photos": []
+    },
+    {
+      "zh": "美食料理",
+      "en": "Cuisine",
+      "photos": []
+    },
+    {
+      "zh": "風景紀行",
+      "en": "Landscape",
+      "photos": []
+    }
   ]
 }
