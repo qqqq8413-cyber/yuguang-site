@@ -1,6 +1,9 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: qqqq8413-cyber/yuguang-site
   branch: main
+  base_url: https://api.netlify.com
+  auth_endpoint: auth
 
 # 上傳的圖片存放位置（檔案在 repo 的 yuguang-site 子資料夾內）
 media_folder: "yuguang-site/images"
