@@ -95,38 +95,14 @@
     <h1>關於嶼光</h1>
   </div>
 
-  <p class="manifesto reveal">我們追逐那道<span class="accent">最真實的光</span>，<br>把它留成影像。</p>
+  <p class="manifesto reveal" id="manifesto"></p>
 
   <section class="story reveal">
-    <div class="lab">Who We Are<span class="cn">我們是誰</span></div>
-    <div class="body">
-      <p>嶼光映像是一間專注於影像創作的工作室。無論是平面攝影或動態影片，我們相信每一個品牌、每一個人，都有值得被好好記錄的故事。</p>
-      <p>「嶼」是島嶼，是每一次獨立而完整的相遇；「光」是我們的語言，用光影去描繪情緒、時間與溫度。我們不只是按下快門，而是陪你把想說的話，變成看得見的畫面。</p>
-      <p>從一次諮詢、一份企劃，到拍攝與後製，我們在意每一個細節，也在意與你合作的每一步。</p>
-      <p class="sign">— 嶼光映像 團隊</p>
-    </div>
+    <div class="lab" id="storyLab">Who We Are</div>
+    <div class="body" id="storyBody"></div>
   </section>
 
-  <section class="values">
-    <div class="value reveal">
-      <div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="20"/><path d="M32 12v40M12 32h40M18 18l28 28M46 18L18 46"/></svg></div>
-      <div class="en">Craft</div>
-      <h3>講究細節</h3>
-      <p>從光線、構圖到節奏，每一個環節都反覆推敲，只為呈現最到位的畫面質感。</p>
-    </div>
-    <div class="value reveal">
-      <div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 52s-18-11-18-24a11 11 0 0 1 20-6 11 11 0 0 1 20 6c0 13-18 24-18 24Z"/></svg></div>
-      <div class="en">Sincerity</div>
-      <h3>真誠溝通</h3>
-      <p>先理解你的想法與目標，坦白地給建議，讓每一分預算都花在真正重要的地方。</p>
-    </div>
-    <div class="value reveal">
-      <div class="ic"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="23" cy="24" r="8"/><circle cx="43" cy="24" r="8"/><path d="M11 50c0-7 5-12 12-12s12 5 12 12M35 50c0-7 5-12 12-12"/></svg></div>
-      <div class="en">Partnership</div>
-      <h3>長期陪伴</h3>
-      <p>不只完成一支作品，更希望成為你長期信任的影像夥伴，一起把故事說得更好。</p>
-    </div>
-  </section>
+  <section class="values" id="values"></section>
 
   <section class="brandband reveal">
     <svg class="logo"><use href="#logo"/></svg>
@@ -141,10 +117,30 @@
 </div>
 
 <script>
-  const io=new IntersectionObserver((es)=>{
-    es.forEach((e)=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target)}})
-  },{threshold:.15});
+const VICONS={
+  aperture:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="20"/><path d="M32 12v40M12 32h40M18 18l28 28M46 18L18 46"/></svg>`,
+  heart:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 52s-18-11-18-24a11 11 0 0 1 20-6 11 11 0 0 1 20 6c0 13-18 24-18 24Z"/></svg>`,
+  people:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="23" cy="24" r="8"/><circle cx="43" cy="24" r="8"/><path d="M11 50c0-7 5-12 12-12s12 5 12 12M35 50c0-7 5-12 12-12"/></svg>`
+};
+const io=new IntersectionObserver((es)=>{
+  es.forEach((e)=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target)}})
+},{threshold:.15});
+
+fetch('content/about.json').then(r=>r.json()).then(d=>{
+  document.getElementById('manifesto').textContent=d.manifesto||'';
+  document.getElementById('storyLab').innerHTML='Who We Are<span class="cn">'+(d.storyHeading||'我們是誰')+'</span>';
+  const body=document.getElementById('storyBody');
+  (d.story||[]).forEach(p=>{const el=document.createElement('p');el.textContent=p;body.appendChild(el);});
+  if(d.sign){const s=document.createElement('p');s.className='sign';s.textContent=d.sign;body.appendChild(s);}
+  const vbox=document.getElementById('values');
+  (d.values||[]).forEach(v=>{
+    const el=document.createElement('div');el.className='value reveal';
+    el.innerHTML=`<div class="ic">${VICONS[v.icon]||VICONS.aperture}</div>
+      <div class="en">${v.en||''}</div><h3>${v.zh||''}</h3><p>${v.desc||''}</p>`;
+    vbox.appendChild(el);
+  });
   document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+}).catch(()=>{document.getElementById('storyBody').innerHTML='<p style="color:var(--muted)">尚無內容</p>';});
 </script>
 </body>
 </html>

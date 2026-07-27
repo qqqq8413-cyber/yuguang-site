@@ -138,33 +138,30 @@
 <script>
 /* ====== 影片資料 ======
    cat = 分類(上方選項會自動依此產生);yt = YouTube 影片 ID(留空顯示佔位) */
-const videos = [
-  {title:"海島品牌形象片", cat:"企業形象", client:"某某旅宿",   year:"2025", yt:"", grad:["#3a3a42","#15151a"]},
-  {title:"城市光影短片",   cat:"企業形象", client:"某某建設",   year:"2024", yt:"", grad:["#33383e","#131518"]},
-  {title:"職人紀錄短片",   cat:"活動紀錄", client:"某某工坊",   year:"2025", yt:"", grad:["#403a32","#161310"]},
-  {title:"島嶼的一天",     cat:"活動紀錄", client:"個人創作",   year:"2023", yt:"", grad:["#3b3b33","#151510"]},
-  {title:"產品發表影片",   cat:"商業廣告", client:"某某科技",   year:"2024", yt:"", grad:["#2f3a3a","#111616"]},
-  {title:"新品 TVC",       cat:"商業廣告", client:"某某品牌",   year:"2024", yt:"", grad:["#2c3838","#101414"]},
-  {title:"藝術節花絮",     cat:"活動紀錄", client:"某某藝術節", year:"2023", yt:"", grad:["#38343e","#141216"]},
-  {title:"品牌短影片",     cat:"短影片",   client:"某某品牌",   year:"2024", yt:"", grad:["#3e3630","#17120e"]},
-];
-
-/* ====== 分類選項 ====== */
-const cats=["精選作品",...[...new Set(videos.map(v=>v.cat))]];
-const filters=document.getElementById('filters');
+let videos=[];
 let activeCat="精選作品";
-cats.forEach(c=>{
-  const b=document.createElement('button');
-  b.className='filter'+(c===activeCat?' active':'');
-  b.textContent=c;
-  b.addEventListener('click',()=>{activeCat=c;
-    document.querySelectorAll('.filter').forEach(f=>f.classList.toggle('active',f.textContent===c));
-    render();});
-  filters.appendChild(b);
-});
-
-/* ====== 影片網格 ====== */
+const GRADS=[["#3a3a42","#15151a"],["#33383e","#131518"],["#403a32","#161310"],["#3b3b33","#151510"],["#2f3a3a","#111616"],["#2c3838","#101414"],["#38343e","#141216"],["#3e3630","#17120e"]];
+const filters=document.getElementById('filters');
 const grid=document.getElementById('grid');
+
+fetch('content/videos.json').then(r=>r.json()).then(data=>{
+  videos=(data.videos||[]).map((v,i)=>Object.assign({grad:GRADS[i%GRADS.length]},v));
+  buildFilters();render();
+}).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無影片資料</p>';});
+
+function buildFilters(){
+  const cats=["精選作品",...[...new Set(videos.map(v=>v.cat))]];
+  filters.innerHTML='';
+  cats.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='filter'+(c===activeCat?' active':'');b.textContent=c;
+    b.addEventListener('click',()=>{activeCat=c;
+      document.querySelectorAll('.filter').forEach(f=>f.classList.toggle('active',f.textContent===c));
+      render();});
+    filters.appendChild(b);
+  });
+}
+
 function render(){
   grid.innerHTML='';
   videos.filter(v=>activeCat==="精選作品"||v.cat===activeCat).forEach((v,i)=>{
@@ -180,7 +177,6 @@ function render(){
     grid.appendChild(el);
   });
 }
-render();
 
 /* ====== 影片 Lightbox ====== */
 const lb=document.getElementById('lightbox');

@@ -258,50 +258,28 @@
 <div class="toast" id="toast">已加入詢價單</div>
 
 <script>
-/* ====== 器材資料 ====== */
-const gear = [
-  {name:"Sony A7S III 機身", cat:"相機機身", price:1500, grad:["#c7c1b4","#8b857a"],
-   spec:"全片幅・4K 120fps・雙原生 ISO・S-Log3",
-   desc:"低光之王，暗部表現細膩，適合婚禮、活動與紀錄片等各式現場拍攝。"},
-  {name:"Sony FX3 電影機", cat:"相機機身", price:1800, grad:["#c1c4c8","#868a8f"],
-   spec:"Cinema Line・主動散熱・全片幅・可長時間錄製",
-   desc:"專為錄影而生的電影機，散熱優異、機身輕巧，一人即可完成專業拍攝。"},
-  {name:"24-70mm f/2.8 GM", cat:"鏡頭", price:600, grad:["#cbc4bb","#8f887c"],
-   spec:"標準變焦・恆定 f/2.8・G Master",
-   desc:"一鏡走天下的標準變焦，從人像到活動皆宜，恆定大光圈畫質銳利。"},
-  {name:"85mm f/1.4 GM", cat:"鏡頭", price:500, grad:["#c9c8c2","#8c8b84"],
-   spec:"人像定焦・f/1.4 大光圈・柔美散景",
-   desc:"人像鏡皇，淺景深與奶油般的散景，主體與背景瞬間分離。"},
-  {name:"Aputure 600D", cat:"燈光", price:800, grad:["#d0cabb","#948d7c"],
-   spec:"日光燈・保榮口・附柔光罩・高照度",
-   desc:"高輸出日光 LED，穩定色溫與強勁光量，棚拍與外景主燈的可靠選擇。"},
-  {name:"Amaran 100x 雙色", cat:"燈光", price:400, grad:["#cdc9c0","#918c80"],
-   spec:"雙色溫・輕便・內建特效模式",
-   desc:"輕巧雙色溫補光燈，色溫可調、附多種情境特效，機動補光首選。"},
-  {name:"RODE NTG5 槍型麥", cat:"收音", price:350, grad:["#c4c6c9","#888b8f"],
-   spec:"指向性・低雜訊・附防風毛套",
-   desc:"廣播級槍型麥克風，清晰指向、低底噪，訪談與現場收音的好夥伴。"},
-  {name:"DJI RS 3 Pro", cat:"穩定器", price:700, grad:["#c6c1ba","#8a857d"],
-   spec:"三軸穩定・承重 4.5kg・碳纖維",
-   desc:"承重充裕的三軸穩定器，運鏡順滑，長時間手持也能穩定拍攝。"},
-  {name:"DJI Air 3 空拍機", cat:"空拍機", price:900, grad:["#c2c5c8","#868a8d"],
-   spec:"雙鏡頭・4K HDR・46 分鐘續航",
-   desc:"雙鏡頭空拍機，廣角與中焦一機兩用，長續航輕鬆完成航拍鏡頭。"},
-  {name:"碳纖維三腳架", cat:"腳架", price:300, grad:["#cbc7be","#8f8b80"],
-   spec:"油壓雲台・承重 8kg・附提袋",
-   desc:"穩固碳纖維腳架搭配油壓雲台，運鏡阻尼順手，靜態動態皆適用。"},
-];
-gear.forEach((g,i)=>g.id=i);
-
-/* ====== 側欄分類 ====== */
-const cats=["全部器材",...[...new Set(gear.map(g=>g.cat))]];
+/* ====== 器材資料(由後台 content/gear.json 載入) ====== */
+const GEARGRADS=[["#c7c1b4","#8b857a"],["#c1c4c8","#868a8f"],["#cbc4bb","#8f887c"],["#c9c8c2","#8c8b84"],["#d0cabb","#948d7c"],["#cdc9c0","#918c80"],["#c4c6c9","#888b8f"],["#c6c1ba","#8a857d"],["#c2c5c8","#868a8d"],["#cbc7be","#8f8b80"]];
+let gear=[];
+let cats=["全部器材"];
 let activeCat="全部器材";
-const catBox=document.getElementById('cats');   // 桌機直立選單
-const mbCats=document.getElementById('mbCats');  // 手機下拉
+const catBox=document.getElementById('cats');
+const mbCats=document.getElementById('mbCats');
 const mbToggle=document.getElementById('mbToggle');
 const mbLabel=document.getElementById('mbLabel');
 
+fetch('content/gear.json').then(r=>r.json()).then(data=>{
+  gear=(data.gear||[]).map((g,i)=>Object.assign({grad:GEARGRADS[i%GEARGRADS.length]},g,{id:i}));
+  cats=["全部器材",...[...new Set(gear.map(g=>g.cat))]];
+  buildCats(catBox,'cat');buildCats(mbCats,'mb-cat');render();
+}).catch(()=>{document.getElementById('grid').innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無器材資料</p>';});
+
+function gbg(g){
+  return g.image ? `background-image:url('${g.image}');background-size:cover;background-position:center`
+                 : `background:linear-gradient(150deg,${g.grad[0]},${g.grad[1]})`;
+}
 function buildCats(container,cls){
+  container.innerHTML='';
   cats.forEach(c=>{
     const b=document.createElement('button');
     b.className=cls+(c===activeCat?' active':'');b.textContent=c;
@@ -309,8 +287,6 @@ function buildCats(container,cls){
     container.appendChild(b);
   });
 }
-buildCats(catBox,'cat');
-buildCats(mbCats,'mb-cat');
 
 function setCategory(c){
   activeCat=c;
@@ -331,7 +307,7 @@ function render(){
     el.className='prod fade';el.style.animationDelay=(i*0.04)+'s';
     el.innerHTML=`
       <div class="thumb" data-open="${g.id}">
-        <div class="bg" style="background:linear-gradient(150deg,${g.grad[0]},${g.grad[1]})"></div>
+        <div class="bg" style="${gbg(g)}"></div>
         <div class="grain"></div><span class="tag">${g.cat}</span>
         <div class="view">查看介紹 →</div>
       </div>
@@ -346,14 +322,13 @@ function render(){
   grid.querySelectorAll('[data-open]').forEach(n=>n.addEventListener('click',()=>openDetail(+n.dataset.open)));
   grid.querySelectorAll('[data-add]').forEach(n=>n.addEventListener('click',()=>addToCart(+n.dataset.add)));
 }
-render();
 
 /* ====== 器材介紹頁 ====== */
 const catalogView=document.getElementById('catalogView');
 const detailView=document.getElementById('detailView');
 function openDetail(id){
   const g=gear[id];
-  document.getElementById('dBg').style.background=`linear-gradient(150deg,${g.grad[0]},${g.grad[1]})`;
+  document.getElementById('dBg').style.cssText=gbg(g);
   document.getElementById('dTag').textContent=g.cat;
   document.getElementById('dName').textContent=g.name;
   document.getElementById('dPrice').textContent='NT$ '+g.price.toLocaleString();

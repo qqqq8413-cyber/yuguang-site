@@ -95,28 +95,28 @@
     <div class="info reveal">
       <div class="blk">
         <div class="k">Email</div>
-        <div class="v"><a href="mailto:qqqq8413@gmail.com">qqqq8413@gmail.com</a></div>
+        <div class="v"><a id="c-email" href="#"></a></div>
       </div>
       <div class="blk">
         <div class="k">LINE</div>
-        <div class="v"><a href="https://line.me/R/ti/p/~@qqqq8413">＠qqqq8413</a></div>
+        <div class="v"><a id="c-line" href="#"></a></div>
       </div>
       <div class="blk">
         <div class="k">Phone</div>
-        <div class="v"><a href="tel:0908192807">0908 192 807</a></div>
+        <div class="v"><a id="c-phone" href="#"></a></div>
       </div>
       <div class="blk">
         <div class="k">Studio</div>
-        <div class="v">屏東縣屏東市公園里中華路 80-1 號</div>
+        <div class="v" id="c-address"></div>
         <div class="small">預約制，來訪前請先與我們聯繫</div>
       </div>
       <div class="blk">
         <div class="k">Hours</div>
         <div class="small">週一至週五　11:00–20:00<br>週末與假日　預約制</div>
       </div>
-      <div class="blk">
+      <div class="blk" id="c-follow-blk">
         <div class="k">Follow</div>
-        <div class="socials"><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">YouTube</a></div>
+        <div class="socials" id="c-socials"></div>
       </div>
     </div>
 
@@ -151,6 +151,24 @@
 </div>
 
 <script>
+  let SITE={email:"qqqq8413@gmail.com"};
+  fetch('content/site.json').then(r=>r.json()).then(d=>{
+    SITE=d;
+    const em=document.getElementById('c-email');
+    em.textContent=d.email||'';em.href='mailto:'+(d.email||'');
+    const ln=document.getElementById('c-line');
+    if(d.line){ln.textContent='＠'+String(d.line).replace(/^@/,'');
+      ln.href='https://line.me/R/ti/p/~@'+String(d.line).replace(/^@/,'');}
+    const ph=document.getElementById('c-phone');
+    if(d.phone){const p=String(d.phone);
+      ph.textContent=p.replace(/(\d{4})(\d{3})(\d{3})/,'$1 $2 $3');ph.href='tel:'+p;}
+    document.getElementById('c-address').textContent=d.address||'';
+    const soc=document.getElementById('c-socials');soc.innerHTML='';
+    const add=(url,label)=>{if(url){const a=document.createElement('a');a.href=url;a.textContent=label;soc.appendChild(a);}};
+    add(d.instagram,'Instagram');add(d.facebook,'Facebook');add(d.youtube,'YouTube');
+    if(!soc.children.length)document.getElementById('c-follow-blk').style.display='none';
+  }).catch(()=>{});
+
   document.getElementById('form').addEventListener('submit',function(e){
     e.preventDefault();
     const name=document.getElementById('f-name').value.trim();
@@ -159,7 +177,7 @@
     const msg=document.getElementById('f-msg').value.trim();
     const subject=`影像需求洽詢（${type}）— ${name||'未具名'}`;
     const body=`姓名：${name}\n聯絡信箱：${email}\n需求類型：${type}\n\n訊息：\n${msg}`;
-    window.location.href=`mailto:qqqq8413@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href=`mailto:${SITE.email||'qqqq8413@gmail.com'}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 
   const io=new IntersectionObserver((es)=>{
