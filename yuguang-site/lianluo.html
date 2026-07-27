@@ -60,6 +60,8 @@
     background:var(--ink);border:0;padding:15px 44px;cursor:pointer;transition:.3s;outline:none}
   .form .submit:hover{opacity:.85}
   .form .hint{color:var(--muted);font-size:12px;letter-spacing:1px;margin-top:14px;line-height:1.8}
+  .form-sent{display:none;font-family:var(--serif);letter-spacing:2px;color:var(--ink);
+    background:var(--paper-2);padding:26px;text-align:center;font-size:clamp(1rem,2vw,1.15rem)}
 
   .reveal{opacity:0;transform:translateY(22px);transition:.85s cubic-bezier(.19,1,.22,1)}
   .reveal.show{opacity:1;transform:none}
@@ -121,18 +123,20 @@
     </div>
 
     <!-- 右:表單 -->
-    <form class="form reveal" id="form">
+    <form class="form reveal" id="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="contact">
+      <p hidden><label>請留空：<input name="bot-field"></label></p>
       <div class="row">
         <label>姓名 / Name</label>
-        <input type="text" id="f-name" placeholder="您的稱呼" required>
+        <input type="text" id="f-name" name="name" placeholder="您的稱呼" required>
       </div>
       <div class="row">
         <label>Email</label>
-        <input type="email" id="f-email" placeholder="回覆用信箱" required>
+        <input type="email" id="f-email" name="email" placeholder="回覆用信箱" required>
       </div>
       <div class="row">
         <label>需求類型 / Service</label>
-        <select id="f-type">
+        <select id="f-type" name="type">
           <option>平面攝影</option>
           <option>動態影片</option>
           <option>企業形象</option>
@@ -142,11 +146,12 @@
       </div>
       <div class="row">
         <label>訊息 / Message</label>
-        <textarea id="f-msg" placeholder="簡單描述你的需求、時間與預算，我們會盡快回覆"></textarea>
+        <textarea id="f-msg" name="message" placeholder="簡單描述你的需求、時間與預算，我們會盡快回覆"></textarea>
       </div>
       <button type="submit" class="submit">送出訊息</button>
-      <p class="hint">送出後會開啟你的郵件軟體，內容已為你整理好，確認後寄出即可。</p>
+      <p class="hint">送出後我們會收到你的訊息，並盡快回覆到你留的信箱。</p>
     </form>
+    <div class="form-sent" id="formSent">已收到你的訊息，我們會盡快回覆 ✓</div>
   </div>
 </div>
 
@@ -171,13 +176,14 @@
 
   document.getElementById('form').addEventListener('submit',function(e){
     e.preventDefault();
-    const name=document.getElementById('f-name').value.trim();
-    const email=document.getElementById('f-email').value.trim();
-    const type=document.getElementById('f-type').value;
-    const msg=document.getElementById('f-msg').value.trim();
-    const subject=`影像需求洽詢（${type}）— ${name||'未具名'}`;
-    const body=`姓名：${name}\n聯絡信箱：${email}\n需求類型：${type}\n\n訊息：\n${msg}`;
-    window.location.href=`mailto:${SITE.email||'qqqq8413@gmail.com'}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const form=e.target;
+    if(!form.checkValidity()){form.reportValidity();return;}
+    const data=new URLSearchParams(new FormData(form));
+    const btn=form.querySelector('.submit');btn.textContent='送出中…';btn.disabled=true;
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:data.toString()})
+      .then(()=>{form.style.display='none';document.getElementById('formSent').style.display='block';})
+      .catch(()=>{btn.textContent='送出訊息';btn.disabled=false;
+        alert('送出失敗，請稍後再試，或改用 Email / LINE 聯絡我們。');});
   });
 
   const io=new IntersectionObserver((es)=>{
