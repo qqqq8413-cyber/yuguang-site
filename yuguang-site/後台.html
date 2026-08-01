@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>嶼光後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f3f1ec;--paper2:#eeece6;--ink:#171613;--muted:#a19a8d;--line:rgba(23,22,19,.14);
+    --serif:"Noto Serif TC","Songti TC",Georgia,serif;--sans:"PingFang TC","Noto Sans TC",system-ui,sans-serif;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;-webkit-font-smoothing:antialiased}
+  .logo{width:44px;height:auto;margin-bottom:22px}
+  h1{font-family:var(--serif);font-weight:500;font-size:clamp(1.4rem,4vw,1.8rem);letter-spacing:8px;text-indent:8px}
+  .sub{font-family:var(--serif);color:var(--muted);font-size:13px;letter-spacing:3px;margin-top:10px;margin-bottom:40px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%;max-width:640px}
+  @media(max-width:560px){.cards{grid-template-columns:1fr}}
+  .card{display:block;background:#fff;border:1px solid var(--line);padding:34px 28px;text-align:center;
+    transition:.25s;text-decoration:none;color:inherit}
+  .card:hover{transform:translateY(-3px);border-color:var(--ink)}
+  .card .ic{width:40px;height:40px;margin:0 auto 16px;color:var(--ink)}
+  .card .t{font-family:var(--serif);font-size:1.25rem;letter-spacing:3px;margin-bottom:8px}
+  .card .d{color:var(--muted);font-size:13px;letter-spacing:1px;line-height:1.7}
+  .foot{margin-top:36px;font-family:var(--serif);color:var(--muted);font-size:12px;letter-spacing:2px}
+  .foot a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+  .foot a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+  <svg class="logo" viewBox="0 0 192 208" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="butt">
+    <line x1="97" y1="8" x2="97" y2="200"/><line x1="127" y1="70" x2="165" y2="23"/>
+    <line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
+    <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>
+    <line x1="184" y1="200" x2="184" y2="172"/>
+  </svg>
+  <h1>嶼光後台</h1>
+  <div class="sub">請選擇要管理的項目</div>
+
+  <div class="cards">
+    <a class="card" href="/訂單">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+        <rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/>
+        <line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/>
+      </svg>
+      <div class="t">訂單管理</div>
+      <div class="d">器材租借訂單、狀態與檔期<br>（用管理密碼登入）</div>
+    </a>
+    <a class="card" href="/admin">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+        <path d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7z"/><path d="M9 12l2 2 4-4"/>
+      </svg>
+      <div class="t">內容管理</div>
+      <div class="d">網站文字、照片、器材介紹<br>（用 GitHub 帳號登入）</div>
+    </a>
+  </div>
+
+  <div class="foot"><a href="/">← 回到網站首頁</a></div>
+</body>
+</html>
