@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>訂單管理 · 嶼光映像</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f3f1ec;--paper2:#eeece6;--ink:#171613;--muted:#a19a8d;--line:rgba(23,22,19,.14);
+    --serif:"Noto Serif TC","Songti TC",Georgia,serif;--sans:"PingFang TC","Noto Sans TC",system-ui,sans-serif;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(16px,4vw,40px)}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:22px 0;border-bottom:1px solid var(--line)}
+  .top .brand{display:flex;align-items:center;gap:12px}
+  .top svg{width:22px;height:auto}
+  .top .name{font-family:var(--serif);font-size:15px;letter-spacing:5px;text-indent:5px}
+  .top .name small{display:block;font-size:11px;letter-spacing:2px;color:var(--muted);text-indent:0}
+  .top .refresh{font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted);background:none;border:1px solid var(--line);
+    padding:8px 16px;cursor:pointer;transition:.2s}
+  .top .refresh:hover{color:var(--ink);border-color:var(--ink)}
+
+  /* 登入 */
+  .gate{max-width:360px;margin:14vh auto;text-align:center}
+  .gate svg{width:40px;margin-bottom:20px}
+  .gate h1{font-family:var(--serif);font-weight:500;font-size:1.4rem;letter-spacing:6px;margin-bottom:8px}
+  .gate p{color:var(--muted);font-size:13px;letter-spacing:1px;margin-bottom:24px}
+  .gate input{width:100%;border:1px solid var(--line);background:none;padding:13px 14px;font-size:1rem;font-family:var(--sans);
+    outline:none;text-align:center;letter-spacing:2px}
+  .gate input:focus{border-color:var(--ink)}
+  .gate button{width:100%;margin-top:12px;background:var(--ink);color:var(--paper);border:0;padding:14px;
+    font-family:var(--serif);letter-spacing:4px;font-size:14px;cursor:pointer}
+  .gate .err{color:#b04a3a;font-size:12px;letter-spacing:1px;margin-top:14px;min-height:16px}
+
+  /* 統計 */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--paper2);padding:16px 18px}
+  .stat .k{font-size:12px;letter-spacing:2px;color:var(--muted);font-family:var(--serif)}
+  .stat .v{font-family:var(--serif);font-size:1.9rem;margin-top:4px}
+
+  /* 篩選 */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .filters button{font-family:var(--serif);font-size:13px;letter-spacing:2px;color:var(--muted);background:none;
+    border:1px solid var(--line);padding:7px 15px;cursor:pointer;transition:.2s}
+  .filters button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  /* 訂單卡 */
+  .orders{display:flex;flex-direction:column;gap:12px;padding-bottom:60px}
+  .empty{color:var(--muted);font-family:var(--serif);letter-spacing:2px;text-align:center;padding:60px 0}
+  .card{background:#fff;border:1px solid var(--line);padding:18px 20px;display:grid;
+    grid-template-columns:1.1fr 1.4fr auto;gap:16px;align-items:start}
+  @media(max-width:720px){.card{grid-template-columns:1fr;gap:12px}}
+  .card .who .nm{font-family:var(--serif);font-size:1.1rem;letter-spacing:1px}
+  .card .who .ct{color:var(--muted);font-size:13px;margin-top:4px;word-break:break-all}
+  .card .who .tm{color:var(--muted);font-size:11px;margin-top:6px;letter-spacing:1px}
+  .card .det .gear{font-size:14px;line-height:1.7}
+  .card .det .meta{color:var(--muted);font-size:12.5px;margin-top:6px;letter-spacing:.5px}
+  .card .det .amt{font-family:var(--serif);font-size:1rem;margin-top:6px}
+  .card .act{text-align:right;min-width:120px}
+  .card .act select{font-family:var(--serif);font-size:13px;letter-spacing:1px;padding:8px 10px;border:1px solid var(--line);
+    background:var(--paper);cursor:pointer;outline:none;width:100%}
+  .badge{display:inline-block;font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-family:var(--serif)}
+  .b待處理{background:#f6e9d6;color:#8a5a12}
+  .b已報價{background:#e2ecf7;color:#1f4e79}
+  .b已確認{background:#e2f0e5;color:#2f6b3c}
+  .b租借中{background:#e7e2f2;color:#4a3a86}
+  .b已歸還{background:#eeece6;color:#6b665c}
+  .b已取消{background:#f7e6e6;color:#9a3535}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="logo" viewBox="0 0 192 208">
+    <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="butt">
+      <line x1="97" y1="8" x2="97" y2="200"/><line x1="127" y1="70" x2="165" y2="23"/>
+      <line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
+      <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>
+      <line x1="184" y1="200" x2="184" y2="172"/>
+    </g>
+  </symbol>
+</svg>
+
+<!-- 登入畫面 -->
+<div id="gate" class="gate">
+  <svg><use href="#logo"/></svg>
+  <h1>訂單管理</h1>
+  <p>嶼光映像 · 器材租借後台</p>
+  <input id="pw" type="password" placeholder="輸入管理密碼" autocomplete="current-password">
+  <button id="enter">進入</button>
+  <div class="err" id="gerr"></div>
+</div>
+
+<!-- 主畫面 -->
+<div id="app" style="display:none">
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="index.html">
+        <svg><use href="#logo"/></svg>
+        <span class="name">嶼光映像<small>訂單管理</small></span>
+      </a>
+      <button class="refresh" id="refresh">重新整理</button>
+    </div>
+
+    <div class="stats" id="stats"></div>
+    <div class="filters" id="filters"></div>
+    <div class="orders" id="orders"><div class="empty">載入中…</div></div>
+  </div>
+</div>
+
+<script>
+const STATUSES=['待處理','已報價','已確認','租借中','已歸還','已取消'];
+let ALL=[], filter='全部', KEY='';
+
+const gate=document.getElementById('gate'), app=document.getElementById('app');
+const $=id=>document.getElementById(id);
+
+function saved(){return sessionStorage.getItem('yg_admin_key')||''}
+async function api(fn,opts={}){
+  opts.headers=Object.assign({'x-admin-key':KEY},opts.headers||{});
+  const r=await fetch('/.netlify/functions/'+fn,opts);
+  return {status:r.status, data:await r.json().catch(()=>({}))};
+}
+
+async function login(key){
+  KEY=key;
+  const {status,data}=await api('list-orders');
+  if(status===401){$('gerr').textContent='密碼錯誤';return false;}
+  if(data&&data.reason==='airtable-not-configured'){
+    // 密碼對,但 Airtable 尚未接上
+    sessionStorage.setItem('yg_admin_key',key);
+    gate.style.display='none';app.style.display='';
+    ALL=[];render();
+    $('orders').innerHTML='<div class="empty">後台已就緒，但尚未接上 Airtable。<br>請先在 Netlify 設定 AIRTABLE_TOKEN 與 AIRTABLE_BASE_ID。</div>';
+    return true;
+  }
+  sessionStorage.setItem('yg_admin_key',key);
+  gate.style.display='none';app.style.display='';
+  ALL=(data.orders||[]);render();
+  return true;
+}
+
+$('enter').addEventListener('click',()=>login($('pw').value.trim()));
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')login($('pw').value.trim())});
+$('refresh').addEventListener('click',async()=>{const {data}=await api('list-orders');ALL=(data.orders||[]);render();});
+
+function fmtDate(s){return s?String(s).replace(/T.*$/,''):'—'}
+function render(){
+  // 依起租日新到舊
+  ALL.sort((a,b)=>String(b['起租日']||b._created||'').localeCompare(String(a['起租日']||a._created||'')));
+  // 統計
+  const c={};STATUSES.forEach(s=>c[s]=0);ALL.forEach(o=>{if(c[o['狀態']]!=null)c[o['狀態']]++});
+  $('stats').innerHTML=[
+    ['全部訂單',ALL.length],['待處理',c['待處理']],['已確認',c['已確認']],['租借中',c['租借中']]
+  ].map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  // 篩選
+  const fs=['全部',...STATUSES];
+  $('filters').innerHTML=fs.map(f=>`<button class="${f===filter?'on':''}" data-f="${f}">${f}</button>`).join('');
+  $('filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;render();});
+  // 清單
+  const list=ALL.filter(o=>filter==='全部'||o['狀態']===filter);
+  if(!list.length){$('orders').innerHTML='<div class="empty">目前沒有訂單</div>';return;}
+  $('orders').innerHTML=list.map(o=>{
+    const st=o['狀態']||'待處理';
+    const opts=STATUSES.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('');
+    return `<div class="card">
+      <div class="who">
+        <div class="nm">${esc(o['客戶姓名']||'未具名')}</div>
+        <div class="ct">${esc(o['聯絡方式']||'')}</div>
+        <div class="tm">送出 ${fmtDate(o._created)}</div>
+      </div>
+      <div class="det">
+        <span class="badge b${st}">${st}</span>
+        <div class="gear">${esc(o['租借器材']||o['借借器材']||'')}</div>
+        <div class="meta">租期 ${fmtDate(o['起租日'])} → ${fmtDate(o['迄租日']||o['租前日'])}　共 ${o['天數']||'—'} 天</div>
+        <div class="amt">預估 NT$ ${(o['預估金額']||o['萬元']||0).toLocaleString()}</div>
+      </div>
+      <div class="act">
+        <select data-id="${o.id}">${opts}</select>
+      </div>
+    </div>`;
+  }).join('');
+  $('orders').querySelectorAll('select').forEach(sel=>sel.onchange=()=>updateStatus(sel.dataset.id,sel.value));
+}
+function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+
+async function updateStatus(id,status){
+  const {status:code}=await api('update-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
+  const o=ALL.find(x=>x.id===id);if(o){o['狀態']=status;}
+  render();
+}
+
+// 自動登入
+if(saved()){login(saved());}
+</script>
+</body>
+</html>

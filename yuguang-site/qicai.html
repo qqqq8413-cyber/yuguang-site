@@ -175,6 +175,9 @@
     border-radius:0;outline:none;-webkit-appearance:none}
   .cartpanel .foot .cf:focus{border-color:var(--ink)}
   .cartpanel .foot .send{cursor:pointer;border:0;width:100%}
+  .cartpanel .foot .cfrow{display:flex;gap:10px}
+  .cartpanel .foot .cfl{flex:1;display:flex;flex-direction:column;gap:5px;font-family:var(--serif);font-size:11px;letter-spacing:2px;color:var(--muted)}
+  .cartpanel .foot .cfl .cf{margin-bottom:6px}
   .cartpanel .foot .sent{display:none;text-align:center;font-family:var(--serif);letter-spacing:2px;
     color:var(--ink);padding:16px;background:var(--paper-2)}
 
@@ -256,18 +259,24 @@
     <div class="items" id="cartItems"></div>
     <div class="foot">
       <div class="total"><span>合計日租</span><b id="cartTotal">NT$ 0</b></div>
-      <div class="note">＊此為詢價參考，實際依租期與方案報價</div>
-      <input class="cf" id="cName" type="text" placeholder="您的稱呼（選填）">
-      <input class="cf" id="cContact" type="text" placeholder="聯絡方式（電話 / Email / LINE）">
-      <button class="send disabled" id="cartSend" type="button">送出詢價</button>
-      <div class="sent" id="cartSent">已收到你的詢價，我們會盡快與你聯繫 ✓</div>
+      <div class="note">＊實際依租期與方案報價</div>
+      <div id="cartForm">
+        <input class="cf" id="cName" type="text" placeholder="您的稱呼（選填）">
+        <input class="cf" id="cContact" type="text" placeholder="聯絡方式（電話 / Email / LINE）">
+        <div class="cfrow">
+          <label class="cfl">起租日<input class="cf" id="cStart" type="date"></label>
+          <label class="cfl">迄租日<input class="cf" id="cEnd" type="date"></label>
+        </div>
+        <button class="send disabled" id="cartSend" type="button">送出租借申請</button>
+      </div>
+      <div class="sent" id="cartSent">已收到你的租借申請，我們會盡快確認檔期並回覆 ✓</div>
     </div>
   </div>
 </div>
 
 <!-- Netlify 表單偵測用(隱藏) -->
 <form name="rental-inquiry" data-netlify="true" netlify-honeypot="bot-field" hidden>
-  <input type="text" name="name"><input type="text" name="contact"><input type="text" name="items"><input type="text" name="bot-field">
+  <input type="text" name="name"><input type="text" name="contact"><input type="text" name="items"><input type="text" name="start"><input type="text" name="end"><input type="text" name="amount"><input type="text" name="bot-field">
 </form>
 
 <div class="toast" id="toast">已加入詢價單</div>
@@ -391,31 +400,39 @@ function mailLink(name){
 }
 document.getElementById('cartBtn').addEventListener('click',()=>{
   document.getElementById('cartSent').style.display='none';
-  document.getElementById('cName').style.display='';
-  document.getElementById('cContact').style.display='';
-  document.getElementById('cartSend').style.display='';
+  document.getElementById('cartForm').style.display='';
   renderCart();panel.classList.add('open');
 });
-/* 送出詢價:改用 Netlify 表單,不需訪客有郵件軟體 */
+/* 送出租借申請:寫入 Netlify 表單(備援)+ Netlify 函式(進 Airtable 後端) */
 document.getElementById('cartSend').addEventListener('click',()=>{
   const send=document.getElementById('cartSend');
   if(send.classList.contains('disabled')||!cart.length)return;
-  const cName=document.getElementById('cName');
+  const name=document.getElementById('cName').value.trim();
   const cContact=document.getElementById('cContact');
-  const name=cName.value.trim();
   const contact=cContact.value.trim();
+  const cStart=document.getElementById('cStart');
+  const cEnd=document.getElementById('cEnd');
+  const start=cStart.value,end=cEnd.value;
   if(!contact){cContact.style.borderColor='#b04a3a';cContact.focus();return;}
+  if(!start){cStart.style.borderColor='#b04a3a';cStart.focus();return;}
+  if(!end){cEnd.style.borderColor='#b04a3a';cEnd.focus();return;}
+  let days=1;
+  const d=(new Date(end)-new Date(start))/86400000;
+  if(!isNaN(d)&&d>=0)days=d+1;
+  const dailyTotal=cart.reduce((s,id)=>s+gear[id].price,0);
+  const amount=dailyTotal*days;
   const items=cart.map(id=>`${gear[id].name}（NT$${gear[id].price}/日）`).join('、');
-  const data=new URLSearchParams({'form-name':'rental-inquiry',name:name||'未具名',contact,items});
+  const order={name:name||'未具名',contact,start,end,days,items,dailyTotal,amount};
   send.textContent='送出中…';send.classList.add('disabled');
-  fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:data.toString()})
-    .then(()=>{
-      cName.style.display='none';cContact.style.display='none';send.style.display='none';
-      document.getElementById('cartSent').style.display='block';
-      cart=[];cartN.textContent='0';renderCart();
-    })
-    .catch(()=>{send.textContent='送出詢價';send.classList.remove('disabled');
-      alert('送出失敗，請稍後再試，或直接用電話 / LINE 與我們聯絡。');});
+  const formData=new URLSearchParams({'form-name':'rental-inquiry',name:order.name,contact,items,start,end,amount:String(amount)});
+  Promise.allSettled([
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:formData.toString()}),
+    fetch('/.netlify/functions/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)})
+  ]).then(()=>{
+    document.getElementById('cartForm').style.display='none';
+    document.getElementById('cartSent').style.display='block';
+    cart=[];cartN.textContent='0';renderCart();
+  });
 });
 document.getElementById('cartClose').addEventListener('click',()=>panel.classList.remove('open'));
 document.getElementById('cartScrim').addEventListener('click',()=>panel.classList.remove('open'));
