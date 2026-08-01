@@ -25,18 +25,16 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'invalid-json' }) };
   }
 
-  // 注意:Airtable 匯入時把「租借器材/迄租日/預估金額」自動改名為「借借器材/租前日/萬元」,
-  // 這裡對齊實際欄名以確保寫入成功。
   const fields = {
     '客戶姓名': o.name || '未具名',
     '聯絡方式': o.contact || '',
-    '借借器材': o.items || '',
+    '租借器材': o.items || '',
     '天數': Number(o.days) || null,
-    '萬元': Number(o.amount) || null,
+    '預估金額': Number(o.amount) || null,
     '狀態': '待處理'
   };
   if (o.start) fields['起租日'] = o.start;
-  if (o.end) fields['租前日'] = o.end;
+  if (o.end) fields['迄租日'] = o.end;
 
   try {
     const res = await fetch(
