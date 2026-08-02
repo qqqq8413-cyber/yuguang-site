@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>內容管理 · 嶼光映像</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f3f1ec;--paper2:#eeece6;--ink:#171613;--muted:#a19a8d;--line:rgba(23,22,19,.14);
+    --serif:"Noto Serif TC","Songti TC",Georgia,serif;--sans:"PingFang TC","Noto Sans TC",system-ui,sans-serif;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 clamp(16px,4vw,36px)}
+  a{color:inherit}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--line)}
+  .top .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+  .top svg.mk{width:22px}
+  .top .name{font-family:var(--serif);font-size:15px;letter-spacing:5px}
+  .top .name small{display:block;font-size:11px;letter-spacing:2px;color:var(--muted)}
+
+  .gate{max-width:360px;margin:14vh auto;text-align:center}
+  .gate svg{width:40px;margin-bottom:20px}
+  .gate h1{font-family:var(--serif);font-weight:500;font-size:1.4rem;letter-spacing:6px;margin-bottom:8px}
+  .gate p{color:var(--muted);font-size:13px;letter-spacing:1px;margin-bottom:24px}
+  .gate input{width:100%;border:1px solid var(--line);background:none;padding:13px 14px;font-size:1rem;
+    outline:none;text-align:center;letter-spacing:2px}
+  .gate input:focus{border-color:var(--ink)}
+  .gate button{width:100%;margin-top:12px;background:var(--ink);color:var(--paper);border:0;padding:14px;
+    font-family:var(--serif);letter-spacing:4px;font-size:14px;cursor:pointer}
+  .gate .err{color:#b04a3a;font-size:12px;margin-top:14px;min-height:16px}
+
+  .tabs{display:flex;gap:8px;margin:24px 0 20px}
+  .tabs button{font-family:var(--serif);font-size:14px;letter-spacing:2px;color:var(--muted);background:none;
+    border:1px solid var(--line);padding:9px 20px;cursor:pointer;transition:.2s}
+  .tabs button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .panel{display:none}.panel.on{display:block}
+  .sechead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .sechead h2{font-family:var(--serif);font-weight:500;font-size:1.15rem;letter-spacing:3px}
+  .btn{font-family:var(--serif);font-size:13px;letter-spacing:2px;padding:9px 16px;border:1px solid var(--ink);
+    background:none;color:var(--ink);cursor:pointer;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .btn.dark{background:var(--ink);color:var(--paper)}
+  .btn.dark:hover{opacity:.85}
+  .btn.sm{font-size:12px;padding:6px 12px;letter-spacing:1px}
+  .btn.ghost{border-color:var(--line);color:var(--muted)}
+  .btn.ghost:hover{border-color:var(--ink);color:var(--ink);background:none}
+
+  .card{background:#fff;border:1px solid var(--line);padding:16px 18px;margin-bottom:12px}
+  .card .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .card .row.top{justify-content:space-between}
+  .lbl{font-family:var(--serif);font-size:11px;letter-spacing:2px;color:var(--muted);display:block;margin-bottom:4px}
+  input.f,textarea.f,select.f{width:100%;border:1px solid var(--line);background:var(--paper);padding:9px 10px;
+    font-family:var(--sans);font-size:14px;color:var(--ink);outline:none}
+  input.f:focus,textarea.f:focus,select.f:focus{border-color:var(--ink)}
+  textarea.f{resize:vertical;min-height:64px;line-height:1.7}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:12px}
+  .thumb{border:1px solid var(--line);background:var(--paper2);position:relative}
+  .thumb img{width:100%;height:100px;object-fit:cover;display:block}
+  .thumb input{width:100%;border:0;border-top:1px solid var(--line);padding:6px 8px;font-size:12px;background:#fff;outline:none}
+  .thumb .del{position:absolute;top:4px;right:4px;background:rgba(23,22,19,.7);color:#fff;border:0;
+    width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1}
+
+  .savebar{position:sticky;bottom:0;background:var(--paper);border-top:1px solid var(--line);
+    padding:14px 0;display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:8px}
+  .savebar .msg{font-family:var(--serif);font-size:13px;letter-spacing:1px;color:var(--muted)}
+  .albumcard .an{font-family:var(--serif);font-size:1.05rem;letter-spacing:1px}
+  .hidden{display:none}
+  .hint{color:var(--muted);font-size:12px;letter-spacing:.5px;margin-bottom:14px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><symbol id="mk" viewBox="0 0 192 208">
+  <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="butt">
+    <line x1="97" y1="8" x2="97" y2="200"/><line x1="127" y1="70" x2="165" y2="23"/>
+    <line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
+    <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>
+    <line x1="184" y1="200" x2="184" y2="172"/></g></symbol></svg>
+
+<div id="gate" class="gate">
+  <svg><use href="#mk"/></svg>
+  <h1>內容管理</h1>
+  <p>嶼光映像 · 網站內容後台</p>
+  <input id="pw" type="password" placeholder="輸入管理密碼" autocomplete="current-password">
+  <button id="enter">進入</button>
+  <div class="err" id="gerr"></div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="/後台"><svg class="mk"><use href="#mk"/></svg>
+        <span class="name">嶼光映像<small>內容管理</small></span></a>
+      <a class="btn ghost sm" href="/後台">← 後台首頁</a>
+    </div>
+
+    <div class="tabs">
+      <button data-tab="photo" class="on">平面作品 · 照片</button>
+      <button data-tab="video">動態作品 · 影片</button>
+      <button data-tab="gear">器材租賃</button>
+    </div>
+
+    <div id="p-photo" class="panel on"></div>
+    <div id="p-video" class="panel"></div>
+    <div id="p-gear" class="panel"></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let KEY='', DATA={albums:[],videos:[],gear:[]}, curAlbum=-1;
+
+/* ---------- 登入 ---------- */
+async function api(fn,opts={}){
+  opts.headers=Object.assign({'x-admin-key':KEY},opts.headers||{});
+  const r=await fetch('/.netlify/functions/'+fn,opts);
+  let d={};try{d=await r.json()}catch(e){}
+  return {status:r.status,data:d};
+}
+async function login(k){
+  KEY=k;
+  const {status}=await api('list-orders');   // 用同一組密碼驗證
+  if(status===401){$('gerr').textContent='密碼錯誤';return;}
+  sessionStorage.setItem('yg_admin_key',k);
+  $('gate').classList.add('hidden');$('app').classList.remove('hidden');
+  await loadAll();
+}
+$('enter').onclick=()=>login($('pw').value.trim());
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')login($('pw').value.trim())});
+
+/* ---------- 載入內容 ---------- */
+async function loadAll(){
+  const t=Date.now();
+  const [a,v,g]=await Promise.all([
+    fetch('/content/albums.json?t='+t).then(r=>r.json()).catch(()=>({albums:[]})),
+    fetch('/content/videos.json?t='+t).then(r=>r.json()).catch(()=>({videos:[]})),
+    fetch('/content/gear.json?t='+t).then(r=>r.json()).catch(()=>({gear:[]}))
+  ]);
+  DATA.albums=a.albums||[];DATA.videos=v.videos||[];DATA.gear=g.gear||[];
+  renderPhoto();renderVideo();renderGear();
+}
+
+/* ---------- 圖片壓縮 + 上傳 ---------- */
+function resizeImage(file){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=2000;let{width:w,height:h}=img;
+      if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      const durl=c.toDataURL('image/jpeg',0.82);
+      res({base64:durl.split(',')[1],name:(file.name||'photo').replace(/\.[^.]+$/,'')+'.jpg'});
+    };
+    img.onerror=rej;img.src=URL.createObjectURL(file);
+  });
+}
+async function uploadImage(file){
+  const {base64,name}=await resizeImage(file);
+  const {status,data}=await api('upload-image',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({filename:name,contentBase64:base64})});
+  if(status!==200||!data.ok){throw new Error((data&&data.reason)||'upload-failed');}
+  return data.path;
+}
+async function saveContent(path,dataObj,msg,btn){
+  const old=btn?btn.textContent:'';if(btn){btn.textContent='儲存中…';btn.disabled=true;}
+  const {status,data}=await api('save-content',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({path,data:dataObj,message:msg})});
+  if(btn){btn.textContent=old;btn.disabled=false;}
+  if(data&&data.reason==='github-not-configured'){alert('尚未設定 GITHUB_TOKEN,請先在 Netlify 加上此環境變數。');return false;}
+  if(status!==200||!(data&&data.ok)){alert('儲存失敗,請稍後再試。');return false;}
+  return true;
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+
+/* ---------- 分頁切換 ---------- */
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  $('p-'+b.dataset.tab).classList.add('on');
+});
+
+/* ================= 照片 ================= */
+function renderPhoto(){
+  const box=$('p-photo');
+  if(curAlbum>=0 && DATA.albums[curAlbum]){return renderAlbumDetail();}
+  let h='<div class="hint">相簿是一組照片(例如「人像寫真」)。點相簿進去可上傳/刪除照片。</div>';
+  h+='<div class="sechead"><h2>相簿列表</h2><button class="btn" onclick="addAlbum()">+ 新增相簿</button></div>';
+  DATA.albums.forEach((al,i)=>{
+    h+=`<div class="card albumcard"><div class="row top">
+      <div><span class="an">${esc(al.zh||'未命名相簿')}</span>
+      <span style="color:var(--muted);font-size:13px;margin-left:8px">${(al.photos||[]).length} 張</span></div>
+      <div class="row">
+        <button class="btn sm" onclick="openAlbum(${i})">管理照片</button>
+        <button class="btn sm ghost" onclick="delAlbum(${i})">刪除</button>
+      </div></div></div>`;
+  });
+  if(!DATA.albums.length)h+='<div class="hint">目前沒有相簿,點「新增相簿」開始。</div>';
+  box.innerHTML=h;
+}
+function addAlbum(){
+  const zh=prompt('相簿名稱(中文):');if(!zh)return;
+  const en=prompt('英文名稱(可留空):')||'';
+  DATA.albums.push({zh,en,photos:[]});renderPhoto();
+}
+function delAlbum(i){if(!confirm('確定刪除整本相簿?'))return;DATA.albums.splice(i,1);renderPhoto();}
+function openAlbum(i){curAlbum=i;renderAlbumDetail();}
+function renderAlbumDetail(){
+  const al=DATA.albums[curAlbum];const box=$('p-photo');
+  let h=`<div class="sechead"><h2>${esc(al.zh)}</h2>
+    <button class="btn ghost sm" onclick="curAlbum=-1;renderPhoto()">← 返回相簿列表</button></div>`;
+  h+=`<div class="row" style="gap:10px;margin-bottom:8px">
+      <label class="lbl" style="margin:0">相簿名稱</label></div>
+      <div class="grid2" style="margin-bottom:14px">
+      <input class="f" value="${esc(al.zh)}" oninput="DATA.albums[${curAlbum}].zh=this.value" placeholder="中文名稱">
+      <input class="f" value="${esc(al.en||'')}" oninput="DATA.albums[${curAlbum}].en=this.value" placeholder="英文名稱(可留空)">
+      </div>`;
+  h+=`<button class="btn dark" onclick="$('photoFile').click()">+ 上傳照片(可多選)</button>
+      <input type="file" id="photoFile" accept="image/*" multiple class="hidden">`;
+  h+='<div class="thumbs" id="thumbs">';
+  (al.photos||[]).forEach((p,j)=>{
+    h+=`<div class="thumb">
+      <button class="del" onclick="DATA.albums[${curAlbum}].photos.splice(${j},1);renderAlbumDetail()">×</button>
+      <img src="${esc(p.image)}" loading="lazy">
+      <input value="${esc(p.caption||'')}" placeholder="說明(可留空)" oninput="DATA.albums[${curAlbum}].photos[${j}].caption=this.value">
+      </div>`;
+  });
+  h+='</div>';
+  h+=`<div class="savebar"><span class="msg" id="pmsg"></span>
+    <button class="btn dark" onclick="savePhoto(this)">儲存相簿</button></div>`;
+  box.innerHTML=h;
+  $('photoFile').onchange=async e=>{
+    const files=[...e.target.files];if(!files.length)return;
+    const msg=$('pmsg');
+    for(let k=0;k<files.length;k++){
+      msg.textContent=`上傳中 ${k+1}/${files.length}…`;
+      try{const path=await uploadImage(files[k]);DATA.albums[curAlbum].photos.push({image:path,caption:''});}
+      catch(err){alert('有一張照片上傳失敗,請確認已設定 GITHUB_TOKEN。');break;}
+    }
+    msg.textContent='照片已上傳,記得按「儲存相簿」';renderAlbumDetail();
+  };
+}
+async function savePhoto(btn){
+  const ok=await saveContent('yuguang-site/content/albums.json',{albums:DATA.albums},'更新相簿',btn);
+  if(ok)$('pmsg').textContent='已儲存 ✓ 網站約 1 分鐘後更新';
+}
+
+/* ================= 影片 ================= */
+function renderVideo(){
+  const box=$('p-video');
+  let h='<div class="hint">YouTube 影片 ID 是網址 watch?v= 後面那串。分類會自動變成頁面上的篩選選項。</div>';
+  h+='<div class="sechead"><h2>影片列表</h2><button class="btn" onclick="DATA.videos.push({title:\'\',cat:\'精選作品\',yt:\'\',client:\'\',year:\'\'});renderVideo()">+ 新增影片</button></div>';
+  DATA.videos.forEach((v,i)=>{
+    h+=`<div class="card"><div class="grid2">
+      <div><label class="lbl">影片標題</label><input class="f" value="${esc(v.title)}" oninput="DATA.videos[${i}].title=this.value"></div>
+      <div><label class="lbl">分類</label><input class="f" value="${esc(v.cat)}" oninput="DATA.videos[${i}].cat=this.value"></div>
+      </div><div class="grid3" style="margin-top:12px">
+      <div><label class="lbl">YouTube 影片 ID</label><input class="f" value="${esc(v.yt||'')}" oninput="DATA.videos[${i}].yt=this.value" placeholder="例:abc123XYZ"></div>
+      <div><label class="lbl">客戶(可留空)</label><input class="f" value="${esc(v.client||'')}" oninput="DATA.videos[${i}].client=this.value"></div>
+      <div><label class="lbl">年份(可留空)</label><input class="f" value="${esc(v.year||'')}" oninput="DATA.videos[${i}].year=this.value"></div>
+      </div><div class="row" style="justify-content:flex-end;margin-top:12px">
+      <button class="btn sm ghost" onclick="if(confirm('刪除這部影片?')){DATA.videos.splice(${i},1);renderVideo()}">刪除</button></div>
+      </div>`;
+  });
+  if(!DATA.videos.length)h+='<div class="hint">目前沒有影片。</div>';
+  h+=`<div class="savebar"><span class="msg" id="vmsg"></span>
+    <button class="btn dark" onclick="saveVideo(this)">儲存影片</button></div>`;
+  box.innerHTML=h;
+}
+async function saveVideo(btn){
+  const ok=await saveContent('yuguang-site/content/videos.json',{videos:DATA.videos},'更新影片',btn);
+  if(ok)$('vmsg').textContent='已儲存 ✓ 網站約 1 分鐘後更新';
+}
+
+/* ================= 器材 ================= */
+function renderGear(){
+  const box=$('p-gear');
+  let h='<div class="sechead"><h2>器材列表</h2><button class="btn" onclick="DATA.gear.push({name:\'\',cat:\'相機機身\',price:0,image:\'\',spec:\'\',desc:\'\'});renderGear()">+ 新增器材</button></div>';
+  DATA.gear.forEach((g,i)=>{
+    h+=`<div class="card"><div class="grid3">
+      <div><label class="lbl">器材名稱</label><input class="f" value="${esc(g.name)}" oninput="DATA.gear[${i}].name=this.value"></div>
+      <div><label class="lbl">分類</label><input class="f" value="${esc(g.cat)}" oninput="DATA.gear[${i}].cat=this.value"></div>
+      <div><label class="lbl">日租價(數字)</label><input class="f" type="number" value="${esc(g.price)}" oninput="DATA.gear[${i}].price=Number(this.value)||0"></div>
+      </div>
+      <div style="margin-top:12px"><label class="lbl">規格(用 ・ 分隔)</label><input class="f" value="${esc(g.spec)}" oninput="DATA.gear[${i}].spec=this.value"></div>
+      <div style="margin-top:12px"><label class="lbl">介紹說明</label><textarea class="f" oninput="DATA.gear[${i}].desc=this.value">${esc(g.desc)}</textarea></div>
+      <div class="row" style="justify-content:space-between;margin-top:12px;align-items:center">
+        <div class="row" style="gap:10px;align-items:center">
+          ${g.image?`<img src="${esc(g.image)}" style="width:56px;height:42px;object-fit:cover;border:1px solid var(--line)">`:'<span style="color:var(--muted);font-size:12px">尚無照片</span>'}
+          <button class="btn sm" onclick="gearImgIdx=${i};$('gearFile').click()">上傳器材照片</button>
+        </div>
+        <button class="btn sm ghost" onclick="if(confirm('刪除這台器材?')){DATA.gear.splice(${i},1);renderGear()}">刪除</button>
+      </div></div>`;
+  });
+  if(!DATA.gear.length)h+='<div class="hint">目前沒有器材。</div>';
+  h+=`<input type="file" id="gearFile" accept="image/*" class="hidden">`;
+  h+=`<div class="savebar"><span class="msg" id="gmsg"></span>
+    <button class="btn dark" onclick="saveGear(this)">儲存器材</button></div>`;
+  box.innerHTML=h;
+  $('gearFile').onchange=async e=>{
+    const f=e.target.files[0];if(!f)return;const msg=$('gmsg');msg.textContent='上傳中…';
+    try{const path=await uploadImage(f);DATA.gear[gearImgIdx].image=path;msg.textContent='照片已上傳,記得按「儲存器材」';renderGear();}
+    catch(err){alert('上傳失敗,請確認已設定 GITHUB_TOKEN。');}
+  };
+}
+let gearImgIdx=-1;
+async function saveGear(btn){
+  const ok=await saveContent('yuguang-site/content/gear.json',{gear:DATA.gear},'更新器材',btn);
+  if(ok)$('gmsg').textContent='已儲存 ✓ 網站約 1 分鐘後更新';
+}
+
+/* 自動登入 */
+const sk=sessionStorage.getItem('yg_admin_key');
+if(sk)login(sk);
+</script>
+</body>
+</html>
