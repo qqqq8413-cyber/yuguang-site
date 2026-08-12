@@ -298,7 +298,7 @@ fetch('content/gear.json').then(r=>r.json()).then(data=>{
   buildCats(catBox,'cat');buildCats(mbCats,'mb-cat');render();
 }).catch(()=>{document.getElementById('grid').innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無器材資料</p>';});
 
-function opt(u,w){if(!u)return u;if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
+function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
 function gbg(g,w){w=w||800;
   return g.image ? `background-image:url('${opt(g.image,w)}');background-size:cover;background-position:center`
                  : `background:linear-gradient(150deg,${g.grad[0]},${g.grad[1]})`;
