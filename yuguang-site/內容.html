@@ -162,11 +162,11 @@ function resizeImage(file){
   });
 }
 async function uploadImage(file){
-  const {base64,name}=await resizeImage(file);
-  const {status,data}=await api('upload-image',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({filename:name,contentBase64:base64})});
-  if(status!==200||!data.ok){throw new Error((data&&data.reason)||'upload-failed');}
-  return data.path;
+  const fd=new FormData();fd.append('file',file);fd.append('upload_preset','yuguang');
+  const res=await fetch('https://api.cloudinary.com/v1_1/wy6xqh42/image/upload',{method:'POST',body:fd});
+    const data=await res.json().catch(()=>({}));
+  if(!res.ok||!data.secure_url){throw new Error((data.error&&data.error.message)||'upload-failed');}
+  return data.secure_url;
 }
 async function saveContent(path,dataObj,msg,btn){
   const old=btn?btn.textContent:'';if(btn){btn.textContent='儲存中…';btn.disabled=true;}
