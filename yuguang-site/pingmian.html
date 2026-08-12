@@ -174,7 +174,7 @@ fetch('content/albums.json').then(r=>r.json()).then(data=>{
   buildIndex();
 }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
-function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
+function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
 function coverBg(a){
   const first=(a.photos&&a.photos[0])?a.photos[0].image:null;
   return first ? `background-image:url('${opt(first,800)}');background-size:cover;background-position:center`
