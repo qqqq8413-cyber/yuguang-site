@@ -11,6 +11,11 @@
       ]
     },
     {
+      "zh": "形象照片",
+      "en": "Professional portrait",
+      "photos": []
+    },
+    {
       "zh": "活動紀錄",
       "en": "Event",
       "photos": []
@@ -28,11 +33,6 @@
     {
       "zh": "美食料理",
       "en": "Cuisine",
-      "photos": []
-    },
-    {
-      "zh": "形象照片",
-      "en": "Professional portrait",
       "photos": []
     },
     {
