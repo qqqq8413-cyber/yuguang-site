@@ -3,7 +3,16 @@
     {
       "zh": "人像寫真",
       "en": "Portrait",
-      "photos": []
+      "photos": [
+        {
+          "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786726220/dnfjknui4dmhsutztejb.jpg",
+          "caption": ""
+        },
+        {
+          "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786726232/agfzacmesnmlkog8q9sm.jpg",
+          "caption": ""
+        }
+      ]
     },
     {
       "zh": "形象照片",
