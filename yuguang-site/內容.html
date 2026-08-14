@@ -177,7 +177,7 @@ async function saveContent(path,dataObj,msg,btn){
   if(status!==200||!(data&&data.ok)){alert('儲存失敗,請稍後再試。');return false;}
   return true;
 }
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}function move(arr,i,d){const j=i+d;if(j<0||j>=arr.length)return;const t=arr[i];arr[i]=arr[j];arr[j]=t;}
 
 /* ---------- 分頁切換 ---------- */
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
@@ -190,14 +190,14 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
 function renderPhoto(){
   const box=$('p-photo');
   if(curAlbum>=0 && DATA.albums[curAlbum]){return renderAlbumDetail();}
-  let h='<div class="hint">相簿是一組照片(例如「人像寫真」)。點相簿進去可上傳/刪除照片。</div>';
+  let h='<div class="hint">相簿是一組照片(例如「人像寫真」)。點相簿進去可上傳/刪除照片。用 ↑ ↓ 可即時調整相簿在網站上的先後順序（會自動儲存）。</div>';
   h+='<div class="sechead"><h2>相簿列表</h2><button class="btn" onclick="addAlbum()">+ 新增相簿</button></div>';
   DATA.albums.forEach((al,i)=>{
     h+=`<div class="card albumcard"><div class="row top">
       <div><span class="an">${esc(al.zh||'未命名相簿')}</span>
       <span style="color:var(--muted);font-size:13px;margin-left:8px">${(al.photos||[]).length} 張</span></div>
       <div class="row">
-        <button class="btn sm" onclick="openAlbum(${i})">管理照片</button>
+        <button class="btn sm ghost" title="上移並儲存" onclick="move(DATA.albums,${i},-1);renderPhoto();saveContent('yuguang-site/content/albums.json',{albums:DATA.albums},'調整相簿順序')">↑</button><button class="btn sm ghost" title="下移並儲存" onclick="move(DATA.albums,${i},1);renderPhoto();saveContent('yuguang-site/content/albums.json',{albums:DATA.albums},'調整相簿順序')">↓</button><button class="btn sm" onclick="openAlbum(${i})">管理照片</button>
         <button class="btn sm ghost" onclick="delAlbum(${i})">刪除</button>
       </div></div></div>`;
   });
@@ -226,7 +226,7 @@ function renderAlbumDetail(){
   h+='<div class="thumbs" id="thumbs">';
   (al.photos||[]).forEach((p,j)=>{
     h+=`<div class="thumb">
-      <button class="del" onclick="DATA.albums[${curAlbum}].photos.splice(${j},1);renderAlbumDetail()">×</button>
+      <div style="position:absolute;top:4px;left:4px;display:flex;gap:4px"><button class="del" style="position:static" title="往前" onclick="move(DATA.albums[${curAlbum}].photos,${j},-1);renderAlbumDetail()">‹</button><button class="del" style="position:static" title="往後" onclick="move(DATA.albums[${curAlbum}].photos,${j},1);renderAlbumDetail()">›</button></div><button class="del" onclick="DATA.albums[${curAlbum}].photos.splice(${j},1);renderAlbumDetail()">×</button>
       <img src="${esc(p.image)}" loading="lazy">
       <input value="${esc(p.caption||'')}" placeholder="說明(可留空)" oninput="DATA.albums[${curAlbum}].photos[${j}].caption=this.value">
       </div>`;
@@ -265,7 +265,7 @@ function renderVideo(){
       <div><label class="lbl">客戶(可留空)</label><input class="f" value="${esc(v.client||'')}" oninput="DATA.videos[${i}].client=this.value"></div>
       <div><label class="lbl">年份(可留空)</label><input class="f" value="${esc(v.year||'')}" oninput="DATA.videos[${i}].year=this.value"></div>
       </div><div class="row" style="justify-content:flex-end;margin-top:12px">
-      <button class="btn sm ghost" onclick="if(confirm('刪除這部影片?')){DATA.videos.splice(${i},1);renderVideo()}">刪除</button></div>
+      <button class="btn sm ghost" title="上移" onclick="move(DATA.videos,${i},-1);renderVideo()">↑</button><button class="btn sm ghost" title="下移" onclick="move(DATA.videos,${i},1);renderVideo()">↓</button><button class="btn sm ghost" onclick="if(confirm('刪除這部影片?')){DATA.videos.splice(${i},1);renderVideo()}">刪除</button></div>
       </div>`;
   });
   if(!DATA.videos.length)h+='<div class="hint">目前沒有影片。</div>';
@@ -295,7 +295,7 @@ function renderGear(){
           ${g.image?`<img src="${esc(g.image)}" style="width:56px;height:42px;object-fit:cover;border:1px solid var(--line)">`:'<span style="color:var(--muted);font-size:12px">尚無照片</span>'}
           <button class="btn sm" onclick="gearImgIdx=${i};$('gearFile').click()">上傳器材照片</button>
         </div>
-        <button class="btn sm ghost" onclick="if(confirm('刪除這台器材?')){DATA.gear.splice(${i},1);renderGear()}">刪除</button>
+        <button class="btn sm ghost" title="上移" onclick="move(DATA.gear,${i},-1);renderGear()">↑</button><button class="btn sm ghost" title="下移" onclick="move(DATA.gear,${i},1);renderGear()">↓</button><button class="btn sm ghost" onclick="if(confirm('刪除這台器材?')){DATA.gear.splice(${i},1);renderGear()}">刪除</button>
       </div></div>`;
   });
   if(!DATA.gear.length)h+='<div class="hint">目前沒有器材。</div>';
