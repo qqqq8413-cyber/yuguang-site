@@ -3,12 +3,7 @@
     {
       "zh": "人像寫真",
       "en": "Portrait",
-      "photos": [
-        {
-          "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786547004/mhut4wwikhszzthxqrux.png",
-          "caption": ""
-        }
-      ]
+      "photos": []
     },
     {
       "zh": "形象照片",
@@ -28,16 +23,6 @@
     {
       "zh": "空間建築",
       "en": "Space",
-      "photos": []
-    },
-    {
-      "zh": "美食料理",
-      "en": "Cuisine",
-      "photos": []
-    },
-    {
-      "zh": "風景紀行",
-      "en": "Landscape",
       "photos": []
     }
   ]
