@@ -146,10 +146,10 @@
     }
 
     const CLOUDINARY_CLOUD='wy6xqh42';
-    const CLOUDINARY_PRESET='yuguang';
+    const CLOUDINARY_PRESET='yuguang';async function shrink(file){try{if(!/^image\//.test(file.type)||/gif/.test(file.type))return file;const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file);});let w=img.naturalWidth,h=img.naturalHeight;const MAX=2400;if(w<=MAX&&h<=MAX&&file.size<=8388608){URL.revokeObjectURL(img.src);return file;}if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85));URL.revokeObjectURL(img.src);return b&&b.size<file.size?b:file;}catch(e){return file;}}
     async function uploadImage(file){
         const fd=new FormData();
-        fd.append('file',file);
+        fd.append('file',await shrink(file));
         fd.append('upload_preset',CLOUDINARY_PRESET);
         const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,{method:'POST',body:fd});
         const data=await res.json().catch(()=>({}));
@@ -237,7 +237,7 @@
               for(let k=0;k<files.length;k++){
                       msg.textContent=`上傳中 ${k+1}/${files.length}…`;
                       try{const path=await uploadImage(files[k]);DATA.albums[curAlbum].photos.push({image:path,caption:''});}
-                      catch(err){alert('有一張照片上傳失敗，請確認已設定 GITHUB_TOKEN。');break;}
+                      catch(err){alert('有一張照片上傳失敗，檔案可能太大（單張上限 10MB）。');break;}
               }
               msg.textContent='照片已上傳，記得按「儲存相簿」';renderAlbumDetail();
         };
@@ -308,7 +308,7 @@
         $('gearFile').onchange=async e=>{
               const f=e.target.files[0];if(!f)return;const msg=$('gmsg');msg.textContent='上傳中…';
               try{const path=await uploadImage(f);DATA.gear[gearImgIdx].image=path;msg.textContent='照片已上傳，記得按「儲存器材」';renderGear();}
-              catch(err){alert('上傳失敗，請確認已設定 GITHUB_TOKEN。');}
+              catch(err){alert('上傳失敗，檔案可能太大（單張上限 10MB）。');}
         };
     }
     let gearImgIdx=-1;
