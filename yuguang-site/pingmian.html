@@ -63,7 +63,7 @@
     font-family:var(--serif);font-size:11px;letter-spacing:1px}
 
   /* ---------- 相簿內頁 ---------- */
-  #albumView{display:none}
+  #albumView,#projectView{display:none}
   .albumhead{padding:clamp(40px,7vw,80px) 0 clamp(24px,4vw,44px);border-bottom:1px solid var(--hair);
     margin-bottom:clamp(28px,4vw,44px)}
   .albumhead .backlink{font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted);
@@ -139,7 +139,7 @@
   <div class="albums" id="albumGrid"></div>
 </div>
 
-<!-- 相簿內頁 -->
+<!-- 專案封面牆 --><div id="projectView" class="wrap"><div class="albumhead"><div class="backlink" id="backToIndex2">← 返回分類</div><h2 id="projTitle"></h2><div class="en" id="projEn"></div></div><div class="albums" id="projectGrid"></div></div><!-- 相簿內頁 -->
 <div id="albumView" class="wrap">
   <div class="albumhead">
     <div class="backlink" id="backToIndex">← 返回列表</div>
@@ -160,115 +160,140 @@
 <script>
 /* ====== 從後台資料載入(content/albums.json) ====== */
 const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"],["#c4c8cd","#8b8f95"],["#d8cdbf","#b0a48f"],["#cdc6bd","#948d80"]];
-const heights=[340,260,420,300,380,240,360,290,440,270,320,400];
-let albums=[];
+  const heights=[340,260,420,300,380,240,360,290,440,270,320,400];
+  let albums=[];
 
-const grid=document.getElementById('albumGrid');
-const indexView=document.getElementById('indexView');
-const albumView=document.getElementById('albumView');
-const masonry=document.getElementById('masonry');
-let current={index:0, shots:[]};
+  const grid=document.getElementById('albumGrid');
+  const indexView=document.getElementById('indexView');
+  const albumView=document.getElementById('albumView');
+  const masonry=document.getElementById('masonry');
+  let current={index:0, shots:[]};
 
-fetch('content/albums.json').then(r=>r.json()).then(data=>{
-  albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[]},a));
-  buildIndex();
-}).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
+  fetch('content/albums.json').then(r=>r.json()).then(data=>{
+      albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[],projects:[]},a));
+      buildIndex();
+  }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
-function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
-function coverBg(a){
-  const first=(a.photos&&a.photos[0])?a.photos[0].image:null;
-  return first ? `background-image:url('${opt(first,800)}');background-size:cover;background-position:center`
-               : `background:linear-gradient(150deg,${a.grad[0]},${a.grad[1]})`;
-}
-function buildIndex(){
-  grid.innerHTML='';
-  albums.forEach((a,i)=>{
-    const n=(a.photos||[]).length;
-    const el=document.createElement('div');
-    el.className='album';
-    el.innerHTML=`
-      <div class="cover">
-        <div class="bg" style="${coverBg(a)}"></div>
-        <div class="grain"></div>
-        <div class="label"><span class="zh">${a.zh}</span><span class="en">${a.en||''}</span></div>
-        ${n?`<span class="count">${n} 張</span>`:''}
-      </div>`;
-    el.addEventListener('click',()=>openAlbum(i));
-    grid.appendChild(el);
-  });
-}
+  const projectView=document.getElementById('projectView');
+  const projectGrid=document.getElementById('projectGrid');
+  let backTarget='index';
 
-function openAlbum(i){
-  const a=albums[i];
-  document.getElementById('albumTitle').textContent=a.zh;
-  document.getElementById('albumEn').textContent=a.en||'';
-  masonry.innerHTML='';
-  current.shots=[];
-  const photos=a.photos||[];
-  if(photos.length){
-    photos.forEach((p,n)=>{
-      const cap=p.caption||`${a.zh} · ${String(n+1).padStart(2,'0')}`;
-      current.shots.push({image:p.image, cap});
-      const s=document.createElement('div');
-      s.className='shot';
-      s.innerHTML=`<img src="${opt(p.image,700)}" loading="lazy" decoding="async" alt="${cap}"><span class="plus">＋</span>`;
-      s.addEventListener('click',()=>openLB(n));
-      masonry.appendChild(s);
-    });
-  }else{
-    for(let n=0;n<6;n++){
-      const h=heights[n%heights.length];
-      const g0=shade(a.grad[0],(n%5-2)*8), g1=shade(a.grad[1],(n%3-1)*8);
-      const grad=`linear-gradient(${140+(n*17)%60}deg,${g0},${g1})`;
-      current.shots.push({grad, cap:`${a.zh} · ${String(n+1).padStart(2,'0')}`});
-      const s=document.createElement('div');
-      s.className='shot';s.style.height=h+'px';
-      s.innerHTML=`<div class="bg" style="background:${grad}"></div><div class="grain"></div><span class="plus">＋</span>`;
-      s.addEventListener('click',()=>openLB(n));
-      masonry.appendChild(s);
-    }
+  function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
+  function firstPhoto(node){
+      if(node.photos&&node.photos.length)return node.photos[0].image;
+      if(node.projects)for(const pj of node.projects){if(pj.photos&&pj.photos.length)return pj.photos[0].image;}
+      return null;
   }
-  indexView.style.display='none';
-  albumView.style.display='block';
-  albumView.classList.remove('fade');void albumView.offsetWidth;albumView.classList.add('fade');
-  window.scrollTo({top:0});
-}
-document.getElementById('backToIndex').addEventListener('click',()=>{
-  albumView.style.display='none';indexView.style.display='block';
-  indexView.classList.remove('fade');void indexView.offsetWidth;indexView.classList.add('fade');
-  window.scrollTo({top:0});
-});
+  function coverBg(node,grad){
+      const first=firstPhoto(node);
+      return first ? `background-image:url('${opt(first,800)}');background-size:cover;background-position:center`
+                       : `background:linear-gradient(150deg,${grad[0]},${grad[1]})`;
+  }
+  function countText(node){
+      if(node.projects&&node.projects.length)return node.projects.length+' 專案';
+      const n=(node.photos||[]).length;return n?n+' 張':'';
+  }
+  function coverCard(node,grad){
+      const c=countText(node);
+      return `<div class="cover">
+              <div class="bg" style="${coverBg(node,grad)}"></div>
+                      <div class="grain"></div>
+                              <div class="label"><span class="zh">${node.zh}</span><span class="en">${node.en||''}</span></div>
+                                      ${c?`<span class="count">${c}</span>`:''}
+                                            </div>`;
+  }
+  function buildIndex(){
+      grid.innerHTML='';
+      albums.forEach((a,i)=>{
+            const el=document.createElement('div');el.className='album';
+            el.innerHTML=coverCard(a,a.grad);
+            el.addEventListener('click',()=>openCategory(i));
+            grid.appendChild(el);
+      });
+  }
 
-/* ====== 顏色微調工具 ====== */
-function shade(hex,amt){
-  let c=hex.replace('#','');
-  let r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);
-  r=Math.max(0,Math.min(255,r+amt));g=Math.max(0,Math.min(255,g+amt));b=Math.max(0,Math.min(255,b+amt));
-  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
-}
+  function openCategory(i){
+      const a=albums[i];
+      if(a.projects&&a.projects.length){renderProjects(i);}
+      else{openPhotos(a.photos||[], a.zh, a.en, 'index');}
+  }
+  function renderProjects(i){
+      const a=albums[i];
+      document.getElementById('projTitle').textContent=a.zh;
+      document.getElementById('projEn').textContent=a.en||'';
+      projectGrid.innerHTML='';
+      a.projects.forEach((pj)=>{
+            const el=document.createElement('div');el.className='album';
+            el.innerHTML=coverCard(pj,a.grad);
+            el.addEventListener('click',()=>openPhotos(pj.photos||[], pj.zh, pj.en, 'projects'));
+            projectGrid.appendChild(el);
+      });
+      indexView.style.display='none';albumView.style.display='none';projectView.style.display='block';
+      projectView.classList.remove('fade');void projectView.offsetWidth;projectView.classList.add('fade');
+      window.scrollTo({top:0});
+  }
 
-/* ====== Lightbox ====== */
-const lb=document.getElementById('lightbox');
-const lbImg=document.getElementById('lbImg');
-const lbCap=document.getElementById('lbCap');
-let lbIndex=0;
-function openLB(n){lbIndex=n;renderLB();lb.classList.add('open')}
-function renderLB(){
-  const s=current.shots[lbIndex];
-  lbImg.style.background = s.image ? `url('${opt(s.image,1600)}') center/contain no-repeat` : s.grad;
-  lbCap.textContent=s.cap;
-}
-function move(d){lbIndex=(lbIndex+d+current.shots.length)%current.shots.length;renderLB()}
-document.getElementById('lbClose').addEventListener('click',()=>lb.classList.remove('open'));
-document.getElementById('lbPrev').addEventListener('click',e=>{e.stopPropagation();move(-1)});
-document.getElementById('lbNext').addEventListener('click',e=>{e.stopPropagation();move(1)});
-lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open')});
-document.addEventListener('keydown',e=>{
-  if(!lb.classList.contains('open'))return;
-  if(e.key==='Escape')lb.classList.remove('open');
-  if(e.key==='ArrowLeft')move(-1);
-  if(e.key==='ArrowRight')move(1);
-});
+  function openPhotos(photos, zh, en, from){
+      backTarget=from;
+      document.getElementById('albumTitle').textContent=zh;
+      document.getElementById('albumEn').textContent=en||'';
+      masonry.innerHTML='';current.shots=[];
+      if(photos&&photos.length){
+            photos.forEach((p,n)=>{
+                    const cap=p.caption||`${zh} · ${String(n+1).padStart(2,'0')}`;
+                    current.shots.push({image:p.image, cap});
+                    const s=document.createElement('div');s.className='shot';
+                    s.innerHTML=`<img src="${opt(p.image,700)}" loading="lazy" decoding="async" alt="${cap}"><span class="plus">＋</span>`;
+                    s.addEventListener('click',()=>openLB(n));
+                    masonry.appendChild(s);
+            });
+      }else{
+            masonry.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px;padding:20px 0">此相簿尚無照片</p>';
+      }
+      indexView.style.display='none';projectView.style.display='none';albumView.style.display='block';
+      albumView.classList.remove('fade');void albumView.offsetWidth;albumView.classList.add('fade');
+      window.scrollTo({top:0});
+  }
+  document.getElementById('backToIndex').addEventListener('click',()=>{
+      albumView.style.display='none';
+      if(backTarget==='projects'){projectView.style.display='block';}
+      else{indexView.style.display='block';indexView.classList.remove('fade');void indexView.offsetWidth;indexView.classList.add('fade');}
+      window.scrollTo({top:0});
+  });
+  document.getElementById('backToIndex2').addEventListener('click',()=>{
+      projectView.style.display='none';indexView.style.display='block';
+      indexView.classList.remove('fade');void indexView.offsetWidth;indexView.classList.add('fade');
+      window.scrollTo({top:0});
+  });
+
+  function shade(hex,amt){
+      let c=hex.replace('#','');
+      let r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);
+      r=Math.max(0,Math.min(255,r+amt));g=Math.max(0,Math.min(255,g+amt));b=Math.max(0,Math.min(255,b+amt));
+      return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
+
+  const lb=document.getElementById('lightbox');
+  const lbImg=document.getElementById('lbImg');
+  const lbCap=document.getElementById('lbCap');
+  let lbIndex=0;
+  function openLB(n){lbIndex=n;renderLB();lb.classList.add('open')}
+  function renderLB(){
+      const s=current.shots[lbIndex];
+      lbImg.style.background = s.image ? `url('${opt(s.image,1600)}') center/contain no-repeat` : s.grad;
+      lbCap.textContent=s.cap;
+  }
+  function move(d){lbIndex=(lbIndex+d+current.shots.length)%current.shots.length;renderLB()}
+  document.getElementById('lbClose').addEventListener('click',()=>lb.classList.remove('open'));
+  document.getElementById('lbPrev').addEventListener('click',e=>{e.stopPropagation();move(-1)});
+  document.getElementById('lbNext').addEventListener('click',e=>{e.stopPropagation();move(1)});
+  lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open')});
+  document.addEventListener('keydown',e=>{
+      if(!lb.classList.contains('open'))return;
+      if(e.key==='Escape')lb.classList.remove('open');
+      if(e.key==='ArrowLeft')move(-1);
+      if(e.key==='ArrowRight')move(1);
+  });
 </script>
 </body>
 </html>
