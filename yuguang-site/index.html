@@ -90,15 +90,28 @@
         return null;
     }
     function tile(it){
-        const bg = it.img ? `background-image:url('${it.img}')` : 'background:linear-gradient(150deg,#c9c3b6,#8f897d)';
+        const imgs = (it.imgs&&it.imgs.length) ? it.imgs : (it.img?[it.img]:[]);
+        const first = imgs[0];
+        const bg = first ? `background-image:url('${first}')` : 'background:linear-gradient(150deg,#c9c3b6,#8f897d)';
         const s = it.sub ? `<small>${esc(it.sub)}</small>` : '';
-        return `<a class="tile" href="${it.href}"><div class="bg" style="${bg}"></div><div class="grain"></div><div class="cap">${esc(it.cap)}${s}</div></a>`;
+        return `<a class="tile" href="${it.href}" data-imgs="${imgs.join('|')}"><div class="bg" style="${bg}"></div><div class="grain"></div><div class="cap">${esc(it.cap)}${s}</div></a>`;
+    }
+    function enableHover(){
+        if(!window.matchMedia||!window.matchMedia('(hover:hover)').matches)return;
+        document.querySelectorAll('.tile:not([data-h])').forEach(t=>{
+              t.dataset.h='1';const imgs=(t.dataset.imgs||'').split('|').filter(Boolean);
+              if(imgs.length<2)return;
+              const bg=t.querySelector('.bg');let idx=0,timer=null,pre=false;
+              t.addEventListener('pointerenter',()=>{if(!pre){pre=true;imgs.forEach(u=>{const im=new Image();im.src=u;});}timer=setInterval(()=>{idx=(idx+1)%imgs.length;bg.style.backgroundImage="url('"+imgs[idx]+"')";},900);});
+              t.addEventListener('pointerleave',()=>{clearInterval(timer);idx=0;bg.style.backgroundImage="url('"+imgs[0]+"')";});
+        });
     }
     function addRow(zh,en,more,items){
         const tiles = items.length ? items.map(tile).join('') : tile({href:more,img:null,cap:'尚無作品',sub:'點此進入'});
         rows.insertAdjacentHTML('beforeend',
                                     `<section class="row"><div class="rowhead"><h2>${zh}</h2><span class="en">${en}</span><a class="more" href="${more}">看全部 →</a></div><div class="rowwrap"><button class="arrow prev" aria-label="上一張" hidden>‹</button><div class="track">${tiles}</div><button class="arrow next" aria-label="下一張">›</button></div></section>`);
         bindArrows();
+        enableHover();
     }
     function bindArrows(){
         document.querySelectorAll('.rowwrap:not([data-a])').forEach(w=>{
@@ -119,9 +132,9 @@
         const plane=[];
         (a.albums||[]).forEach((al,i)=>{
               if(al.projects&&al.projects.length){
-                      al.projects.forEach((pj,j)=>plane.push({href:`pingmian.html?cat=${i}&proj=${j}`,img:opt(firstPhoto(pj),800),cap:pj.zh||al.zh,sub:al.zh}));
+                      al.projects.forEach((pj,j)=>plane.push({href:`pingmian.html?cat=${i}&proj=${j}`,imgs:(pj.photos||[]).slice(0,6).map(p=>opt(p.image,800)),cap:pj.zh||al.zh,sub:al.zh}));
               }else{
-                      plane.push({href:`pingmian.html?cat=${i}`,img:opt(firstPhoto(al),800),cap:al.zh,sub:al.en});
+                      plane.push({href:`pingmian.html?cat=${i}`,imgs:(al.photos||[]).slice(0,6).map(p=>opt(p.image,800)),cap:al.zh,sub:al.en});
               }
         });
         addRow('平面作品','Photography','pingmian.html',plane);
