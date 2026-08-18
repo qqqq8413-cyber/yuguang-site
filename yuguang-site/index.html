@@ -32,11 +32,11 @@
       .rowhead .more{margin-left:auto;font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted);transition:.3s;white-space:nowrap}
       .rowhead .more:hover{color:var(--ink)}
 
-      .track{display:flex;gap:clamp(14px,1.6vw,24px);overflow-x:auto;scroll-snap-type:x proximity;
-                 padding:4px clamp(20px,5vw,64px);scrollbar-width:none;cursor:grab} .track.drag{cursor:grabbing;scroll-snap-type:none}
+      .track{display:flex;--gap:clamp(14px,1.6vw,22px);gap:var(--gap);overflow-x:auto;scroll-snap-type:x proximity;scroll-behavior:smooth;
+                 padding:4px clamp(20px,5vw,64px);scrollbar-width:none}
       .track::-webkit-scrollbar{display:none}
-      .tile{flex:0 0 auto;width:clamp(280px,40vw,480px);scroll-snap-align:start;position:relative;display:block;
-                aspect-ratio:3/2;overflow:hidden;background:#e7e4dd;user-select:none}
+      .tile{flex:0 0 calc((100% - 4*var(--gap))/5);scroll-snap-align:start;position:relative;display:block;
+                aspect-ratio:3/2;overflow:hidden;background:#e7e4dd;user-select:none} @media(max-width:1180px){.tile{flex-basis:calc((100% - 3*var(--gap))/4)}} @media(max-width:900px){.tile{flex-basis:calc((100% - 2*var(--gap))/3)}} @media(max-width:560px){.tile{flex-basis:78%}} .rowwrap{position:relative} .arrow{position:absolute;top:0;bottom:0;width:46px;display:flex;align-items:center;justify-content:center;z-index:5;border:0;cursor:pointer;font-family:var(--serif);font-size:26px;color:var(--ink);opacity:.7;transition:opacity .25s} .arrow:hover{opacity:1} .arrow.prev{left:0;background:linear-gradient(to right,var(--paper) 30%,rgba(243,241,236,0))} .arrow.next{right:0;background:linear-gradient(to left,var(--paper) 30%,rgba(243,241,236,0))} .arrow[hidden]{display:none}
       .tile .bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 1s cubic-bezier(.19,1,.22,1)}
       .tile:hover .bg{transform:scale(1.06)}
       .tile .grain{position:absolute;inset:0;opacity:.4;mix-blend-mode:multiply;pointer-events:none;
@@ -97,17 +97,17 @@
     function addRow(zh,en,more,items){
         const tiles = items.length ? items.map(tile).join('') : tile({href:more,img:null,cap:'尚無作品',sub:'點此進入'});
         rows.insertAdjacentHTML('beforeend',
-                                    `<section class="row"><div class="rowhead"><h2>${zh}</h2><span class="en">${en}</span><a class="more" href="${more}">看全部 →</a></div><div class="track">${tiles}</div></section>`);
-        enableDrag();
+                                    `<section class="row"><div class="rowhead"><h2>${zh}</h2><span class="en">${en}</span><a class="more" href="${more}">看全部 →</a></div><div class="rowwrap"><button class="arrow prev" aria-label="上一張" hidden>‹</button><div class="track">${tiles}</div><button class="arrow next" aria-label="下一張">›</button></div></section>`);
+        bindArrows();
     }
-    function enableDrag(){
-        document.querySelectorAll('.track:not([data-drag])').forEach(tr=>{
-              tr.dataset.drag='1';let down=false,sx=0,sl=0,moved=0;
-              tr.addEventListener('pointerdown',e=>{down=true;sx=e.pageX;sl=tr.scrollLeft;moved=0;tr.classList.add('drag');});
-              tr.addEventListener('pointermove',e=>{if(!down)return;const dx=e.pageX-sx;if(Math.abs(dx)>moved)moved=Math.abs(dx);tr.scrollLeft=sl-dx;});
-              const end=()=>{down=false;tr.classList.remove('drag');};
-              tr.addEventListener('pointerup',end);tr.addEventListener('pointerleave',end);tr.addEventListener('pointercancel',end);
-              tr.addEventListener('click',e=>{if(moved>6)e.preventDefault();},true);
+    function bindArrows(){
+        document.querySelectorAll('.rowwrap:not([data-a])').forEach(w=>{
+              w.dataset.a='1';const tr=w.querySelector('.track'),pv=w.querySelector('.prev'),nx=w.querySelector('.next');
+              const amt=()=>Math.max(tr.clientWidth*0.8,200);
+              pv.addEventListener('click',()=>tr.scrollBy({left:-amt(),behavior:'smooth'}));
+              nx.addEventListener('click',()=>tr.scrollBy({left:amt(),behavior:'smooth'}));
+              const upd=()=>{const max=tr.scrollWidth-tr.clientWidth-2;pv.hidden=tr.scrollLeft<=2;nx.hidden=tr.scrollLeft>=max;};
+              tr.addEventListener('scroll',upd);window.addEventListener('resize',upd);setTimeout(upd,80);
         });
     }
 
