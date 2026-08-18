@@ -139,7 +139,7 @@
         });
         addRow('平面作品','Photography','pingmian.html',plane);
 
-                const vids=(v.videos||[]).filter(x=>x.yt).map(x=>({href:'dongtai.html',img:`https://img.youtube.com/vi/${x.yt}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
+                const vids=(v.videos||[]).filter(x=>x.yt).map(x=>({href:'dongtai.html',img:`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids);
 
                 const gear=(g.gear||[]).map(x=>({href:'qicai.html',img:opt(x.image,800),cap:x.name||'器材',sub:x.cat}));
