@@ -171,7 +171,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
 
   fetch('content/albums.json').then(r=>r.json()).then(data=>{
       albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[],projects:[]},a));
-      buildIndex();
+      buildIndex();deepLink();function deepLink(){const q=new URLSearchParams(location.search);if(!q.has('cat'))return;const ci=+q.get('cat'),a=albums[ci];if(!a)return;if(q.has('proj')&&a.projects&&a.projects[+q.get('proj')]){const pj=a.projects[+q.get('proj')];renderProjects(ci);openPhotos(pj.photos||[],pj.zh,pj.en,'projects');}else{openCategory(ci);}}
   }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
   const projectView=document.getElementById('projectView');
