@@ -106,7 +106,7 @@
               const amt=()=>Math.max(tr.clientWidth*0.8,200);
               pv.addEventListener('click',()=>tr.scrollBy({left:-amt(),behavior:'smooth'}));
               nx.addEventListener('click',()=>tr.scrollBy({left:amt(),behavior:'smooth'}));
-              const upd=()=>{const max=tr.scrollWidth-tr.clientWidth-2;pv.hidden=tr.scrollLeft<=2;nx.hidden=tr.scrollLeft>=max;};
+              const upd=()=>{const pad=parseFloat(getComputedStyle(tr).paddingLeft)||0,max=tr.scrollWidth-tr.clientWidth-2;pv.hidden=tr.scrollLeft<=pad+4;nx.hidden=tr.scrollLeft>=max;};
               tr.addEventListener('scroll',upd);window.addEventListener('resize',upd);setTimeout(upd,80);
         });
     }
