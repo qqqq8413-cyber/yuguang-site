@@ -162,11 +162,11 @@ function buildFilters(){
   });
 }
 
-function render(){
+function ytid(s){s=(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}function render(){
   grid.innerHTML='';
   videos.filter(v=>activeCat==="精選作品"||v.cat===activeCat).forEach((v,i)=>{
     const thumb=v.yt
-      ? `background-image:url('https://img.youtube.com/vi/${v.yt}/maxresdefault.jpg')`
+      ? `background-image:url('https://img.youtube.com/vi/${ytid(v.yt)}/maxresdefault.jpg')`
       : `background:linear-gradient(150deg,${v.grad[0]},${v.grad[1]})`;
     const el=document.createElement('div');
     el.className='vid fade';el.style.animationDelay=(i*0.05)+'s';
@@ -183,7 +183,7 @@ const lb=document.getElementById('lightbox');
 const player=document.getElementById('player');
 function openVid(v){
   if(v.yt){
-    player.innerHTML=`<iframe src="https://www.youtube.com/embed/${v.yt}?autoplay=1&rel=0"
+    player.innerHTML=`<iframe src="https://www.youtube.com/embed/${ytid(v.yt)}?autoplay=1&rel=0"
       allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
       <div class="cap">${v.title}　·　${v.client}</div>`;
   }else{
