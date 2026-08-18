@@ -171,12 +171,12 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
 
   fetch('content/albums.json').then(r=>r.json()).then(data=>{
       albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[],projects:[]},a));
-      buildIndex();deepLink();function deepLink(){const q=new URLSearchParams(location.search);if(!q.has('cat'))return;const ci=+q.get('cat'),a=albums[ci];if(!a)return;if(q.has('proj')&&a.projects&&a.projects[+q.get('proj')]){const pj=a.projects[+q.get('proj')];renderProjects(ci);openPhotos(pj.photos||[],pj.zh,pj.en,'projects');}else{openCategory(ci);}}
+      buildIndex();startRotate();deepLink();function deepLink(){const q=new URLSearchParams(location.search);if(!q.has('cat'))return;const ci=+q.get('cat'),a=albums[ci];if(!a)return;if(q.has('proj')&&a.projects&&a.projects[+q.get('proj')]){const pj=a.projects[+q.get('proj')];renderProjects(ci);openPhotos(pj.photos||[],pj.zh,pj.en,'projects');}else{openCategory(ci);}}
   }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
   const projectView=document.getElementById('projectView');
   const projectGrid=document.getElementById('projectGrid');
-  let backTarget='index';
+  let backTarget='index';function gatherImgs(node){const out=[];if(node.photos)node.photos.forEach(p=>{if(p.image)out.push(opt(p.image,800));});if(node.projects)node.projects.forEach(pj=>{(pj.photos||[]).forEach(p=>{if(p.image)out.push(opt(p.image,800));});});return out.slice(0,6);}function startRotate(){document.querySelectorAll('.bg[data-imgs]:not([data-r])').forEach((bg,k)=>{bg.dataset.r='1';const imgs=(bg.dataset.imgs||'').split('|').filter(Boolean);if(imgs.length<2)return;imgs.forEach(u=>{const im=new Image();im.src=u;});let idx=0;setTimeout(()=>setInterval(()=>{idx=(idx+1)%imgs.length;bg.style.backgroundImage="url('"+imgs[idx]+"')";},2600),k*500);});}
 
   function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
   function firstPhoto(node){
@@ -196,7 +196,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
   function coverCard(node,grad){
       const c=countText(node);
       return `<div class="cover">
-              <div class="bg" style="${coverBg(node,grad)}"></div>
+              <div class="bg" data-imgs="${gatherImgs(node).join('|')}" style="${coverBg(node,grad)}"></div>
                       <div class="grain"></div>
                               <div class="label"><span class="zh">${node.zh}</span><span class="en">${node.en||''}</span></div>
                                       ${c?`<span class="count">${c}</span>`:''}
@@ -228,7 +228,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
             el.addEventListener('click',()=>openPhotos(pj.photos||[], pj.zh, pj.en, 'projects'));
             projectGrid.appendChild(el);
       });
-      indexView.style.display='none';albumView.style.display='none';projectView.style.display='block';
+      startRotate();indexView.style.display='none';albumView.style.display='none';projectView.style.display='block';
       projectView.classList.remove('fade');void projectView.offsetWidth;projectView.classList.add('fade');
       window.scrollTo({top:0});
   }
