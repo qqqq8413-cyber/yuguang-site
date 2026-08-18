@@ -190,7 +190,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
                        : `background:linear-gradient(150deg,${grad[0]},${grad[1]})`;
   }
   function countText(node){
-      if(node.projects&&node.projects.length)return node.projects.length+' 專案';
+      if(node.projects&&node.projects.length)return '';
       const n=(node.photos||[]).length;return n?n+' 張':'';
   }
   function coverCard(node,grad){
