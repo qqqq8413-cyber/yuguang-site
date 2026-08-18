@@ -111,7 +111,7 @@
         rows.insertAdjacentHTML('beforeend',
                                     `<section class="row"><div class="rowhead"><h2>${zh}</h2><span class="en">${en}</span><a class="more" href="${more}">看全部 →</a></div><div class="rowwrap"><button class="arrow prev" aria-label="上一張" hidden>‹</button><div class="track">${tiles}</div><button class="arrow next" aria-label="下一張">›</button></div></section>`);
         bindArrows();
-        enableHover();
+        
     }
     function bindArrows(){
         document.querySelectorAll('.rowwrap:not([data-a])').forEach(w=>{
