@@ -71,21 +71,33 @@
                         letter-spacing:1px;line-height:1.3}
       .vid .info .d{display:block;font-family:var(--serif);font-size:11px;letter-spacing:1.5px;opacity:.82;margin-top:3px}
 
-      .lb{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
-              background:rgba(14,13,11,.94);backdrop-filter:blur(4px);padding:clamp(16px,4vw,48px)}
-      .lb.open{display:flex}
-      .lb .player{width:min(90vw,1100px);aspect-ratio:16/9;position:relative;
-                      box-shadow:0 30px 90px rgba(0,0,0,.55);background:#000}
-      .lb .player iframe{width:100%;height:100%;border:0;display:block}
-      .lb .placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
-                           justify-content:center;gap:12px;color:rgba(255,255,255,.75);font-family:var(--serif);letter-spacing:3px;
-                           background:linear-gradient(150deg,#2a2824,#131210)}
-      .lb .placeholder .t{font-size:1.1rem}.lb .placeholder .s{font-size:12px;opacity:.7}
-      .lb .cap{position:absolute;left:0;bottom:-34px;color:rgba(255,255,255,.7);font-family:var(--serif);
-                   font-size:12px;letter-spacing:2px}
-      .lb .close{position:absolute;top:clamp(14px,3vw,26px);right:clamp(18px,3vw,30px);color:#fff;font-size:26px;
-                     cursor:pointer;font-family:var(--serif);line-height:1;opacity:.85;transition:.2s;z-index:2}
-      .lb .close:hover{opacity:1}
+      #detail{display:none}
+      .dwrap{max-width:1080px;margin:0 auto;padding:clamp(10px,2vw,26px) clamp(20px,5vw,64px) clamp(64px,9vw,116px)}
+      .dback{font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted);cursor:pointer;
+                 display:inline-block;margin-bottom:clamp(22px,3vw,36px);transition:.3s}
+      .dback:hover{color:var(--ink)}
+      .dcat{font-family:var(--serif);font-size:12px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+      .dtitle{font-family:var(--serif);font-weight:500;font-size:clamp(1.7rem,4.4vw,2.7rem);letter-spacing:4px;
+                  line-height:1.25;margin-top:12px}
+      .dsub{font-family:var(--serif);color:var(--muted);letter-spacing:3px;margin-top:12px;
+                font-size:clamp(.95rem,1.9vw,1.15rem)}
+      .dplayer{aspect-ratio:16/9;margin:clamp(24px,3.4vw,42px) 0;background:#000;position:relative;overflow:hidden;
+                   box-shadow:0 30px 80px rgba(0,0,0,.22)}
+      .dplayer iframe{width:100%;height:100%;border:0;display:block}
+      .dplayer .ph{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;
+                       justify-content:center;color:rgba(255,255,255,.72);font-family:var(--serif);letter-spacing:3px;
+                       background:linear-gradient(150deg,#2a2824,#131210)}
+      .dplayer .ph .s{font-size:12px;opacity:.7}
+      .ddesc{font-family:var(--serif);font-size:clamp(1rem,1.5vw,1.12rem);letter-spacing:1px;line-height:2;
+                 color:#3a352e;max-width:56em;margin:0 auto clamp(30px,4vw,48px);text-align:center}
+      .credits{border-top:1px solid var(--line);padding-top:clamp(26px,3.4vw,40px);
+                   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(20px,3vw,38px) clamp(30px,5vw,72px)}
+      @media(max-width:600px){.credits{grid-template-columns:1fr}}
+      .credit .role{font-family:var(--serif);font-size:11px;letter-spacing:3px;color:var(--muted);
+                        text-transform:uppercase}
+      .credit .name{font-family:var(--serif);font-size:clamp(1.02rem,1.5vw,1.16rem);letter-spacing:1.5px;margin-top:5px}
+      .dmeta{margin-top:clamp(30px,4vw,48px);font-family:var(--serif);font-size:12px;letter-spacing:2px;
+                 color:var(--muted);text-align:center}
 
       .fade{animation:fade .55s cubic-bezier(.19,1,.22,1)}
       @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -109,7 +121,7 @@
       <a class="back" href="index.html">← 返回首頁</a>
     </div>
   
-  <div class="wrap">
+  <div id="indexView" class="wrap">
     <div class="pagehead">
         <div class="kicker">Videography</div>
         <h1>動態作品</h1>
@@ -120,10 +132,7 @@
     <div class="grid" id="grid"></div>
   </div>
   
-  <div class="lb" id="lightbox">
-    <span class="close" id="lbClose">×</span>
-    <div class="player" id="player"></div>
-  </div>
+  <div id="detail" class="wrap"></div>
   
   <script>
     let videos=[];
@@ -131,6 +140,11 @@
     const GRADS=[["#3a3a42","#15151a"],["#33383e","#131518"],["#403a32","#161310"],["#3b3b33","#151510"],["#2f3a3a","#111616"],["#2c3838","#101414"],["#38343e","#141216"],["#3e3630","#17120e"]];
     const filters=document.getElementById('filters');
     const grid=document.getElementById('grid');
+    const indexView=document.getElementById('indexView');
+    const detail=document.getElementById('detail');
+
+    function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+    function ytid(s){s=(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
 
     fetch('content/videos.json').then(r=>r.json()).then(data=>{
         videos=(data.videos||[]).map((v,i)=>Object.assign({grad:GRADS[i%GRADS.length]},v));
@@ -150,7 +164,6 @@
         });
     }
 
-    function ytid(s){s=(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
     function sizeClass(i){const m=i%7;return m===0?' big':(m===4?' wide':'');}
     function render(){
         grid.innerHTML='';
@@ -161,29 +174,50 @@
               const el=document.createElement('div');
               el.className='vid fade'+sizeClass(i);el.style.animationDelay=(i*0.05)+'s';
               el.innerHTML=`<div class="bg" style="${thumb}"></div><div class="grain"></div><div class="play"></div>
-                    <div class="info"><span class="t">${v.title}</span><span class="d">${v.client||''}${v.year?' · '+v.year:''}</span></div>`;
-              el.addEventListener('click',()=>openVid(v));
+                    <div class="info"><span class="t">${esc(v.title)}</span><span class="d">${esc(v.client||'')}${v.year?' · '+esc(v.year):''}</span></div>`;
+              el.addEventListener('click',()=>openDetail(v));
               grid.appendChild(el);
         });
     }
 
-    const lb=document.getElementById('lightbox');
-    const player=document.getElementById('player');
-    function openVid(v){
-        if(v.yt){
-              player.innerHTML=`<iframe src="https://www.youtube.com/embed/${ytid(v.yt)}?autoplay=1&rel=0"
-                    allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
-                          <div class="cap">${v.title}　·　${v.client}</div>`;
-        }else{
-              player.innerHTML=`<div class="placeholder"><div class="t">${v.title}</div>
-                    <div class="s">YouTube 影片（尚未設定連結）</div></div><div class="cap">${v.title}　·　${v.client}</div>`;
-        }
-        lb.classList.add('open');
+    function parseCredits(s){
+        if(!s)return [];
+        return String(s).split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{
+              const idx=l.search(/[:：|｜]/);
+              if(idx<0)return {role:'',name:l};
+              return {role:l.slice(0,idx).trim(),name:l.slice(idx+1).trim()};
+        });
     }
-    function closeVid(){lb.classList.remove('open');player.innerHTML='';}
-    document.getElementById('lbClose').addEventListener('click',closeVid);
-    lb.addEventListener('click',e=>{if(e.target===lb)closeVid()});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&lb.classList.contains('open'))closeVid()});
+    function openDetail(v){
+        const id=ytid(v.yt);
+        const playerHTML=v.yt
+          ? `<iframe src="https://www.youtube.com/embed/${id}?rel=0" allow="encrypted-media; fullscreen" allowfullscreen></iframe>`
+              : `<div class="ph"><div>YouTube 影片</div><div class="s">尚未設定連結</div></div>`;
+        const credits=parseCredits(v.credits);
+        const creditsHTML=credits.length
+          ? `<div class="credits">${credits.map(c=>`<div class="credit">${c.role?`<div class="role">${esc(c.role)}</div>`:''}<div class="name">${esc(c.name)}</div></div>`).join('')}</div>`
+              : '';
+        const metaParts=[v.client,v.year].filter(Boolean).map(esc);
+        detail.innerHTML=`<div class="dwrap fade">
+            <div class="dback" onclick="backToGrid()">← 返回作品列表</div>
+                <div class="dcat">${esc(v.cat||'')}</div>
+                    <h1 class="dtitle">${esc(v.title||'')}</h1>
+                        ${v.sub?`<div class="dsub">${esc(v.sub)}</div>`:''}
+                            <div class="dplayer">${playerHTML}</div>
+                                ${v.desc?`<p class="ddesc">${esc(v.desc)}</p>`:''}
+                                    ${creditsHTML}
+                                        ${metaParts.length?`<div class="dmeta">${metaParts.join('　·　')}</div>`:''}
+                                          </div>`;
+        indexView.style.display='none';
+        detail.style.display='block';
+        window.scrollTo({top:0});
+    }
+    function backToGrid(){
+        detail.style.display='none';detail.innerHTML='';
+        indexView.style.display='block';
+        window.scrollTo({top:0});
+    }
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&detail.style.display==='block')backToGrid();});
   </script>
   </body>
 </html>
