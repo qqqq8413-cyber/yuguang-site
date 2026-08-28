@@ -151,8 +151,8 @@
         buildFilters();render();
     }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無影片資料</p>';});
 
-    function buildFilters(){
-        const cats=["精選作品",...[...new Set(videos.map(v=>v.cat))]];
+    function isFeatured(v){return v.featured===true||v.cat==='精選作品';}function buildFilters(){
+        const cats=["精選作品",...[...new Set(videos.map(v=>v.cat).filter(c=>c&&c!=='精選作品'))]];
         filters.innerHTML='';
         cats.forEach(c=>{
               const b=document.createElement('button');
@@ -167,7 +167,7 @@
     function sizeClass(i){const m=i%7;return m===0?' big':(m===4?' wide':'');}
     function render(){
         grid.innerHTML='';
-        videos.filter(v=>activeCat==="精選作品"||v.cat===activeCat).forEach((v,i)=>{
+        videos.filter(v=>activeCat==="精選作品"?isFeatured(v):v.cat===activeCat).forEach((v,i)=>{
               const thumb=v.yt
                 ? `background-image:url('https://img.youtube.com/vi/${ytid(v.yt)}/maxresdefault.jpg')`
                       : `background:linear-gradient(150deg,${v.grad[0]},${v.grad[1]})`;
