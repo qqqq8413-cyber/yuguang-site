@@ -324,7 +324,7 @@
                                       <div><label class="lbl">YouTube 影片 ID</label><input class="f" value="${esc(v.yt||'')}" oninput="DATA.videos[${i}].yt=this.value" placeholder="例：abc123XYZ"></div>
                                             <div><label class="lbl">客戶（可留空）</label><input class="f" value="${esc(v.client||'')}" oninput="DATA.videos[${i}].client=this.value"></div>
                                                   <div><label class="lbl">年份（可留空）</label><input class="f" value="${esc(v.year||'')}" oninput="DATA.videos[${i}].year=this.value"></div>
-                                                        </div><div class="row" style="justify-content:flex-end;margin-top:12px">
+                                                        </div><div style="margin-top:12px"><label class="lbl">副標題／概念(可留空)</label><input class="f" value="${esc(v.sub||'')}" oninput="DATA.videos[${i}].sub=this.value" placeholder="例:【島嶼的一天】"></div><div style="margin-top:12px"><label class="lbl">簡介(可留空)</label><textarea class="f" oninput="DATA.videos[${i}].desc=this.value">${esc(v.desc||'')}</textarea></div><div style="margin-top:12px"><label class="lbl">製作團隊 credit(每行一個,格式「職稱：姓名」)</label><textarea class="f" style="min-height:96px" oninput="DATA.videos[${i}].credits=this.value" placeholder="導演：王小明&#10;攝影／剪輯：李大華&#10;製作：嶼光映像">${esc(v.credits||'')}</textarea></div><div class="row" style="justify-content:flex-end;margin-top:12px">
                                                               <button class="btn sm ghost" onclick="if(confirm('刪除這部影片?')){DATA.videos.splice(${i},1);renderVideo()}">刪除</button></div>
                                                                     </div>`;
         });
