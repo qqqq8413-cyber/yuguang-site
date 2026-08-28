@@ -311,7 +311,7 @@
     }
 
     /* 影片 */
-    const CREDIT_TEMPLATE=['導演 Director','企劃 Producer','攝影 Cinematographer','燈光 Lighting','收音 Sound','剪輯 Editor','調色 Colorist','配樂 Music'].map(r=>r+'：').join(String.fromCharCode(10));function fillCredits(i){if(DATA.videos[i].credits&&!confirm('這部影片的 credit 已有內容，要用職稱範本覆蓋嗎?'))return;DATA.videos[i].credits=CREDIT_TEMPLATE;renderVideo();}function renderVideo(){
+    const CREDIT_TEMPLATE=['導演 Director','企劃 Producer','攝影 Cinematographer','燈光 Lighting','收音 Sound','剪輯 Editor','調色 Colorist','配樂 Music'].map(r=>r+'：').join(String.fromCharCode(10));function fillCredits(i){if(DATA.videos[i].credits&&!confirm('這部影片的 credit 已有內容，要用職稱範本覆蓋嗎?'))return;DATA.videos[i].credits=CREDIT_TEMPLATE;renderVideo();}const VIDEO_CATS=['精選作品','企業形象','品牌形象','公部門合作','商業廣告','活動紀錄','微電影','音樂錄影帶 MV','短影音','人物專訪'];function catOptions(cur){const list=VIDEO_CATS.slice();if(cur&&list.indexOf(cur)<0)list.push(cur);let o=list.map(c=>`<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('');return o+'<option value="__custom__">＋ 自訂新分類…</option>';}function videoCatChange(i,val){if(val==='__custom__'){const c=(prompt('輸入新的分類名稱：')||'').trim();if(c)DATA.videos[i].cat=c;renderVideo();return;}DATA.videos[i].cat=val;}function renderVideo(){
         const box=$('p-video');
         let h='<div class="hint">YouTube 影片 ID 是網址 watch?v= 後面那串。分類會自動變成頁面上的篩選選項。</div>';
         h+='<div class="sechead"><h2>影片列表</h2><button class="btn" onclick="DATA.videos.push({title:\'\',cat:\'精選作品\',yt:\'\',client:\'\',year:\'\',credits:CREDIT_TEMPLATE});renderVideo()">+ 新增影片</button></div>';
@@ -319,7 +319,7 @@
         DATA.videos.forEach((v,i)=>{
               h+=`<div class="card"><div class="row" style="align-items:center;gap:8px;margin-bottom:10px"><span class="drag" title="拖曳排序" style="cursor:grab;color:var(--muted);font-size:18px;line-height:1;user-select:none">⣿</span><span style="color:var(--muted);font-size:12px">拖曳可調整順序</span></div><div class="grid2">
                     <div><label class="lbl">影片標題</label><input class="f" value="${esc(v.title)}" oninput="DATA.videos[${i}].title=this.value"></div>
-                          <div><label class="lbl">分類</label><input class="f" value="${esc(v.cat)}" oninput="DATA.videos[${i}].cat=this.value"></div>
+                          <div><label class="lbl">分類</label><select class="f" onchange="videoCatChange(${i},this.value)">${catOptions(v.cat)}</select></div>
                                 </div><div class="grid3" style="margin-top:12px">
                                       <div><label class="lbl">YouTube 影片 ID</label><input class="f" value="${esc(v.yt||'')}" oninput="DATA.videos[${i}].yt=this.value" placeholder="例：abc123XYZ"></div>
                                             <div><label class="lbl">客戶（可留空）</label><input class="f" value="${esc(v.client||'')}" oninput="DATA.videos[${i}].client=this.value"></div>
