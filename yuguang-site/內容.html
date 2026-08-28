@@ -311,7 +311,7 @@
     }
 
     /* 影片 */
-    const CREDIT_TEMPLATE=['導演','企劃','攝影','燈光','收音','剪輯','調色','配樂'].map(r=>r+'：').join(String.fromCharCode(10));function fillCredits(i){if(DATA.videos[i].credits&&!confirm('這部影片的 credit 已有內容，要用職稱範本覆蓋嗎?'))return;DATA.videos[i].credits=CREDIT_TEMPLATE;renderVideo();}function renderVideo(){
+    const CREDIT_TEMPLATE=['導演 Director','企劃 Producer','攝影 Cinematographer','燈光 Lighting','收音 Sound','剪輯 Editor','調色 Colorist','配樂 Music'].map(r=>r+'：').join(String.fromCharCode(10));function fillCredits(i){if(DATA.videos[i].credits&&!confirm('這部影片的 credit 已有內容，要用職稱範本覆蓋嗎?'))return;DATA.videos[i].credits=CREDIT_TEMPLATE;renderVideo();}function renderVideo(){
         const box=$('p-video');
         let h='<div class="hint">YouTube 影片 ID 是網址 watch?v= 後面那串。分類會自動變成頁面上的篩選選項。</div>';
         h+='<div class="sechead"><h2>影片列表</h2><button class="btn" onclick="DATA.videos.push({title:\'\',cat:\'精選作品\',yt:\'\',client:\'\',year:\'\',credits:CREDIT_TEMPLATE});renderVideo()">+ 新增影片</button></div>';
