@@ -1,6 +1,143 @@
 {
   "albums": [
     {
+      "zh": "形象照片",
+      "en": "Professional portrait",
+      "photos": [],
+      "projects": [
+        {
+          "zh": "PsycoDive",
+          "en": "",
+          "photos": [
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961839/bpuq94r9lfyrxx5qx1dt.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961842/hr03nffapwpy7mkgndac.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961833/ahw3ys0q5fdcwtlkwfta.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961830/nz1nizi2uetl0rtrkuht.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961836/h8ese1chnlsfvndj1e4r.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961838/neagpmzpdc0p6n93jasz.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961843/irrexl9grgeqxf2yc0ed.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961844/bhbategudswpmihxx4nb.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961848/itawsx2d5ckfhnxv5mym.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961850/ylajpkzgar1bjxn6qi3k.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "zh": "業務形象",
+          "en": "",
+          "photos": [
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963519/pvbyyt1yiagerkrvktxf.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963521/bqk6fx5uynqclk2vjhnu.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963526/pp1k70dfffiz1hhrcn7o.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963539/xwsvagkw7wgyjqwxg3tg.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963543/rbmmih0nfhclvga0audm.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963545/iwzmcrrntjwa8c2gkdkw.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963547/rol2zlnir6qjdi7r2eqk.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963549/aoganmaaqysxpmogep38.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "zh": "個人形象",
+          "en": "",
+          "photos": [
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963635/fthwfgkprueb3i1d5xl6.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963636/nc8sqeds4ju132pvfyqu.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963638/aipwpz8hcgt5hoqz7ecj.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963639/n3trkarmeo9y4rsh8k39.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963641/h6fqiedowjddo6wnlcsu.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963643/zqivvyypcmdfnibjtj2g.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963645/b9cgyg2eaaa9zxz4iwx6.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963646/cdbkjxtqzwvvbnplrsye.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963648/r3ozdymztjysklpvl9yg.jpg",
+              "caption": ""
+            },
+            {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963650/olsmqyvr4yiehazyotjv.jpg",
+              "caption": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
       "zh": "人像寫真",
       "en": "Portrait",
       "photos": [],
@@ -189,143 +326,6 @@
             },
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961720/y1vblayuynxkmgcwwjar.jpg",
-              "caption": ""
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "zh": "形象照片",
-      "en": "Professional portrait",
-      "photos": [],
-      "projects": [
-        {
-          "zh": "PsycoDive",
-          "en": "",
-          "photos": [
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961839/bpuq94r9lfyrxx5qx1dt.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961842/hr03nffapwpy7mkgndac.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961833/ahw3ys0q5fdcwtlkwfta.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961830/nz1nizi2uetl0rtrkuht.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961836/h8ese1chnlsfvndj1e4r.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961838/neagpmzpdc0p6n93jasz.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961843/irrexl9grgeqxf2yc0ed.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961844/bhbategudswpmihxx4nb.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961848/itawsx2d5ckfhnxv5mym.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961850/ylajpkzgar1bjxn6qi3k.jpg",
-              "caption": ""
-            }
-          ]
-        },
-        {
-          "zh": "業務形象",
-          "en": "",
-          "photos": [
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963519/pvbyyt1yiagerkrvktxf.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963521/bqk6fx5uynqclk2vjhnu.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963526/pp1k70dfffiz1hhrcn7o.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963539/xwsvagkw7wgyjqwxg3tg.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963543/rbmmih0nfhclvga0audm.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963545/iwzmcrrntjwa8c2gkdkw.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963547/rol2zlnir6qjdi7r2eqk.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963549/aoganmaaqysxpmogep38.jpg",
-              "caption": ""
-            }
-          ]
-        },
-        {
-          "zh": "個人形象",
-          "en": "",
-          "photos": [
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963635/fthwfgkprueb3i1d5xl6.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963636/nc8sqeds4ju132pvfyqu.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963638/aipwpz8hcgt5hoqz7ecj.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963639/n3trkarmeo9y4rsh8k39.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963641/h6fqiedowjddo6wnlcsu.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963643/zqivvyypcmdfnibjtj2g.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963645/b9cgyg2eaaa9zxz4iwx6.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963646/cdbkjxtqzwvvbnplrsye.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963648/r3ozdymztjysklpvl9yg.jpg",
-              "caption": ""
-            },
-            {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963650/olsmqyvr4yiehazyotjv.jpg",
               "caption": ""
             }
           ]
