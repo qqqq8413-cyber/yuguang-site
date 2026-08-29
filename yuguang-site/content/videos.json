@@ -55,12 +55,13 @@
       "featured": false
     },
     {
-      "title": "藝術節花絮",
+      "title": "小小縣長訓練營",
       "cat": "活動紀錄",
-      "client": "某某藝術節",
-      "year": "2023",
-      "yt": "",
-      "featured": false
+      "client": "",
+      "year": "2026",
+      "yt": "https://youtu.be/2IfSHmM83YM",
+      "featured": false,
+      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
     },
     {
       "title": "屏盡全力｜綻放每一刻",
