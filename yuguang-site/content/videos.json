@@ -10,13 +10,13 @@
       "featured": false
     },
     {
-      "title": "愛心育苗計畫 x 小小藝術班",
-      "cat": "活動紀錄",
+      "title": "屏盡全力｜綻放每一刻",
+      "cat": "公部門合作",
+      "yt": "https://youtu.be/uWSWEU_Ms00",
       "client": "",
       "year": "2025",
-      "yt": "https://youtu.be/KwR2NwgT_28",
-      "credits": "導演 Director：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸",
-      "featured": true
+      "featured": true,
+      "credits": "導演 Director：王振旭\n企劃 Producer：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
     },
     {
       "title": "水月囍樓｜豬腳湯",
@@ -35,6 +35,15 @@
       "yt": "https://youtu.be/fUWHHLb8W3k",
       "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
       "featured": true
+    },
+    {
+      "title": "愛心育苗計畫 x 小小藝術班",
+      "cat": "活動紀錄",
+      "client": "",
+      "year": "2025",
+      "yt": "https://youtu.be/KwR2NwgT_28",
+      "credits": "導演 Director：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸",
+      "featured": false
     },
     {
       "title": "衛生局記者會回顧精華",
@@ -62,15 +71,6 @@
       "yt": "https://youtu.be/2IfSHmM83YM",
       "featured": false,
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
-    },
-    {
-      "title": "屏盡全力｜綻放每一刻",
-      "cat": "公部門合作",
-      "yt": "https://youtu.be/uWSWEU_Ms00",
-      "client": "",
-      "year": "2025",
-      "featured": true,
-      "credits": "導演 Director：王振旭\n企劃 Producer：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
     },
     {
       "title": "小小縣長成果發表",
