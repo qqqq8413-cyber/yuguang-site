@@ -6,7 +6,8 @@
       "client": "",
       "year": "2022",
       "yt": "https://youtu.be/y_LyLwdwKlk",
-      "credits": "導演 Director：廖茂能\n企劃 Producer：施政昌\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
+      "credits": "導演 Director：廖茂能\n企劃 Producer：施政昌\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
+      "featured": false
     },
     {
       "title": "愛心育苗計畫 x 小小藝術班",
@@ -14,7 +15,8 @@
       "client": "",
       "year": "2025",
       "yt": "https://youtu.be/KwR2NwgT_28",
-      "credits": "導演 Director：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸"
+      "credits": "導演 Director：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸",
+      "featured": false
     },
     {
       "title": "水月囍樓｜豬腳湯",
@@ -22,7 +24,8 @@
       "client": "水月囍樓",
       "year": "2025",
       "yt": "https://youtu.be/CLFTrR3pp5w",
-      "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
+      "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
+      "featured": false
     },
     {
       "title": "水月囍樓｜月子餐",
@@ -30,7 +33,8 @@
       "client": "水月囍樓",
       "year": "2025",
       "yt": "https://youtu.be/fUWHHLb8W3k",
-      "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
+      "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
+      "featured": false
     },
     {
       "title": "衛生局記者會回顧精華",
@@ -38,7 +42,8 @@
       "client": "方成事策略顧問有限公司",
       "year": "2025",
       "yt": "https://youtu.be/UvuE-mPdBb0",
-      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
+      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
+      "featured": false
     },
     {
       "title": "2025｜YouthQuake校際隊呼比賽",
@@ -46,21 +51,16 @@
       "client": "屏東和平長老教會",
       "year": "2025",
       "yt": "https://youtu.be/7g4yXPQm1fM",
-      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
+      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
+      "featured": false
     },
     {
       "title": "藝術節花絮",
       "cat": "活動紀錄",
       "client": "某某藝術節",
       "year": "2023",
-      "yt": ""
-    },
-    {
-      "title": "品牌短影片",
-      "cat": "短影片",
-      "client": "某某品牌",
-      "year": "2024",
-      "yt": ""
+      "yt": "",
+      "featured": false
     }
   ]
 }
