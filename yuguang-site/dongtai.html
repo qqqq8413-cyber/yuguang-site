@@ -164,15 +164,15 @@
         });
     }
 
-    function sizeClass(i){const m=i%7;return m===0?' big':(m===4?' wide':'');}
+    function sizeClass(i,total){return (i%5===0&&i+4<total)?' big':'';}
     function render(){
         grid.innerHTML='';
-        videos.filter(v=>activeCat==="精選作品"?isFeatured(v):v.cat===activeCat).forEach((v,i)=>{
+        const list=videos.filter(v=>activeCat==="精選作品"?isFeatured(v):v.cat===activeCat);list.forEach((v,i)=>{
               const thumb=v.yt
                 ? `background-image:url('https://img.youtube.com/vi/${ytid(v.yt)}/maxresdefault.jpg')`
                       : `background:linear-gradient(150deg,${v.grad[0]},${v.grad[1]})`;
               const el=document.createElement('div');
-              el.className='vid fade'+sizeClass(i);el.style.animationDelay=(i*0.05)+'s';
+              el.className='vid fade'+sizeClass(i,list.length);el.style.animationDelay=(i*0.05)+'s';
               el.innerHTML=`<div class="bg" style="${thumb}"></div><div class="grain"></div><div class="play"></div>
                     <div class="info"><span class="t">${esc(v.title)}</span><span class="d">${esc(v.client||'')}${v.year?' · '+esc(v.year):''}</span></div>`;
               el.addEventListener('click',()=>openDetail(v));
