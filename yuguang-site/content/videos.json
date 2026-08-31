@@ -55,6 +55,15 @@
       "credits": "攝影 Cinematographer：吳翊綸、紀柏先\n剪輯 Editor：吳翊綸"
     },
     {
+      "title": "好屏友市集",
+      "cat": "活動紀錄",
+      "yt": "https://youtu.be/DU1UADDUAMY",
+      "client": "",
+      "year": "",
+      "featured": true,
+      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
+    },
+    {
       "title": "愛心育苗計畫 x 小小藝術班",
       "cat": "活動紀錄",
       "client": "",
@@ -70,15 +79,6 @@
       "year": "2025",
       "yt": "https://youtu.be/UvuE-mPdBb0",
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
-      "featured": false
-    },
-    {
-      "title": "2025｜YouthQuake校際隊呼比賽",
-      "cat": "活動紀錄",
-      "client": "屏東和平長老教會",
-      "year": "2025",
-      "yt": "https://youtu.be/7g4yXPQm1fM",
-      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
       "featured": false
     },
     {
@@ -100,6 +100,15 @@
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
     },
     {
+      "title": "2025｜YouthQuake校際隊呼比賽",
+      "cat": "活動紀錄",
+      "client": "屏東和平長老教會",
+      "year": "2025",
+      "yt": "https://youtu.be/7g4yXPQm1fM",
+      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
+      "featured": false
+    },
+    {
       "title": "屏東縣衛生局｜年度形象影片",
       "cat": "公部門合作",
       "yt": "https://youtu.be/VPpeGXaqoeQ",
@@ -107,15 +116,6 @@
       "year": "",
       "featured": true,
       "credits": "攝影 Cinematographer：紀柏先\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
-    },
-    {
-      "title": "好屏友市集",
-      "cat": "活動紀錄",
-      "yt": "https://youtu.be/DU1UADDUAMY",
-      "client": "",
-      "year": "",
-      "featured": true,
-      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
     },
     {
       "title": " 種籽文化基金會",
