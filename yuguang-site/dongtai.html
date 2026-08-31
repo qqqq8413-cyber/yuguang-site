@@ -50,7 +50,7 @@
       @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
       @media(max-width:560px){.grid{grid-template-columns:repeat(1,1fr)}}
       .vid{grid-column:span 1;grid-row:span 1;cursor:pointer;position:relative;overflow:hidden;background:#1c1b18}
-      .vid.big{grid-column:span 2;grid-row:span 2}
+      .vid.big{grid-column:span 2;grid-row:span 2}.vid.bigright{grid-column:2/4;grid-row:span 2}
       .vid.wide{grid-column:span 2}
       .vid .bg{position:absolute;inset:0;background-size:cover;background-position:center;
                    transition:transform 1.1s cubic-bezier(.19,1,.22,1)}
@@ -164,7 +164,7 @@
         });
     }
 
-    function sizeClass(i,total){return (i%3===0&&i<total-1)?' big':'';}
+    function sizeClass(i,total){if(i%3!==0||i>=total-1)return '';return (Math.floor(i/3)%2===0)?' big':' bigright';}
     function render(){
         grid.innerHTML='';
         const list=videos.filter(v=>activeCat==="精選作品"?isFeatured(v):v.cat===activeCat);list.forEach((v,i)=>{
