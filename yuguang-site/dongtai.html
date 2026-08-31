@@ -19,7 +19,7 @@
 
       .topbar{position:sticky;top:0;z-index:40;
                   display:flex;justify-content:space-between;align-items:center;
-                  padding:16px clamp(20px,5vw,64px);background:var(--paper)}
+                  padding:16px clamp(20px,5vw,64px);background:rgba(243,241,236,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       @media(max-width:640px){.topbar{background:rgba(243,241,236,.82);backdrop-filter:blur(10px)}}
       .topbar .mark{display:flex;align-items:center;gap:11px}
       .topbar svg{width:20px;height:22px;display:block}.topbar{pointer-events:none}.topbar a{pointer-events:auto}
@@ -36,8 +36,8 @@
                          letter-spacing:3px}
 
       .filters{display:flex;justify-content:center;flex-wrap:wrap;gap:clamp(16px,2.4vw,34px);
-                   position:sticky;top:53px;z-index:30;background:var(--paper);padding:14px 0 16px;border-bottom:1px solid var(--hair)}
-      .filter{font-family:var(--serif);font-size:14px;letter-spacing:3px;color:var(--muted);cursor:pointer;
+                   position:sticky;top:53px;z-index:30;background:rgba(243,241,236,.68);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:14px 0 16px}
+      .filters::after{content:"";position:absolute;left:0;right:0;bottom:-24px;height:24px;background:linear-gradient(rgba(243,241,236,.65),rgba(243,241,236,0));pointer-events:none}.filter{font-family:var(--serif);font-size:14px;letter-spacing:3px;color:var(--muted);cursor:pointer;
                   padding:0 0 7px;border:0;border-bottom:1px solid transparent;background:none;outline:none;
                   -webkit-tap-highlight-color:transparent;transition:.3s}
       .filter:focus,.filter:focus-visible{outline:none}
