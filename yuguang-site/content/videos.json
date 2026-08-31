@@ -78,7 +78,7 @@
       "yt": "https://youtu.be/pdzUmkjPjD0",
       "client": "",
       "year": "",
-      "featured": false,
+      "featured": true,
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
     },
     {
@@ -87,7 +87,7 @@
       "yt": "https://youtu.be/dLXgr3teqko",
       "client": "",
       "year": "",
-      "featured": false,
+      "featured": true,
       "credits": "攝影 Cinematographer：吳翊綸、紀柏先\n剪輯 Editor：吳翊綸"
     },
     {
@@ -98,6 +98,15 @@
       "year": "",
       "featured": true,
       "credits": "攝影 Cinematographer：紀柏先\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
+    },
+    {
+      "title": "好屏友市集",
+      "cat": "活動紀錄",
+      "yt": "https://youtu.be/DU1UADDUAMY",
+      "client": "",
+      "year": "",
+      "featured": false,
+      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
     }
   ]
 }
