@@ -168,9 +168,9 @@
     function render(){
         grid.innerHTML='';
         const list=videos.filter(v=>activeCat==="精選作品"?isFeatured(v):v.cat===activeCat);list.forEach((v,i)=>{
-              const thumb=v.yt
+              const thumb=v.cover?`background-image:url('${v.cover}')`:(v.yt
                 ? `background-image:url('https://img.youtube.com/vi/${ytid(v.yt)}/maxresdefault.jpg')`
-                      : `background:linear-gradient(150deg,${v.grad[0]},${v.grad[1]})`;
+                      : `background:linear-gradient(150deg,${v.grad[0]},${v.grad[1]})`);
               const el=document.createElement('div');
               el.className='vid fade'+sizeClass(i,list.length);el.style.animationDelay=(i*0.05)+'s';
               el.innerHTML=`<div class="bg" style="${thumb}"></div><div class="grain"></div><div class="play"></div>
