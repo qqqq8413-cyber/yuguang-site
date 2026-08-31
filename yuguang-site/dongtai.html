@@ -164,7 +164,7 @@
         });
     }
 
-    function sizeClass(i,total){return i%5===0?' big':'';}
+    function sizeClass(i,total){return (i%3===0&&i<total-1)?' big':'';}
     function render(){
         grid.innerHTML='';
         const list=videos.filter(v=>activeCat==="精選作品"?isFeatured(v):v.cat===activeCat);list.forEach((v,i)=>{
