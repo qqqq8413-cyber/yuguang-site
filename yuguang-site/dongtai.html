@@ -19,7 +19,7 @@
 
       .topbar{position:sticky;top:0;z-index:40;
                   display:flex;justify-content:space-between;align-items:center;
-                  padding:16px clamp(20px,5vw,64px);background:transparent}
+                  padding:16px clamp(20px,5vw,64px);background:var(--paper)}
       @media(max-width:640px){.topbar{background:rgba(243,241,236,.82);backdrop-filter:blur(10px)}}
       .topbar .mark{display:flex;align-items:center;gap:11px}
       .topbar svg{width:20px;height:22px;display:block}.topbar{pointer-events:none}.topbar a{pointer-events:auto}
@@ -36,7 +36,7 @@
                          letter-spacing:3px}
 
       .filters{display:flex;justify-content:center;flex-wrap:wrap;gap:clamp(16px,2.4vw,34px);
-                   padding-bottom:clamp(30px,4vw,52px)}
+                   position:sticky;top:53px;z-index:30;background:var(--paper);padding:14px 0 16px;border-bottom:1px solid var(--hair)}
       .filter{font-family:var(--serif);font-size:14px;letter-spacing:3px;color:var(--muted);cursor:pointer;
                   padding:0 0 7px;border:0;border-bottom:1px solid transparent;background:none;outline:none;
                   -webkit-tap-highlight-color:transparent;transition:.3s}
