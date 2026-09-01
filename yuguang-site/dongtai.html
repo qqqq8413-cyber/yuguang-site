@@ -164,13 +164,13 @@
         });
     }
 
-    const BLOCKS=[[[4,2],[2,1],[2,1]],[[2,1],[2,1],[2,1]],[[3,2],[3,2]],[[2,1],[4,2],[2,1]],[[2,1],[2,1],[2,1]]];
+    const BLOCKS=[[[4,2],[2,1],[2,1]],[[2,1],[2,1],[2,1]],[[3,2],[3,2]],[[2,1],[4,2],[2,1]],[[2,1],[2,1],[2,1]]];const TAIL={1:[[6,2]],2:[[3,2],[3,2]],3:[[2,1],[2,1],[2,1]],4:[[3,1],[3,1],[3,1],[3,1]],5:[[2,1],[2,1],[2,1],[3,1],[3,1]]};
     function render(){
         grid.innerHTML='';
         const list=videos.filter(v=>activeCat==="精選作品"?isFeatured(v):v.cat===activeCat);
         let bi=0,i=0;
         while(i<list.length){
-              const block=BLOCKS[bi%BLOCKS.length];bi++;
+              const rem=list.length-i;const block=rem<=5?TAIL[rem]:BLOCKS[bi%BLOCKS.length];if(rem>5)bi++;
               for(let k=0;k<block.length&&i<list.length;k++){
                       const cspan=block[k][0],rspan=block[k][1],v=list[i];
                       const thumb=v.cover?`background-image:url('${v.cover}')`:(v.yt?`background-image:url('https://img.youtube.com/vi/${ytid(v.yt)}/maxresdefault.jpg')`:`background:linear-gradient(150deg,${v.grad[0]},${v.grad[1]})`);
