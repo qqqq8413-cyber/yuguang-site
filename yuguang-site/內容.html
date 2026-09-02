@@ -318,14 +318,14 @@
     }
 
     /* 器材 */
-    function renderGear(){
+    const GEAR_CATS=['相機機身','鏡頭','燈光','收音','穩定器','空拍機','腳架']; let curGearCat=null; function allGearCats(){const set=new Set(GEAR_CATS);DATA.gear.forEach(g=>{if(g.cat)set.add(g.cat);});return [...set];} function gearCatOptions(cur){const list=allGearCats();const c0=cur||'';let o='<option value=""'+(!c0?' selected':'')+' disabled>— 請選擇分類 —</option>';o+=list.map(c=>'<option value="'+esc(c)+'"'+(c===c0?' selected':'')+'>'+esc(c)+'</option>').join('');return o+'<option value="__custom__">＋ 自訂新分類…</option>';} function gearCatChange(i,val){if(val==='__custom__'){const c=(prompt('輸入新的分類名稱：')||'').trim();if(c)DATA.gear[i].cat=c;renderGear();return;}DATA.gear[i].cat=val;renderGear();} function addGearCat(){const c=(prompt('輸入新分類名稱：')||'').trim();if(!c)return;curGearCat=c;renderGear();} function openGearCat(c){curGearCat=c;renderGear();} function addGearToCurrentCat(){DATA.gear.push({name:'',cat:curGearCat||'',price:0,image:'',spec:'',desc:''});renderGear();} function renderGear(){ if(curGearCat!==null)return renderGearCat(); const box=$('p-gear'); let h='<div class="hint">器材依分類整理。點分類進去可新增／管理該分類的器材。</div>'; h+='<div class="sechead"><h2>器材分類</h2><button class="btn" onclick="addGearCat()">+ 新增分類</button></div>'; const cats=allGearCats(); h+='<div>'; cats.forEach(c=>{const n=DATA.gear.filter(g=>g.cat===c).length;h+='<div class="card albumcard"><div class="row top"><div><span class="an">'+esc(c)+'</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+n+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\''+esc(c)+'\')">管理器材</button></div></div></div>';}); const un=DATA.gear.filter(g=>!g.cat).length; if(un)h+='<div class="card albumcard"><div class="row top"><div><span class="an">未分類</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+un+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\'\')">管理器材</button></div></div></div>'; h+='</div>'; box.innerHTML=h; } function renderGearCat(){
         const box=$('p-gear');
-        let h='<div class="sechead"><h2>器材列表</h2><button class="btn" onclick="DATA.gear.push({name:\'\',cat:\'相機機身\',price:0,image:\'\',spec:\'\',desc:\'\'});renderGear()">+ 新增器材</button></div>';
+        const CG=curGearCat||''; let h='<div style="margin-bottom:12px"><button class="btn sm ghost" onclick="curGearCat=null;renderGear()">← 返回分類</button></div>'; h+='<div class="sechead"><h2>'+esc(CG||'未分類')+'</h2><button class="btn" onclick="addGearToCurrentCat()">+ 新增器材</button></div>';
         h+='<div id="gearList">';
-        DATA.gear.forEach((g,i)=>{
+        DATA.gear.forEach((g,i)=>{ if((g.cat||'')!==CG)return;
               h+=`<div class="card"><div class="row" style="align-items:center;gap:8px;margin-bottom:10px"><span class="drag" title="拖曳排序" style="cursor:grab;color:var(--muted);font-size:18px;line-height:1;user-select:none">⣿</span><span style="color:var(--muted);font-size:12px">拖曳可調整順序</span></div><div class="grid3">
                     <div><label class="lbl">器材名稱</label><input class="f" value="${esc(g.name)}" oninput="DATA.gear[${i}].name=this.value"></div>
-                          <div><label class="lbl">分類</label><input class="f" value="${esc(g.cat)}" oninput="DATA.gear[${i}].cat=this.value"></div>
+                          <div><label class="lbl">分類（改這裡可移到其他分類）</label><select class="f" onchange="gearCatChange(${i},this.value)">${gearCatOptions(g.cat)}</select></div>
                                 <div><label class="lbl">日租價（數字）</label><input class="f" type="number" value="${esc(g.price)}" oninput="DATA.gear[${i}].price=Number(this.value)||0"></div>
                                       </div>
                                             <div style="margin-top:12px"><label class="lbl">規格（用 ・ 分隔）</label><input class="f" value="${esc(g.spec)}" oninput="DATA.gear[${i}].spec=this.value"></div>
@@ -341,12 +341,12 @@
                                                                                                                             </div></div>`;
         });
         h+='</div>';
-        if(!DATA.gear.length)h+='<div class="hint">目前沒有器材。</div>';
+        if(!DATA.gear.filter(g=>(g.cat||'')===CG).length)h+='<div class="hint">這個分類還沒有器材，點「+ 新增器材」開始。</div>';
         h+=`<input type="file" id="gearFile" accept="image/*" class="hidden">`;
         h+=`<div class="savebar"><span class="msg" id="gmsg"></span>
             <button class="btn dark" onclick="saveGear(this)">儲存器材</button></div>`;
         box.innerHTML=h;
-        initSort('gearList',DATA.gear,()=>renderGear());
+        (function(){const el=document.getElementById('gearList');if(!el||typeof Sortable==='undefined')return;new Sortable(el,{handle:'.drag',animation:150,onEnd:e=>{if(e.oldIndex===e.newIndex)return;const idxs=DATA.gear.map((g,i)=>i).filter(i=>(DATA.gear[i].cat||'')===CG);sortArr(DATA.gear,idxs[e.oldIndex],idxs[e.newIndex]);renderGearCat();}});})();
         $('gearFile').onchange=async e=>{
               const f=e.target.files[0];if(!f)return;const msg=$('gmsg');msg.textContent='上傳中…';
               try{const path=await uploadImage(f);DATA.gear[gearImgIdx].image=path;msg.textContent='照片已上傳，記得按「儲存器材」';renderGear();}
