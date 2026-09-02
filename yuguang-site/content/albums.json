@@ -1119,10 +1119,6 @@
           "en": "",
           "photos": [
             {
-              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024895/qpmpaz1p8gstykyiw8pr.jpg",
-              "caption": ""
-            },
-            {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024822/d8fnskrvbok2vgjo4gjf.jpg",
               "caption": ""
             },
@@ -1267,6 +1263,10 @@
               "caption": ""
             },
             {
+              "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024895/qpmpaz1p8gstykyiw8pr.jpg",
+              "caption": ""
+            },
+            {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024894/lhui9trec2mbwv6snznt.jpg",
               "caption": ""
             },
@@ -1306,7 +1306,8 @@
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024910/qypcxsx0f5ijugubrd5a.jpg",
               "caption": ""
             }
-          ]
+          ],
+          "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024895/qpmpaz1p8gstykyiw8pr.jpg"
         }
       ],
       "photos": []
