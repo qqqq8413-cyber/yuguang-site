@@ -65,7 +65,7 @@
       .thumb img{width:100%;height:100px;object-fit:cover;display:block}
       .thumb input{width:100%;border:0;border-top:1px solid var(--line);padding:6px 8px;font-size:12px;background:#fff;outline:none}
       .thumb .del{position:absolute;top:4px;right:4px;background:rgba(23,22,19,.7);color:#fff;border:0;
-                      width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1}
+                      width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1} .thumb .covbtn{display:block;width:100%;border:0;border-top:1px solid var(--line);background:#fff;color:var(--muted);font-size:11px;letter-spacing:1px;padding:5px 4px;cursor:pointer} .thumb .covbtn:hover{color:var(--ink)} .thumb .covbtn.on{background:var(--ink);color:#fff}
 
       .savebar{position:sticky;bottom:0;background:var(--paper);border-top:1px solid var(--line);
                    padding:14px 0;display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:8px}
@@ -219,7 +219,7 @@
         const al=DATA.albums[curAlbum];if(!Array.isArray(al.photos))al.photos=[];
         return {photos:al.photos, path:`DATA.albums[${curAlbum}].photos`, rerender:renderAlbumDetail};
     }
-    function photoUploaderHTML(mode){
+    function coverOwner(mode){return mode==='pj'?DATA.albums[curAlbum].projects[curProject]:DATA.albums[curAlbum];} function coverMsg(s){const m=document.getElementById('pmsg');if(m)m.textContent=s;} function setCover(mode,j){const t=photoTarget(mode);coverOwner(mode).cover=t.photos[j].image;t.rerender();coverMsg('封面已設定，記得按「儲存」');} function clearCover(mode){coverOwner(mode).cover='';const t=photoTarget(mode);t.rerender();coverMsg('已改回自動使用第一張，記得按「儲存」');} function covBtn(mode,j){const t=photoTarget(mode);const on=(coverOwner(mode).cover||'')===t.photos[j].image;return '<button class="covbtn'+(on?' on':'')+'" onclick="'+(on?"clearCover('"+mode+"')":"setCover('"+mode+"',"+j+")")+'">'+(on?'★ 封面':'設為封面')+'</button>';} function photoUploaderHTML(mode){
         const t=photoTarget(mode);const rr=mode==='pj'?'renderProjectDetail':'renderAlbumDetail';
         let h=`<button class="btn dark" onclick="$('photoFile').click()">+ 上傳照片（可多選）</button>
               <input type="file" id="photoFile" accept="image/*" multiple class="hidden">`;
@@ -228,7 +228,7 @@
               h+=`<div class="thumb">
                     <span class="drag" title="拖曳排序" style="position:absolute;top:4px;left:4px;z-index:2;cursor:grab;color:#fff;background:rgba(0,0,0,.45);border-radius:3px;padding:1px 5px;font-size:14px;line-height:1.3;user-select:none">⣿</span>
                           <button class="del" onclick="${t.path}.splice(${j},1);${rr}()">×</button>
-                                <img src="${esc(p.image)}" loading="lazy">
+                                <img src="${esc(p.image)}" loading="lazy">${covBtn(mode,j)}
                                       <input value="${esc(p.caption||'')}" placeholder="說明（可留空）" oninput="${t.path}[${j}].caption=this.value">
                                             </div>`;
         });
