@@ -323,8 +323,11 @@ fetch('content/gear.json').then(r=>r.json()).then(data=>{
 }).catch(()=>{document.getElementById('grid').innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無器材資料</p>';});
 
 function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
-const GEARICON={'攝影機':'camera','相機機身':'camera','相機':'camera','鏡頭':'lens','燈光':'light','收音':'audio','穩定器':'gimbal','空拍機':'drone','腳架':'tripod'};
+const GEARICON={'攝影機':'camera','相機機身':'camera','相機':'camera','燈光配件':'light','燈架':'tripod','鏡頭':'lens','燈光':'light','收音':'audio','穩定器':'gimbal','空拍機':'drone','腳架':'tripod'};
 function gearIcon(cat){return 'assets/gear-icons/'+(GEARICON[cat]||'other')+'.svg';}
+/* 尚未定價的器材顯示「價格洽詢」,不再因 price 空白而整頁出錯 */
+function hasP(g){return typeof g.price==='number'&&g.price>0;}
+function fmtP(g){return hasP(g)?'NT$ '+g.price.toLocaleString():'價格洽詢';}
 function gbg(g,w){w=w||800;
   /* 沒有照片時:紙色底 + 分類線稿圖示,不再是空灰色塊 */
   return g.image ? `background-image:url('${opt(g.image,w)}');background-size:cover;background-position:center`
@@ -366,7 +369,7 @@ function render(){
       <span class="pname" data-open="${g.id}">${g.name}</span>
       <div class="pspec">${g.spec}</div>
       <div class="prow">
-        <span class="price"><b>NT$ ${g.price.toLocaleString()}</b><span>/ 日</span></span>
+        <span class="price"><b>${fmtP(g)}</b>${hasP(g)?'<span>/ 日</span>':''}</span>
         <button class="add" data-add="${g.id}">加入詢價</button>
       </div>`;
     grid.appendChild(el);
@@ -383,7 +386,7 @@ function openDetail(id){
   document.getElementById('dBg').style.cssText=gbg(g,1200);
   document.getElementById('dTag').textContent=g.cat;
   document.getElementById('dName').textContent=g.name;
-  document.getElementById('dPrice').textContent='NT$ '+g.price.toLocaleString();
+  document.getElementById('dPrice').textContent=fmtP(g);document.getElementById('dPrice').nextElementSibling.style.display=hasP(g)?'':'none';
   document.getElementById('dSpecs').innerHTML=g.spec.split('・').map(s=>`<li>${s}</li>`).join('');
   document.getElementById('dDesc').textContent=g.desc;
   document.getElementById('dAdd').onclick=()=>addToCart(id);
@@ -413,11 +416,12 @@ function renderCart(){
     send.classList.add('disabled');return;
   }
   let total=0;
-  box.innerHTML=cart.map(id=>{const g=gear[id];total+=g.price;
+  let ask=false;
+  box.innerHTML=cart.map(id=>{const g=gear[id];if(hasP(g))total+=g.price;else ask=true;
     return `<div class="ci"><div><div class="cn">${g.name}</div><div class="cp">${g.cat}</div></div>
-      <div style="text-align:right"><div class="cn">NT$ ${g.price.toLocaleString()}<span style="color:var(--muted);font-size:11px"> /日</span></div></div>
+      <div style="text-align:right"><div class="cn">${fmtP(g)}${hasP(g)?'<span style="color:var(--muted);font-size:11px"> /日</span>':''}</div></div>
       <span class="rm" data-rm="${id}">×</span></div>`;}).join('');
-  document.getElementById('cartTotal').textContent='NT$ '+total.toLocaleString();
+  document.getElementById('cartTotal').textContent=total>0?'NT$ '+total.toLocaleString()+(ask?' ＋ 洽詢品項':''):'價格洽詢';
   box.querySelectorAll('[data-rm]').forEach(n=>n.addEventListener('click',()=>removeFromCart(+n.dataset.rm)));
   send.classList.remove('disabled');
 }
@@ -446,9 +450,9 @@ document.getElementById('cartSend').addEventListener('click',()=>{
   let days=1;
   const d=(new Date(end)-new Date(start))/86400000;
   if(!isNaN(d)&&d>=0)days=d+1;
-  const dailyTotal=cart.reduce((s,id)=>s+gear[id].price,0);
+  const dailyTotal=cart.reduce((s,id)=>s+(hasP(gear[id])?gear[id].price:0),0);
   const amount=dailyTotal*days;
-  const items=cart.map(id=>`${gear[id].name}（NT$${gear[id].price}/日）`).join('、');
+  const items=cart.map(id=>`${gear[id].name}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格洽詢'}）`).join('、');
   const order={name:name||'未具名',contact,start,end,days,items,dailyTotal,amount};
   send.textContent='送出中…';send.classList.add('disabled');
   const formData=new URLSearchParams({'form-name':'rental-inquiry',name:order.name,contact,items,start,end,amount:String(amount)});

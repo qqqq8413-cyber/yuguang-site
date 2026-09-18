@@ -215,7 +215,7 @@
         });
     }
 
-    const GEARICON={'攝影機':'camera','相機機身':'camera','相機':'camera','鏡頭':'lens','燈光':'light','收音':'audio','穩定器':'gimbal','空拍機':'drone','腳架':'tripod'};
+    const GEARICON={'攝影機':'camera','相機機身':'camera','相機':'camera','燈光配件':'light','燈架':'tripod','鏡頭':'lens','燈光':'light','收音':'audio','穩定器':'gimbal','空拍機':'drone','腳架':'tripod'};
     function gearIcon(cat){return 'assets/gear-icons/'+(GEARICON[cat]||'other')+'.svg';}
     function ytid(s){s=String(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
 
