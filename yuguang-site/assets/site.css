@@ -1,0 +1,46 @@
+/* 全站共用:導覽列、對比、淡入節奏。載入於各頁 inline <style> 之後,以覆寫同名規則。 */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&display=swap");
+
+:root{--muted:#716a5d} /* 原 #a19a8d 對比 2.5:1 → 4.7:1(WCAG AA) */
+
+/* ---- 淡入:縮短、減少位移,第一屏不再長時間空白 ---- */
+.reveal{transform:translateY(10px)!important;transition:opacity .45s ease,transform .45s ease!important}
+.reveal.show{transform:none!important}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1!important;transform:none!important;transition:none!important}
+}
+
+/* ---- 導覽列 ---- */
+.sitenav{display:flex;align-items:center;gap:clamp(18px,2.2vw,32px);font-family:var(--serif)}
+.sitenav a{position:relative;font-size:13px;letter-spacing:2.5px;color:var(--muted);transition:color .25s;padding:6px 0}
+.sitenav a:hover,.sitenav a[aria-current="page"]{color:var(--ink)}
+.sitenav a[aria-current="page"]::after{content:"";position:absolute;left:0;right:2.5px;bottom:0;height:1px;background:var(--ink)}
+.sitenav a.cta{color:var(--paper);background:var(--ink);padding:7px 16px;letter-spacing:2px}
+.sitenav a.cta::after{display:none}
+.sitenav a.cta:hover{opacity:.85;color:var(--paper)}
+.topbar .right{display:flex;align-items:center;gap:clamp(16px,2.5vw,30px)}
+
+.navtoggle{display:none;pointer-events:auto;background:none;border:0;cursor:pointer;width:40px;height:40px;
+  margin-right:-10px;align-items:center;justify-content:center;color:var(--ink)}
+.navtoggle span{display:block;width:20px;height:1px;background:currentColor;position:relative;transition:background .2s}
+.navtoggle span::before,.navtoggle span::after{content:"";position:absolute;left:0;width:20px;height:1px;background:currentColor;transition:transform .3s}
+.navtoggle span::before{top:-6px}.navtoggle span::after{top:6px}
+.nav-open .navtoggle span{background:transparent}
+.nav-open .navtoggle span::before{transform:translateY(6px) rotate(45deg)}
+.nav-open .navtoggle span::after{transform:translateY(-6px) rotate(-45deg)}
+
+@media (max-width:900px){
+  .navtoggle{display:flex}
+  .sitenav{position:fixed;inset:0;z-index:-1;flex-direction:column;justify-content:center;gap:26px;
+    background:var(--paper);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;pointer-events:auto}
+  .sitenav a{font-size:1.25rem;letter-spacing:8px;text-indent:8px}
+  .sitenav a.cta{font-size:1rem;margin-top:10px;padding:12px 32px}
+  .nav-open .sitenav{opacity:1;visibility:visible}
+  .nav-open{overflow:hidden}
+}
+/* backdrop-filter 會讓 fixed 子元素改以頂欄為定位框,展開選單時先關掉 */
+.nav-open .topbar{z-index:1000!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--paper)!important}
+/* 中文標題與宣言避免最後一行只剩一兩個字 */
+h1,h2,h3,.manifesto,.tagline{text-wrap:balance}
+/* 頂欄 logo:原本 height:auto 會讓 <svg><use> 撐到預設 150px,頂欄變 180px 高 */
+.topbar .mark svg{width:20px;height:22px;display:block}
