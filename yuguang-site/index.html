@@ -14,15 +14,65 @@
       *{margin:0;padding:0;box-sizing:border-box}
       body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
       a{text-decoration:none;color:inherit}
+      html{scroll-behavior:smooth}
 
-      .hero{text-align:center;padding:clamp(46px,9vh,104px) 20px clamp(26px,4vh,46px)}
-      .hero .logo{width:clamp(52px,6vw,78px);height:auto;margin-bottom:18px}
-      .hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.1rem,5.2vw,3.3rem);letter-spacing:16px;text-indent:16px;line-height:1.1}
-      .hero .latin{font-family:var(--serif);font-size:clamp(10px,1.3vw,12px);letter-spacing:7px;text-indent:7px;color:var(--muted);margin-top:14px}
-      .hero .tagline{font-family:var(--serif);color:var(--ink);opacity:.7;margin-top:20px;letter-spacing:3px;font-size:clamp(.9rem,1.7vw,1.04rem)}
-      .hero .nav{margin-top:24px;display:flex;gap:26px;justify-content:center;flex-wrap:wrap;font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted)}
-      .hero .nav a{transition:color .3s}
-      .hero .nav a:hover{color:var(--ink)}
+      /* 首頁主視覺:滿版精選影像輪播,文字疊在影像上 */
+      .hero{position:relative;height:88svh;min-height:520px;max-height:1100px;overflow:hidden;background:var(--ink);color:#f3f1ec;
+            display:flex;flex-direction:column;justify-content:flex-end;padding:0 clamp(20px,5vw,64px) clamp(84px,11vh,120px)}
+      .hero .slides,.hero .slide{position:absolute;inset:0}
+      .hero .slide{background-image:var(--img);background-size:cover;background-position:center 40%;opacity:0;transition:opacity 1.6s ease}
+      .hero .slide.on{opacity:1}
+      .hero .slide.on.zoom{animation:kb 9s ease-out forwards}
+      @keyframes kb{from{transform:scale(1.08)}to{transform:scale(1)}}
+      .hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+            background:linear-gradient(to bottom,rgba(20,18,15,.35),rgba(20,18,15,0) 28%,rgba(20,18,15,.15) 50%,rgba(20,18,15,.78)),
+                  linear-gradient(to right,rgba(20,18,15,.45),rgba(20,18,15,0) 55%)}
+      .hero .inner{position:relative;z-index:2;max-width:640px}
+      .hero .logo{display:block;width:clamp(40px,5vw,64px);height:auto;aspect-ratio:192/208;margin-bottom:18px}
+      .hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.1rem,5.2vw,3.6rem);letter-spacing:16px;line-height:1.1}
+      .hero .latin{font-family:var(--serif);font-size:clamp(10px,1.3vw,12px);letter-spacing:7px;opacity:.8;margin-top:14px}
+      .hero .tagline{font-family:var(--serif);margin-top:22px;letter-spacing:3px;font-size:clamp(.95rem,1.7vw,1.1rem);opacity:.92}
+      .hero .actions{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--serif);font-size:13px;letter-spacing:3px}
+      .hero .actions a{padding:12px 28px;border:1px solid rgba(243,241,236,.7);transition:background .3s,color .3s}
+      .hero .actions a:hover,.hero .actions a.solid{background:#f3f1ec;color:var(--ink)}
+      .hero .actions a.solid:hover{background:transparent;color:#f3f1ec}
+      .hero .foot{position:absolute;z-index:2;left:0;right:0;bottom:0;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;border-top:1px solid rgba(243,241,236,.18);padding-top:16px!important;margin:0 clamp(20px,5vw,64px);padding-left:0!important;padding-right:0!important;
+            padding:0 clamp(20px,5vw,64px) 22px;font-family:var(--serif);font-size:12px;letter-spacing:2px}
+      .hero .now{opacity:.88;transition:opacity .4s;text-align:left;max-width:70%}
+      .hero .now:hover{opacity:1}
+      .hero .now small{display:block;font-size:10.5px;letter-spacing:3px;opacity:.7;margin-bottom:4px;text-transform:uppercase}
+      .hero .dots{display:flex;gap:8px}
+      .hero .dots button{width:22px;height:22px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+      .hero .dots button::before{content:"";width:18px;height:1px;background:rgba(243,241,236,.45);transition:background .3s}
+      .hero .dots button[aria-current="true"]::before{background:#f3f1ec;height:2px}
+      /* 直向螢幕:輪播改成 16:9 滿寬(影片原始比例,不裁切),品牌文字疊在下緣(留出底部約 15% 給影片內嵌字幕)、作品名稱與切換點在上緣;兩顆按鈕移到影像下方 */
+      @media (max-aspect-ratio:4/5){
+        .hero{height:auto;aspect-ratio:16/9;min-height:0;max-height:none;overflow:visible;margin-bottom:78px;
+              justify-content:flex-end;padding:0 16px 8.5vw}
+        .hero .slides{overflow:hidden}
+        .hero::after{background:linear-gradient(to bottom,rgba(20,18,15,.6),rgba(20,18,15,0) 30%,rgba(20,18,15,0) 42%,rgba(20,18,15,.85))}
+        .hero .logo{display:none}
+        .hero h1{font-size:1.35rem;letter-spacing:8px}
+        .hero .latin{display:none}
+        .hero .tagline{font-size:.78rem;letter-spacing:1.5px;margin-top:6px}
+        .hero .foot{top:0;bottom:auto;margin:0 16px;padding-top:10px!important;padding-bottom:0;border-top:0;align-items:flex-start;font-size:11.5px}
+        .hero .now small{font-size:9.5px;margin-bottom:2px}
+        .hero .actions{position:absolute;left:0;right:0;top:calc(100% + 8.5vw + 16px);margin:0;
+              display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .hero .actions a{text-align:center;padding:12px 0;border-color:var(--ink);color:var(--ink)}
+        .hero .actions a:hover,.hero .actions a.solid{background:var(--ink);color:var(--paper)}
+        .hero .actions a.solid:hover{background:transparent;color:var(--ink)}
+      }
+      @media (prefers-reduced-motion:reduce){.hero .slide.on.zoom{animation:none}.hero .slide{transition:none}}
+
+      /* 首頁頂欄:捲過主視覺才出現 */
+      .topbar{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;
+            padding:15px clamp(20px,5vw,64px);background:var(--paper);border-bottom:1px solid var(--hair);
+            transform:translateY(-100%);transition:transform .35s ease}
+      .topbar.show,.nav-open .topbar{transform:none}
+      .topbar .mark{display:flex;align-items:center;gap:11px}
+      .topbar .name{font-family:var(--serif);font-size:14px;letter-spacing:5px;text-indent:5px}
+      .rows{padding-top:clamp(36px,6vh,64px)}
 
       .rows{padding-bottom:clamp(48px,8vh,88px)}
       .row{margin-bottom:clamp(30px,5vh,50px)}
@@ -67,18 +117,28 @@
         </symbol>
     </svg>
 
-    <div class="hero">
+    <div class="topbar" id="topbar">
+      <a class="mark" href="index.html"><svg><use href="#logo"/></svg><span class="name">嶼光映像</span></a>
+    </div>
+
+    <header class="hero" id="hero">
+      <div class="slides" id="slides" aria-hidden="true"></div>
+      <div class="inner">
         <svg class="logo"><use href="#logo"/></svg>
         <h1>嶼光映像</h1>
-      <div class="latin">PHOS OF ISLE</div>
-      <p class="tagline">以光為筆,紀錄島嶼的每一道影像</p>
-      <nav class="nav">
-          <a href="liucheng.html">製作流程</a>
-          <a href="guanyu.html">關於嶼光</a>
-          <a href="lianluo.html">聯絡我們</a>
-      </nav>
-    </div>
-  
+        <div class="latin">PHOS OF ISLE</div>
+        <p class="tagline">以光為筆，紀錄島嶼的每一道影像</p>
+        <div class="actions">
+          <a href="#rows">瀏覽作品</a>
+          <a class="solid" href="lianluo.html">預約諮詢</a>
+        </div>
+      </div>
+      <div class="foot">
+        <a class="now" id="now" href="dongtai.html" hidden></a>
+        <div class="dots" id="dots"></div>
+      </div>
+    </header>
+
   <div class="rows" id="rows"></div>
   
   <footer>© 2026 嶼光映像</footer>
@@ -127,6 +187,47 @@
         });
     }
 
+    function ytid(s){s=String(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
+
+    /* 影片封面常內嵌電影黑邊;主視覺用 Cloudinary e_trim 先裁掉純色邊再放大 */
+    function heroImg(u,w){if(u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1)return u.replace('/upload/',`/upload/e_trim:20/f_auto,q_auto,w_${w||2000}/`);return u;}
+    /* 主視覺輪播:精選影片中有自訂封面的優先(橫幅、高解析);不足 2 張時補平面作品照片 */
+    function buildHero(v,a){
+        const slides=[];
+        (v.videos||[]).filter(x=>x.cover&&(x.featured===true||x.cat==='精選作品')).forEach(x=>
+              slides.push({img:heroImg(x.cover),kicker:'Videography · '+(x.cat||'動態作品'),title:x.title||'',href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt))}));
+        if(slides.length<2)(a.albums||[]).forEach((al,i)=>{const ph=firstPhoto(al);
+              if(ph)slides.push({img:heroImg(ph),kicker:'Photography · '+(al.zh||''),title:al.zh||'',href:'pingmian.html?cat='+i});});
+        if(!slides.length)return;
+        const box=document.getElementById('slides'),dots=document.getElementById('dots'),now=document.getElementById('now');
+        const still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+        box.innerHTML=slides.map(sl=>`<div class="slide${still?'':' zoom'}" data-img="${esc(sl.img)}"></div>`).join('');
+        const els=[...box.children];
+        const load=i=>{const el=els[i];if(el.dataset.img){el.style.setProperty('--img',`url('${el.dataset.img}')`);delete el.dataset.img;}};
+        if(slides.length>1)dots.innerHTML=slides.map((sl,i)=>`<button type="button" aria-label="第 ${i+1} 張:${esc(sl.title)}"></button>`).join('');
+        let cur=-1,timer=null;
+        function go(i){
+              if(i===cur)return;
+              load(i);load((i+1)%els.length);
+              els.forEach((el,k)=>el.classList.toggle('on',k===i));
+              [...dots.children].forEach((d,k)=>d.setAttribute('aria-current',String(k===i)));
+              const sl=slides[i];now.hidden=false;now.href=sl.href;
+              now.innerHTML=`<small>${esc(sl.kicker)}</small>${esc(sl.title)} →`;
+              cur=i;
+        }
+        function play(){clearInterval(timer);if(!still&&els.length>1)timer=setInterval(()=>go((cur+1)%els.length),7000);}
+        [...dots.children].forEach((d,k)=>d.addEventListener('click',()=>{go(k);play();}));
+        document.addEventListener('visibilitychange',()=>{document.hidden?clearInterval(timer):play();});
+        go(0);play();
+    }
+
+    /* 頂欄:捲過主視覺才滑入 */
+    (function(){
+        const bar=document.getElementById('topbar'),hero=document.getElementById('hero');
+        const upd=()=>bar.classList.toggle('show',window.scrollY>hero.offsetHeight-80);
+        window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+    })();
+
     Promise.all([
         fetch('content/albums.json').then(r=>r.json()).catch(()=>({albums:[]})),
         fetch('content/videos.json').then(r=>r.json()).catch(()=>({videos:[]})),
@@ -142,11 +243,12 @@
         });
         addRow('平面作品','Photography','pingmian.html',plane);
 
-                const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html',img:x.cover||`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
+                const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover?heroImg(x.cover,800):`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids);
 
                 const gear=(g.gear||[]).map(x=>({href:'qicai.html',img:opt(x.image,800),cap:x.name||'器材',sub:x.cat}));
         addRow('器材租賃','Rental','qicai.html',gear);
+        buildHero(v,a);
     }).catch(()=>{rows.innerHTML='<div class="empty">作品載入中,請稍後重新整理。</div>';});
 </script>
   </body>
