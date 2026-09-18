@@ -102,7 +102,15 @@
       footer{text-align:center;padding:28px 20px;border-top:1px solid var(--hair);
                  font-family:var(--serif);font-size:11px;letter-spacing:2.5px;color:var(--muted)}
     </style>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script>/* 中文字型檔很大,在 4G 上會跟照片搶頻寬(實測讓第一屏照片晚約 0.8 秒)。
+     這頁等第一屏照片載完才載字型,最多等 4 秒。 */
+  window.loadSiteFont=function(){if(window.__fontOn)return;window.__fontOn=1;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&display=swap";document.head.appendChild(l)};
+  setTimeout(window.loadSiteFont,4000);</script>
+  <link rel="preload" href="content/albums.json" as="fetch" crossorigin>
+  <link rel="preload" href="content/videos.json" as="fetch" crossorigin>
+  <link rel="preload" href="content/gear.json" as="fetch" crossorigin>
   <link rel="stylesheet" href="assets/site.css">
   <script src="assets/site.js" defer></script>
   </head>
@@ -202,7 +210,8 @@
               slides.push({img:heroImg(x.cover),kicker:'Videography · '+(x.cat||'動態作品'),title:x.title||'',href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt))}));
         if(slides.length<2)(a.albums||[]).forEach((al,i)=>{const ph=firstPhoto(al);
               if(ph)slides.push({img:heroImg(ph),kicker:'Photography · '+(al.zh||''),title:al.zh||'',href:'pingmian.html?cat='+i});});
-        if(!slides.length)return;
+        if(!slides.length){window.loadSiteFont();return;}
+        {const im=new Image();im.onload=im.onerror=()=>window.loadSiteFont();im.src=slides[0].img;}
         const box=document.getElementById('slides'),dots=document.getElementById('dots'),now=document.getElementById('now');
         const still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
         box.innerHTML=slides.map(sl=>`<div class="slide${still?'':' zoom'}" data-img="${esc(sl.img)}"></div>`).join('');

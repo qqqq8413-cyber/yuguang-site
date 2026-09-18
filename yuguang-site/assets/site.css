@@ -1,5 +1,5 @@
 /* 全站共用:導覽列、對比、淡入節奏。載入於各頁 inline <style> 之後,以覆寫同名規則。 */
-@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&display=swap");
+/* 字型改由各頁 <head> 以非阻塞方式載入(原本在這裡 @import,會讓整頁多等一次請求) */
 
 :root{--muted:#716a5d} /* 原 #a19a8d 對比 2.5:1 → 4.7:1(WCAG AA) */
 
