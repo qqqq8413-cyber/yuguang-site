@@ -45,19 +45,19 @@
       .hero .dots button{width:22px;height:22px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
       .hero .dots button::before{content:"";width:18px;height:1px;background:rgba(243,241,236,.45);transition:background .3s}
       .hero .dots button[aria-current="true"]::before{background:#f3f1ec;height:2px}
-      /* 直向螢幕:輪播改成 1:1 滿寬(適度裁切),品牌文字疊在下緣(留出底部約 15% 給影片內嵌字幕)、作品名稱與切換點在上緣;兩顆按鈕移到影像下方 */
+      /* 直向螢幕:輪播改成 16:9 滿寬(影片原始比例,不裁切),品牌文字疊在下緣(留出底部約 15% 給影片內嵌字幕)、作品名稱與切換點在上緣;兩顆按鈕移到影像下方 */
       @media (max-aspect-ratio:4/5){
-        .hero{height:auto;aspect-ratio:1/1;min-height:0;max-height:none;overflow:visible;margin-bottom:78px;
-              justify-content:flex-end;padding:0 20px 17%}
+        .hero{height:auto;aspect-ratio:16/9;min-height:0;max-height:none;overflow:visible;margin-bottom:78px;
+              justify-content:flex-end;padding:0 16px 8.5vw}
         .hero .slides{overflow:hidden}
-        .hero::after{background:linear-gradient(to bottom,rgba(20,18,15,.55),rgba(20,18,15,0) 22%,rgba(20,18,15,0) 45%,rgba(20,18,15,.82))}
+        .hero::after{background:linear-gradient(to bottom,rgba(20,18,15,.6),rgba(20,18,15,0) 30%,rgba(20,18,15,0) 42%,rgba(20,18,15,.85))}
         .hero .logo{display:none}
-        .hero h1{font-size:1.7rem;letter-spacing:10px}
-        .hero .latin{font-size:10px;letter-spacing:5px;margin-top:8px}
-        .hero .tagline{font-size:.86rem;letter-spacing:2px;margin-top:10px}
-        .hero .foot{top:0;bottom:auto;margin:0 20px;padding-top:14px!important;padding-bottom:0;border-top:0;align-items:flex-start;font-size:11.5px}
+        .hero h1{font-size:1.35rem;letter-spacing:8px}
+        .hero .latin{display:none}
+        .hero .tagline{font-size:.78rem;letter-spacing:1.5px;margin-top:6px}
+        .hero .foot{top:0;bottom:auto;margin:0 16px;padding-top:10px!important;padding-bottom:0;border-top:0;align-items:flex-start;font-size:11.5px}
         .hero .now small{font-size:9.5px;margin-bottom:2px}
-        .hero .actions{position:absolute;left:0;right:0;top:calc(100% + 17vw + 18px);margin:0;
+        .hero .actions{position:absolute;left:0;right:0;top:calc(100% + 8.5vw + 16px);margin:0;
               display:grid;grid-template-columns:1fr 1fr;gap:10px}
         .hero .actions a{text-align:center;padding:12px 0;border-color:var(--ink);color:var(--ink)}
         .hero .actions a:hover,.hero .actions a.solid{background:var(--ink);color:var(--paper)}
