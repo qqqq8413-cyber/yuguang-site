@@ -152,6 +152,8 @@
     fetch('content/videos.json').then(r=>r.json()).then(data=>{
         videos=(data.videos||[]).map((v,i)=>Object.assign({grad:GRADS[i%GRADS.length]},v));
         buildFilters();render();
+        const qv=new URLSearchParams(location.search).get('v');
+        if(qv){const hit=videos.find(x=>ytid(x.yt)===qv);if(hit)openDetail(hit);}
     }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無影片資料</p>';});
 
     function isFeatured(v){return v.featured===true||v.cat==='精選作品';}function buildFilters(){
