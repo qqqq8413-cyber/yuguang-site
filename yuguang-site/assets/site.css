@@ -41,6 +41,31 @@
 /* backdrop-filter 會讓 fixed 子元素改以頂欄為定位框,展開選單時先關掉 */
 .nav-open .topbar{z-index:1000!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--paper)!important}
 /* 中文標題與宣言避免最後一行只剩一兩個字 */
-h1,h2,h3,.manifesto,.tagline{text-wrap:balance}
+h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
 /* 頂欄 logo:原本 height:auto 會讓 <svg><use> 撐到預設 150px,頂欄變 180px 高 */
 .topbar .mark svg{width:20px;height:22px;display:block}
+
+/* ---- 作品頁 / 器材頁底部預約區塊 ---- */
+.sitecta{text-align:center;padding:clamp(56px,8vw,104px) 20px;border-top:1px solid var(--line);margin-top:clamp(40px,6vw,80px)}
+.sitecta .k{font-family:var(--serif);font-size:12px;letter-spacing:6px;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
+.sitecta h2{font-family:var(--serif);font-weight:500;font-size:clamp(1.4rem,3vw,2rem);letter-spacing:6px}
+.sitecta .s{font-family:var(--serif);color:#5a554c;letter-spacing:2px;margin:16px auto 30px;max-width:30em;font-size:clamp(.9rem,1.6vw,1rem);line-height:1.9}
+.sitecta .btn{display:inline-block;font-family:var(--serif);letter-spacing:3px;font-size:14px;color:var(--paper);background:var(--ink);padding:14px 40px;transition:opacity .3s}
+.sitecta .btn:hover{opacity:.85}
+
+/* ---- 全站頁尾 ---- */
+.sitefoot{text-align:left;border-top:1px solid var(--line);padding:clamp(36px,5vw,56px) clamp(20px,5vw,64px) 28px;
+  display:grid;grid-template-columns:auto 1fr;gap:10px 40px;align-items:baseline;font-family:var(--serif);color:var(--muted);font-size:12.5px;letter-spacing:1.5px}
+.sitefoot .brand{grid-row:span 2;display:flex;flex-direction:column;gap:6px}
+.sitefoot .brand .zh{color:var(--ink);font-size:15px;letter-spacing:6px}
+.sitefoot .brand .en{font-size:10.5px;letter-spacing:4px}
+.sitefoot .contact{display:flex;flex-wrap:wrap;gap:8px 26px;justify-content:flex-end}
+.sitefoot a{transition:color .25s}.sitefoot a:hover{color:var(--ink)}
+.sitefoot .addr{text-align:right}
+.sitefoot .copy{grid-column:1/-1;margin-top:22px;padding-top:18px;border-top:1px solid var(--hair);font-size:11px;letter-spacing:2px}
+@media (max-width:720px){
+  .sitefoot{grid-template-columns:1fr}
+  .sitefoot .brand{grid-row:auto;margin-bottom:10px}
+  .sitefoot .contact{justify-content:flex-start;flex-direction:column}
+  .sitefoot .addr{text-align:left}
+}

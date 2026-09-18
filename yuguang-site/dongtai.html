@@ -147,6 +147,8 @@
     const detail=document.getElementById('detail');
 
     function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+    /* 影片封面常內嵌電影黑邊,用 Cloudinary e_trim 裁掉 */
+    function trim(u){return u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1?u.replace('/upload/','/upload/e_trim:20/f_auto,q_auto,w_1400/'):u;}
     function ytid(s){s=(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
 
     fetch('content/videos.json').then(r=>r.json()).then(data=>{
@@ -178,7 +180,7 @@
               const rem=list.length-i;const block=rem<=5?TAIL[rem]:BLOCKS[bi%BLOCKS.length];if(rem>5)bi++;
               for(let k=0;k<block.length&&i<list.length;k++){
                       const cspan=block[k][0],rspan=block[k][1],v=list[i];
-                      const thumb=v.cover?`background-image:url('${v.cover}')`:(v.yt?`background-image:url('https://img.youtube.com/vi/${ytid(v.yt)}/maxresdefault.jpg')`:`background:linear-gradient(150deg,${v.grad[0]},${v.grad[1]})`);
+                      const thumb=v.cover?`background-image:url('${trim(v.cover)}')`:(v.yt?`background-image:url('https://img.youtube.com/vi/${ytid(v.yt)}/maxresdefault.jpg')`:`background:linear-gradient(150deg,${v.grad[0]},${v.grad[1]})`);
                       const el=document.createElement('div');
                       el.className='vid fade';el.style.gridColumn='span '+cspan;el.style.gridRow='span '+rspan;el.style.animationDelay=(i*0.05)+'s';
                       el.innerHTML=`<div class="bg" style="${thumb}"></div><div class="grain"></div><div class="play"></div><div class="info"><span class="t">${esc(v.title)}</span><span class="d">${esc(v.client||'')}${v.year?' · '+esc(v.year):''}</span></div>`;

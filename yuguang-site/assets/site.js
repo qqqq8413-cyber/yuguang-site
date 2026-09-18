@@ -54,6 +54,41 @@
     new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
   }
 
-  function init(){buildNav();revealNet();}
+  /* 作品頁 / 器材頁底部的預約區塊:看完作品就有下一步 */
+  var CTA={
+    'pingmian.html':['喜歡這些畫面嗎？','人像、形象、活動紀錄，我們都能為你量身拍攝。','預約平面拍攝','平面攝影'],
+    'dongtai.html':['有一個故事想被看見嗎？','從企劃、拍攝到後製，陪你完成一支完整的影片。','洽談影片製作','動態影片'],
+    'qicai.html':['不確定該租哪些器材？','告訴我們拍攝內容，我們幫你搭配最適合的組合。','詢問器材搭配','器材租賃']
+  };
+  function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]})}
+  function buildCta(){
+    var c=CTA[here];if(!c)return;
+    var sec=document.createElement('section');sec.className='sitecta';
+    sec.innerHTML='<p class="k">Let’s Talk</p><h2>'+c[0]+'</h2><p class="s">'+c[1]+'</p>'+
+      '<a class="btn" href="lianluo.html?type='+encodeURIComponent(c[3])+'">'+c[2]+'</a>';
+    document.body.appendChild(sec);
+  }
+
+  /* 全站頁尾:聯絡資訊由 content/site.json 帶入 */
+  function buildFooter(){
+    var old=document.querySelector('body > footer');
+    var f=document.createElement('footer');f.className='sitefoot';
+    if(old)old.replaceWith(f);else document.body.appendChild(f);
+    var year=new Date().getFullYear();
+    function render(d){
+      d=d||{};var items=[];
+      if(d.email)items.push('<a href="mailto:'+esc(d.email)+'">'+esc(d.email)+'</a>');
+      if(d.line)items.push('<a href="https://line.me/R/ti/p/'+encodeURIComponent(d.line.replace(/^＠/,'@'))+'" target="_blank" rel="noopener">LINE '+esc(d.line)+'</a>');
+      if(d.phone)items.push('<a href="tel:'+esc(String(d.phone).replace(/\s/g,''))+'">'+esc(String(d.phone).replace(/^(\d{4})(\d{3})(\d{3})$/,'$1 $2 $3'))+'</a>');
+      f.innerHTML='<div class="brand"><span class="zh">'+esc(d.brandZh||'嶼光映像')+'</span><span class="en">'+esc(d.brandEn||'PHOS OF ISLE')+'</span></div>'+
+        (items.length?'<div class="contact">'+items.join('')+'</div>':'')+
+        (d.address?'<div class="addr">'+esc(d.address)+'</div>':'')+
+        '<div class="copy">© '+year+' '+esc(d.brandZh||'嶼光映像')+'</div>';
+    }
+    render(null);
+    fetch('content/site.json').then(function(r){return r.json()}).then(render).catch(function(){});
+  }
+
+  function init(){buildNav();buildCta();buildFooter();revealNet();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

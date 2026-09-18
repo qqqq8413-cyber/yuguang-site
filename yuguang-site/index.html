@@ -155,7 +155,7 @@
     function tile(it){
         const imgs = (it.imgs&&it.imgs.length) ? it.imgs : (it.img?[it.img]:[]);
         const first = imgs[0];
-        const bg = first ? `background-image:url('${first}')` : 'background:linear-gradient(150deg,#c9c3b6,#8f897d)';
+        const bg = first ? `background-image:url('${first}')` : it.icon ? `background:#e9e6df url('${it.icon}') center 38%/26% no-repeat` : 'background:linear-gradient(150deg,#c9c3b6,#8f897d)';
         const s = it.sub ? `<small>${esc(it.sub)}</small>` : '';
         return `<a class="tile" href="${it.href}" data-imgs="${imgs.join('|')}"><div class="bg" style="${bg}"></div><div class="grain"></div><div class="cap">${esc(it.cap)}${s}</div></a>`;
     }
@@ -187,6 +187,8 @@
         });
     }
 
+    const GEARICON={'攝影機':'camera','鏡頭':'lens','燈光':'light','收音':'audio','穩定器':'gimbal','空拍機':'drone','腳架':'tripod'};
+    function gearIcon(cat){return 'assets/gear-icons/'+(GEARICON[cat]||'other')+'.svg';}
     function ytid(s){s=String(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
 
     /* 影片封面常內嵌電影黑邊;主視覺用 Cloudinary e_trim 先裁掉純色邊再放大 */
@@ -246,7 +248,7 @@
                 const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover?heroImg(x.cover,800):`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids);
 
-                const gear=(g.gear||[]).map(x=>({href:'qicai.html',img:opt(x.image,800),cap:x.name||'器材',sub:x.cat}));
+                const gear=(g.gear||[]).map(x=>({href:'qicai.html',img:opt(x.image,800),icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
         addRow('器材租賃','Rental','qicai.html',gear);
         buildHero(v,a);
     }).catch(()=>{rows.innerHTML='<div class="empty">作品載入中,請稍後重新整理。</div>';});
