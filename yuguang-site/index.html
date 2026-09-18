@@ -20,7 +20,7 @@
       .hero{position:relative;height:88svh;min-height:520px;max-height:1100px;overflow:hidden;background:var(--ink);color:#f3f1ec;
             display:flex;flex-direction:column;justify-content:flex-end;padding:0 clamp(20px,5vw,64px) clamp(84px,11vh,120px)}
       .hero .slides,.hero .slide{position:absolute;inset:0}
-      .hero .slide{background-size:cover;background-position:center 40%;opacity:0;transition:opacity 1.6s ease}
+      .hero .slide{background-image:var(--img);background-size:cover;background-position:center 40%;opacity:0;transition:opacity 1.6s ease}
       .hero .slide.on{opacity:1}
       .hero .slide.on.zoom{animation:kb 9s ease-out forwards}
       @keyframes kb{from{transform:scale(1.08)}to{transform:scale(1)}}
@@ -45,27 +45,16 @@
       .hero .dots button{width:22px;height:22px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
       .hero .dots button::before{content:"";width:18px;height:1px;background:rgba(243,241,236,.45);transition:background .3s}
       .hero .dots button[aria-current="true"]::before{background:#f3f1ec;height:2px}
-      /* 直向螢幕:寬幅影像無法撐滿直式畫面。改成紙感編輯式——影像滿寬 16:9(輕微裁切、無黑邊),文字排在米白底上 */
+      /* 直向螢幕:維持滿版疊字,但寬幅影像不放大裁切——
+         原圖依比例完整顯示在上半部,背後鋪同一張圖的模糊放大版填滿畫面,文字疊在模糊區上 */
       @media (max-aspect-ratio:4/5){
-        .hero{height:auto;min-height:0;max-height:none;justify-content:flex-start;padding:0 0 6px;background:var(--paper);color:var(--ink)}
-        .hero::after{display:none}
-        .hero .slides{position:relative;inset:auto;width:100%;aspect-ratio:16/9;flex:none;overflow:hidden;background:#e7e4dd}
-        .hero .inner{padding:28px 20px 0}
-        .hero .logo{display:none}
-        .hero h1{font-size:2rem;letter-spacing:12px}
-        .hero .latin{color:var(--muted);opacity:1;margin-top:10px}
-        .hero .tagline{margin-top:16px;opacity:1;color:#4f4a42}
-        .hero .actions{margin-top:24px}
-        .hero .actions a{border-color:var(--ink)}
-        .hero .actions a:hover,.hero .actions a.solid{background:var(--ink);color:var(--paper)}
-        .hero .actions a.solid:hover{background:transparent;color:var(--ink)}
-        /* 作品名稱與切換點緊貼輪播影像,品牌標題排在其後 */
-        .hero .slides{order:0}.hero .foot{order:1}.hero .inner{order:2}
-        .hero .foot{position:static;margin:0 20px;padding-top:12px!important;padding-bottom:18px;border-top:0;border-bottom:1px solid var(--line);align-items:center}
-        .hero .inner{padding-top:26px}
-        .hero .now{color:var(--ink)}
-        .hero .dots button::before{background:var(--line)}
-        .hero .dots button[aria-current="true"]::before{background:var(--ink)}
+        .hero{padding-bottom:clamp(96px,14svh,130px)}
+        .hero .slide{background-image:none}
+        .hero .slide::before,.hero .slide::after{content:"";position:absolute}
+        .hero .slide::before{inset:-60px;background:var(--img) center/cover no-repeat;filter:blur(30px) brightness(.5) saturate(1.1)}
+        .hero .slide::after{inset:0;background:var(--img) center 14%/100% auto no-repeat}
+        .hero::after{background:linear-gradient(to bottom,rgba(20,18,15,0) 45%,rgba(20,18,15,.55))}
+        .hero .logo{width:34px;margin-bottom:14px}
       }
       @media (prefers-reduced-motion:reduce){.hero .slide.on.zoom{animation:none}.hero .slide{transition:none}}
 
@@ -207,7 +196,7 @@
         const still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
         box.innerHTML=slides.map(sl=>`<div class="slide${still?'':' zoom'}" data-img="${esc(sl.img)}"></div>`).join('');
         const els=[...box.children];
-        const load=i=>{const el=els[i];if(el.dataset.img){el.style.backgroundImage=`url('${el.dataset.img}')`;delete el.dataset.img;}};
+        const load=i=>{const el=els[i];if(el.dataset.img){el.style.setProperty('--img',`url('${el.dataset.img}')`);delete el.dataset.img;}};
         if(slides.length>1)dots.innerHTML=slides.map((sl,i)=>`<button type="button" aria-label="第 ${i+1} 張:${esc(sl.title)}"></button>`).join('');
         let cur=-1,timer=null;
         function go(i){
