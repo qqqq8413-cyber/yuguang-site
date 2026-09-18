@@ -172,8 +172,15 @@
     async function uploadImage(file){
         const fd=new FormData();
         fd.append('file',await shrink(file));
-        fd.append('upload_preset',CLOUDINARY_PRESET);
-        const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,{method:'POST',body:fd});
+        /* 優先用簽名上傳(只有登入後台才拿得到簽名);Netlify 尚未設定 Cloudinary 金鑰時,暫時沿用未簽名設定 */
+        let cloud=CLOUDINARY_CLOUD;
+        const sg=await api('sign-upload',{method:'POST'});
+        if(sg.status===200&&sg.data&&sg.data.ok){
+              cloud=sg.data.cloud;fd.append('api_key',sg.data.api_key);fd.append('timestamp',sg.data.timestamp);fd.append('signature',sg.data.signature);
+        }else{
+              fd.append('upload_preset',CLOUDINARY_PRESET);
+        }
+        const res=await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`,{method:'POST',body:fd});
         const data=await res.json().catch(()=>({}));
         if(!res.ok||!data.secure_url){
               throw new Error((data.error&&data.error.message)||'cloudinary-upload-failed');
