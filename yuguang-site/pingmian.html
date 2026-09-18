@@ -80,7 +80,11 @@
   .shot{break-inside:avoid;margin-bottom:clamp(14px,1.6vw,22px);position:relative;overflow:hidden;
     cursor:pointer;background:#e7e4dd}
   /* 載入前先以 4:5 佔位,延遲載入才不會因為高度 0 而一次抓完整本相簿;載入後改用照片實際比例 */
-  .shot img{aspect-ratio:auto 4/5;width:100%;display:block;transition:transform 1s cubic-bezier(.19,1,.22,1)}
+  .shot img{aspect-ratio:auto 4/5;width:100%;display:block;opacity:0;transition:opacity .6s ease,transform 1s cubic-bezier(.19,1,.22,1)}
+  /* 模糊預覽:格子先鋪上約 1KB 的縮圖,清晰照片載好後淡入蓋上 */
+  .shot.ph{background-size:cover;background-position:center}
+  .shot img.in{opacity:1}
+  @media (prefers-reduced-motion:reduce){.shot img{transition:none}}
   .shot:hover img{transform:scale(1.05)}
   .shot .bg{position:absolute;inset:0;transition:transform 1s cubic-bezier(.19,1,.22,1)}
   .shot .grain{position:absolute;inset:0;opacity:.45;mix-blend-mode:multiply;
@@ -111,7 +115,13 @@
   .fade{animation:fade .6s cubic-bezier(.19,1,.22,1)}
   @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script>/* 中文字型檔很大,在 4G 上會跟照片搶頻寬(實測讓第一屏照片晚約 0.8 秒)。
+     這頁等第一屏照片載完才載字型,最多等 4 秒。 */
+  window.loadSiteFont=function(){if(window.__fontOn)return;window.__fontOn=1;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&display=swap";document.head.appendChild(l)};
+  setTimeout(window.loadSiteFont,4000);</script>
+  <link rel="preload" href="content/albums.json" as="fetch" crossorigin>
   <link rel="stylesheet" href="assets/site.css">
   <script src="assets/site.js" defer></script>
 </head>
@@ -175,13 +185,14 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
 
   fetch('content/albums.json').then(r=>r.json()).then(data=>{
       albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[],projects:[]},a));
-      buildIndex();deepLink();function deepLink(){const q=new URLSearchParams(location.search);if(!q.has('cat'))return;const ci=+q.get('cat'),a=albums[ci];if(!a)return;if(q.has('proj')&&a.projects&&a.projects[+q.get('proj')]){const pj=a.projects[+q.get('proj')];renderProjects(ci);openPhotos(pj.photos||[],pj.zh,pj.en,'projects');}else{openCategory(ci);}}
+      buildIndex();deepLink();if(albumView.style.display!=='block')window.loadSiteFont();function deepLink(){const q=new URLSearchParams(location.search);if(!q.has('cat'))return;const ci=+q.get('cat'),a=albums[ci];if(!a)return;if(q.has('proj')&&a.projects&&a.projects[+q.get('proj')]){const pj=a.projects[+q.get('proj')];renderProjects(ci);openPhotos(pj.photos||[],pj.zh,pj.en,'projects');}else{openCategory(ci);}}
   }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
   const projectView=document.getElementById('projectView');
   const projectGrid=document.getElementById('projectGrid');
   let backTarget='index';function gatherImgs(node){if(node.cover)return [];const out=[];if(node.photos)node.photos.forEach(p=>{if(p.image)out.push(opt(p.image,800));});if(node.projects)node.projects.forEach(pj=>{(pj.photos||[]).forEach(p=>{if(p.image)out.push(opt(p.image,800));});});return out.slice(0,6);}function startRotate(){document.querySelectorAll('.bg[data-imgs]:not([data-r])').forEach((bg,k)=>{bg.dataset.r='1';const imgs=(bg.dataset.imgs||'').split('|').filter(Boolean);if(imgs.length<2)return;imgs.forEach(u=>{const im=new Image();im.src=u;});let idx=0;setTimeout(()=>setInterval(()=>{idx=(idx+1)%imgs.length;bg.style.backgroundImage="url('"+imgs[idx]+"')";},2600),k*500);});}
 
+  function lqip(u){return u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1?u.replace('/upload/','/upload/f_auto,q_auto:low,w_32/'):null;}
   function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
   function firstPhoto(node){ if(node.cover)return node.cover;
       if(node.photos&&node.photos.length)return node.photos[0].image;
@@ -247,7 +258,11 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
                     const cap=p.caption||`${zh} · ${String(n+1).padStart(2,'0')}`;
                     current.shots.push({image:p.image, cap});
                     const s=document.createElement('div');s.className='shot';
-                    s.innerHTML=`<img src="${opt(p.image,1200)}" srcset="${[600,900,1200,1600].map(w=>opt(p.image,w)+' '+w+'w').join(', ')}" sizes="(max-width:520px) 100vw, (max-width:820px) 50vw, 33vw" loading="lazy" decoding="async" alt="${cap}"><span class="plus">＋</span>`;
+                    /* 手機單欄以 70vw 計算:3x 螢幕選 900px 而非 1200px,肉眼差異極小、檔案約小四成 */
+                    s.innerHTML=`<img src="${opt(p.image,1200)}" srcset="${[600,900,1200,1600].map(w=>opt(p.image,w)+' '+w+'w').join(', ')}" sizes="(max-width:520px) 70vw, (max-width:820px) 50vw, 33vw" loading="lazy" decoding="async" alt="${cap}"><span class="plus">＋</span>`;
+                    s.dataset.ph=lqip(p.image)||'';
+                    const im=s.querySelector('img');const done=()=>im.classList.add('in');
+                    if(im.complete&&im.naturalWidth)done();else{im.addEventListener('load',done);im.addEventListener('error',done);}
                     s.addEventListener('click',()=>openLB(n));
                     masonry.appendChild(s);
             });
@@ -257,6 +272,22 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
       indexView.style.display='none';projectView.style.display='none';albumView.style.display='block';
       albumView.classList.remove('fade');void albumView.offsetWidth;albumView.classList.add('fade');
       window.scrollTo({top:0});
+      primeShots();
+  }
+  /* 第一屏的照片提高下載優先權;模糊預覽圖在接近畫面(前後兩屏)時才載入,避免跟清晰照片搶頻寬 */
+  let phIO=null;
+  function primeShots(){
+      if(phIO)phIO.disconnect();
+      const setPh=s=>{if(s.dataset.ph){s.style.backgroundImage=`url('${s.dataset.ph}')`;s.classList.add('ph');s.dataset.ph='';}};
+      const shots=[...masonry.querySelectorAll('.shot')];
+      shots.forEach(s=>{const r=s.getBoundingClientRect();
+            if(r.top<innerHeight&&r.bottom>0){setPh(s);const im=s.querySelector('img');im.loading='eager';im.fetchPriority='high';}});
+      if(!('IntersectionObserver' in window)){shots.forEach(setPh);return;}
+      phIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){setPh(e.target);phIO.unobserve(e.target);}}),{rootMargin:'200% 0px'});
+      shots.forEach(s=>{if(s.dataset.ph)phIO.observe(s);});
+      const first=shots.map(s=>s.querySelector('img')).filter(i=>i.loading==='eager'&&!(i.complete&&i.naturalWidth));
+      let left=first.length;if(!left)window.loadSiteFont();
+      first.forEach(i=>{const d=()=>{if(--left===0)window.loadSiteFont();};i.addEventListener('load',d,{once:true});i.addEventListener('error',d,{once:true});});
   }
   document.getElementById('backToIndex').addEventListener('click',()=>{
       albumView.style.display='none';
