@@ -18,7 +18,7 @@
 
       /* 首頁主視覺:滿版精選影像輪播,文字疊在影像上 */
       .hero{position:relative;height:88svh;min-height:520px;max-height:1100px;overflow:hidden;background:var(--ink);color:#f3f1ec;
-            display:flex;flex-direction:column;justify-content:flex-end;padding:0 clamp(20px,5vw,64px) clamp(124px,15vh,160px)}
+            display:flex;flex-direction:column;justify-content:center;padding:0 clamp(20px,5vw,64px) clamp(40px,6vh,80px)}
       .hero .slides,.hero .slide{position:absolute;inset:0}
       .hero .slide{background-image:var(--img);background-size:cover;background-position:center 40%;opacity:0;transition:opacity 1.6s ease}
       .hero .slide.on{opacity:1}
@@ -32,7 +32,8 @@
       .hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.1rem,5.2vw,3.6rem);letter-spacing:16px;line-height:1.1}
       .hero .latin{font-family:var(--serif);font-size:clamp(11px,.95vw,14px);letter-spacing:7px;opacity:.8;margin-top:14px}
       .hero .tagline{font-family:var(--serif);margin-top:22px;letter-spacing:3px;font-size:clamp(1rem,1.45vw,1.3rem);opacity:.92}
-      .hero .actions{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--serif);font-size:clamp(13px,1.05vw,15px);letter-spacing:3px}
+      /* 品牌區置中偏左,按鈕獨立放在左下、作品名稱上方 */
+      .hero .actions{position:absolute;z-index:2;left:clamp(20px,5vw,64px);bottom:clamp(112px,13vh,130px);display:flex;gap:14px;flex-wrap:wrap;font-family:var(--serif);font-size:clamp(13px,1.05vw,15px);letter-spacing:3px}
       .hero .actions a{padding:12px 28px;border:1px solid rgba(243,241,236,.7);transition:background .3s,color .3s}
       .hero .actions a:hover,.hero .actions a.solid{background:#f3f1ec;color:var(--ink)}
       .hero .actions a.solid:hover{background:transparent;color:#f3f1ec}
@@ -58,7 +59,7 @@
         .hero .tagline{font-size:.78rem;letter-spacing:1.5px;margin-top:6px}
         .hero .foot{top:0;bottom:auto;margin:0 16px;padding-top:10px!important;padding-bottom:0;border-top:0;align-items:flex-start;font-size:11.5px}
         .hero .now small{font-size:9.5px;margin-bottom:2px}
-        .hero .actions{position:absolute;left:0;right:0;top:calc(100% + 8.5vw + 16px);margin:0;
+        .hero .actions{position:absolute;left:16px;right:16px;bottom:auto;top:calc(100% + 16px);margin:0;
               display:grid;grid-template-columns:1fr 1fr;gap:10px}
         .hero .actions a{text-align:center;padding:12px 0;border-color:var(--ink);color:var(--ink)}
         .hero .actions a:hover,.hero .actions a.solid{background:var(--ink);color:var(--paper)}
@@ -129,10 +130,10 @@
         <h1>嶼光映像</h1>
         <div class="latin">PHOS OF ISLE</div>
         <p class="tagline">以光為筆，紀錄島嶼的每一道影像</p>
-        <div class="actions">
-          <a href="#rows">瀏覽作品</a>
-          <a class="solid" href="lianluo.html">預約諮詢</a>
-        </div>
+      </div>
+      <div class="actions">
+        <a href="#rows">瀏覽作品</a>
+        <a class="solid" href="lianluo.html">預約諮詢</a>
       </div>
       <div class="foot">
         <a class="now" id="now" href="dongtai.html" hidden></a>
