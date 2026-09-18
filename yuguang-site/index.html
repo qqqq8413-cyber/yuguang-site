@@ -59,7 +59,10 @@
         .hero .actions a{border-color:var(--ink)}
         .hero .actions a:hover,.hero .actions a.solid{background:var(--ink);color:var(--paper)}
         .hero .actions a.solid:hover{background:transparent;color:var(--ink)}
-        .hero .foot{position:static;margin:28px 20px 0;border-top-color:var(--line)}
+        /* 作品名稱與切換點緊貼輪播影像,品牌標題排在其後 */
+        .hero .slides{order:0}.hero .foot{order:1}.hero .inner{order:2}
+        .hero .foot{position:static;margin:0 20px;padding-top:12px!important;padding-bottom:18px;border-top:0;border-bottom:1px solid var(--line);align-items:center}
+        .hero .inner{padding-top:26px}
         .hero .now{color:var(--ink)}
         .hero .dots button::before{background:var(--line)}
         .hero .dots button[aria-current="true"]::before{background:var(--ink)}
@@ -191,7 +194,7 @@
     function ytid(s){s=String(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
 
     /* 影片封面常內嵌電影黑邊;主視覺用 Cloudinary e_trim 先裁掉純色邊再放大 */
-    function heroImg(u){if(u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1)return u.replace('/upload/','/upload/e_trim:20/f_auto,q_auto,w_2000/');return u;}
+    function heroImg(u,w){if(u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1)return u.replace('/upload/',`/upload/e_trim:20/f_auto,q_auto,w_${w||2000}/`);return u;}
     /* 主視覺輪播:精選影片中有自訂封面的優先(橫幅、高解析);不足 2 張時補平面作品照片 */
     function buildHero(v,a){
         const slides=[];
@@ -244,7 +247,7 @@
         });
         addRow('平面作品','Photography','pingmian.html',plane);
 
-                const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover||`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
+                const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover?heroImg(x.cover,800):`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids);
 
                 const gear=(g.gear||[]).map(x=>({href:'qicai.html',img:opt(x.image,800),cap:x.name||'器材',sub:x.cat}));
