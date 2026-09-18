@@ -78,7 +78,9 @@
     function render(d){
       d=d||{};var items=[];
       if(d.email)items.push('<a href="mailto:'+esc(d.email)+'">'+esc(d.email)+'</a>');
-      if(d.line)items.push('<a href="https://line.me/R/ti/p/'+encodeURIComponent(d.line.replace(/^＠/,'@'))+'" target="_blank" rel="noopener">LINE '+esc(d.line)+'</a>');
+      /* 個人 LINE ID:連結格式為 ~ID,不帶 @ */
+      var lid=d.line?String(d.line).trim().replace(/^[@＠]/,''):'';
+      if(lid)items.push('<a href="https://line.me/R/ti/p/~'+encodeURIComponent(lid)+'" target="_blank" rel="noopener">LINE '+esc(lid)+'</a>');
       if(d.phone)items.push('<a href="tel:'+esc(String(d.phone).replace(/\s/g,''))+'">'+esc(String(d.phone).replace(/^(\d{4})(\d{3})(\d{3})$/,'$1 $2 $3'))+'</a>');
       f.innerHTML='<div class="brand"><span class="zh">'+esc(d.brandZh||'嶼光映像')+'</span><span class="en">'+esc(d.brandEn||'PHOS OF ISLE')+'</span></div>'+
         (items.length?'<div class="contact">'+items.join('')+'</div>':'')+

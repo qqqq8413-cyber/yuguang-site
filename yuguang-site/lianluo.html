@@ -218,8 +218,9 @@
     const em=document.getElementById('c-email');
     em.textContent=d.email||'';em.href='mailto:'+(d.email||'');
     const ln=document.getElementById('c-line');
-    if(d.line){ln.textContent='＠'+String(d.line).replace(/^@/,'');
-      ln.href='https://line.me/R/ti/p/~@'+String(d.line).replace(/^@/,'');}
+    /* 個人 LINE ID:連結格式為 ~ID,不帶 @ */
+    if(d.line){const id=String(d.line).trim().replace(/^[@＠]/,'');ln.textContent=id;
+      ln.href='https://line.me/R/ti/p/~'+encodeURIComponent(id);}
     document.querySelectorAll('.js-line').forEach(a=>{a.href=ln.href||'#';});
     document.querySelectorAll('.js-mail').forEach(a=>{a.href='mailto:'+(d.email||'');});
     const ph=document.getElementById('c-phone');
