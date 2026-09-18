@@ -45,16 +45,23 @@
       .hero .dots button{width:22px;height:22px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
       .hero .dots button::before{content:"";width:18px;height:1px;background:rgba(243,241,236,.45);transition:background .3s}
       .hero .dots button[aria-current="true"]::before{background:#f3f1ec;height:2px}
-      /* 直向螢幕:維持滿版疊字,但寬幅影像不放大裁切——
-         原圖依比例完整顯示在上半部,背後鋪同一張圖的模糊放大版填滿畫面,文字疊在模糊區上 */
+      /* 直向螢幕:輪播改成 1:1 滿寬(適度裁切),品牌文字疊在下緣(留出底部約 15% 給影片內嵌字幕)、作品名稱與切換點在上緣;兩顆按鈕移到影像下方 */
       @media (max-aspect-ratio:4/5){
-        .hero{padding-bottom:clamp(96px,14svh,130px)}
-        .hero .slide{background-image:none}
-        .hero .slide::before,.hero .slide::after{content:"";position:absolute}
-        .hero .slide::before{inset:-60px;background:var(--img) center/cover no-repeat;filter:blur(30px) brightness(.5) saturate(1.1)}
-        .hero .slide::after{inset:0;background:var(--img) center 14%/100% auto no-repeat}
-        .hero::after{background:linear-gradient(to bottom,rgba(20,18,15,0) 45%,rgba(20,18,15,.55))}
-        .hero .logo{width:34px;margin-bottom:14px}
+        .hero{height:auto;aspect-ratio:1/1;min-height:0;max-height:none;overflow:visible;margin-bottom:78px;
+              justify-content:flex-end;padding:0 20px 17%}
+        .hero .slides{overflow:hidden}
+        .hero::after{background:linear-gradient(to bottom,rgba(20,18,15,.55),rgba(20,18,15,0) 22%,rgba(20,18,15,0) 45%,rgba(20,18,15,.82))}
+        .hero .logo{display:none}
+        .hero h1{font-size:1.7rem;letter-spacing:10px}
+        .hero .latin{font-size:10px;letter-spacing:5px;margin-top:8px}
+        .hero .tagline{font-size:.86rem;letter-spacing:2px;margin-top:10px}
+        .hero .foot{top:0;bottom:auto;margin:0 20px;padding-top:14px!important;padding-bottom:0;border-top:0;align-items:flex-start;font-size:11.5px}
+        .hero .now small{font-size:9.5px;margin-bottom:2px}
+        .hero .actions{position:absolute;left:0;right:0;top:calc(100% + 17vw + 18px);margin:0;
+              display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .hero .actions a{text-align:center;padding:12px 0;border-color:var(--ink);color:var(--ink)}
+        .hero .actions a:hover,.hero .actions a.solid{background:var(--ink);color:var(--paper)}
+        .hero .actions a.solid:hover{background:transparent;color:var(--ink)}
       }
       @media (prefers-reduced-motion:reduce){.hero .slide.on.zoom{animation:none}.hero .slide{transition:none}}
 
