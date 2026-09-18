@@ -28,7 +28,7 @@
             background:linear-gradient(to bottom,rgba(20,18,15,.35),rgba(20,18,15,0) 28%,rgba(20,18,15,.15) 50%,rgba(20,18,15,.78)),
                   linear-gradient(to right,rgba(20,18,15,.45),rgba(20,18,15,0) 55%)}
       .hero .inner{position:relative;z-index:2;max-width:640px}
-      .hero .logo{width:clamp(44px,5vw,64px);height:auto;margin-bottom:18px}
+      .hero .logo{display:block;width:clamp(40px,5vw,64px);height:auto;aspect-ratio:192/208;margin-bottom:18px}
       .hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.1rem,5.2vw,3.6rem);letter-spacing:16px;line-height:1.1}
       .hero .latin{font-family:var(--serif);font-size:clamp(10px,1.3vw,12px);letter-spacing:7px;opacity:.8;margin-top:14px}
       .hero .tagline{font-family:var(--serif);margin-top:22px;letter-spacing:3px;font-size:clamp(.95rem,1.7vw,1.1rem);opacity:.92}
@@ -45,6 +45,15 @@
       .hero .dots button{width:22px;height:22px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
       .hero .dots button::before{content:"";width:18px;height:1px;background:rgba(243,241,236,.45);transition:background .3s}
       .hero .dots button[aria-current="true"]::before{background:#f3f1ec;height:2px}
+      /* 直向螢幕:寬幅影像撐滿會被放大裁切,改成影像依原比例完整顯示,文字排在下方 */
+      @media (max-aspect-ratio:4/5){
+        .hero{height:auto;min-height:0;max-height:none;justify-content:flex-start;padding:0 0 26px}
+        .hero::after{display:none}
+        .hero .slides{position:relative;inset:auto;width:100%;aspect-ratio:16/9;flex:none;overflow:hidden}
+        .hero .slide{background-size:contain;background-repeat:no-repeat;background-position:center}
+        .hero .inner{padding:30px 20px 0}
+        .hero .foot{position:static;margin:30px 20px 0}
+      }
       @media (prefers-reduced-motion:reduce){.hero .slide.on.zoom{animation:none}.hero .slide{transition:none}}
 
       /* 首頁頂欄:捲過主視覺才出現 */
