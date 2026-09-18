@@ -151,6 +151,8 @@
     const CLOUDINARY_CLOUD='wy6xqh42';
     const CLOUDINARY_PRESET='yuguang';
     async function shrink(file){try{if(!/^image\//.test(file.type)||/gif/.test(file.type))return file;const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file);});let w=img.naturalWidth,h=img.naturalHeight;const MAX=2400;if(w<=MAX&&h<=MAX&&file.size<=8388608){URL.revokeObjectURL(img.src);return file;}if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85));URL.revokeObjectURL(img.src);return b&&b.size<file.size?b:file;}catch(e){return file;}}
+    /* 上傳後記下照片長寬,前台相簿用來預先排好版面 */
+    const UPLOAD_DIMS={};
     async function uploadImage(file){
         const fd=new FormData();
         fd.append('file',await shrink(file));
@@ -160,6 +162,7 @@
         if(!res.ok||!data.secure_url){
               throw new Error((data.error&&data.error.message)||'cloudinary-upload-failed');
         }
+        if(data.width&&data.height)UPLOAD_DIMS[data.secure_url]={w:data.width,h:data.height};
         return data.secure_url;
     }
     async function saveContent(path,dataObj,msg,btn){
@@ -242,7 +245,7 @@
               const files=[...e.target.files];if(!files.length)return;const msg=$('pmsg');
               for(let k=0;k<files.length;k++){
                       msg.textContent=`上傳中 ${k+1}/${files.length}…`;
-                      try{const path=await uploadImage(files[k]);t.photos.push({image:path,caption:''});}
+                      try{const path=await uploadImage(files[k]);t.photos.push(Object.assign({image:path,caption:''},UPLOAD_DIMS[path]||{}));}
                       catch(err){alert('有一張照片上傳失敗，檔案可能太大（單張上限 10MB）。');break;}
               }
               msg.textContent='照片已上傳，記得按「儲存」';t.rerender();

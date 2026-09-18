@@ -79,8 +79,8 @@
   @media(max-width:520px){.masonry{columns:1}} #albumView{max-width:none;padding:0} #albumView .albumhead{padding-left:clamp(20px,3vw,44px);padding-right:clamp(20px,3vw,44px)} #albumView .masonry{column-gap:clamp(8px,.6vw,12px)} #albumView .shot{margin-bottom:clamp(8px,.6vw,12px)}
   .shot{break-inside:avoid;margin-bottom:clamp(14px,1.6vw,22px);position:relative;overflow:hidden;
     cursor:pointer;background:#e7e4dd}
-  /* 載入前先以 4:5 佔位,延遲載入才不會因為高度 0 而一次抓完整本相簿;載入後改用照片實際比例 */
-  .shot img{aspect-ratio:auto 4/5;width:100%;display:block;opacity:0;transition:opacity .6s ease,transform 1s cubic-bezier(.19,1,.22,1)}
+  /* 照片有記錄長寬時,以實際比例佔位(版面一開始就正確、載入時不跳動);舊資料沒有長寬則先用 4:5 */
+  .shot img{aspect-ratio:auto 4/5;width:100%;height:auto;display:block;opacity:0;transition:opacity .6s ease,transform 1s cubic-bezier(.19,1,.22,1)}
   /* 模糊預覽:格子先鋪上約 1KB 的縮圖,清晰照片載好後淡入蓋上 */
   .shot.ph{background-size:cover;background-position:center}
   .shot img.in{opacity:1}
@@ -259,7 +259,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
                     current.shots.push({image:p.image, cap});
                     const s=document.createElement('div');s.className='shot';
                     /* 手機單欄以 70vw 計算:3x 螢幕選 900px 而非 1200px,肉眼差異極小、檔案約小四成 */
-                    s.innerHTML=`<img src="${opt(p.image,1200)}" srcset="${[600,900,1200,1600].map(w=>opt(p.image,w)+' '+w+'w').join(', ')}" sizes="(max-width:520px) 70vw, (max-width:820px) 50vw, 33vw" loading="lazy" decoding="async" alt="${cap}"><span class="plus">＋</span>`;
+                    s.innerHTML=`<img src="${opt(p.image,1200)}" srcset="${[600,900,1200,1600].map(w=>opt(p.image,w)+' '+w+'w').join(', ')}" sizes="(max-width:520px) 70vw, (max-width:820px) 50vw, 33vw" loading="lazy" decoding="async"${p.w&&p.h?` width="${p.w}" height="${p.h}" style="aspect-ratio:${p.w}/${p.h}"`:''} alt="${cap}"><span class="plus">＋</span>`;
                     s.dataset.ph=lqip(p.image)||'';
                     const im=s.querySelector('img');const done=()=>im.classList.add('in');
                     if(im.complete&&im.naturalWidth)done();else{im.addEventListener('load',done);im.addEventListener('error',done);}
