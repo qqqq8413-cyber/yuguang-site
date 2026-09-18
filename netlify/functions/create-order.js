@@ -25,10 +25,18 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'invalid-json' }) };
   }
 
+  // 公開端點:蜜罐欄位有值即視為機器人;文字欄位限制長度,避免被灌入大量垃圾資料
+  if (o['bot-field']) return { statusCode: 200, body: JSON.stringify({ ok: true }) };
+  const cut = (v, n) => String(v == null ? '' : v).slice(0, n);
+  if (!cut(o.contact, 200).trim() || !cut(o.items, 2000).trim()) {
+    return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'missing-contact-or-items' }) };
+  }
+  const date = v => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) ? v : '');
+  o.start = date(o.start); o.end = date(o.end);
   const fields = {
-    '客戶姓名': o.name || '未具名',
-    '聯絡方式': o.contact || '',
-    '租借器材': o.items || '',
+    '客戶姓名': cut(o.name, 100) || '未具名',
+    '聯絡方式': cut(o.contact, 200),
+    '租借器材': cut(o.items, 2000),
     '天數': Number(o.days) || null,
     '預估金額': Number(o.amount) || null,
     '狀態': '待處理'
