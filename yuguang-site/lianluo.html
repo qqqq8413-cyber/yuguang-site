@@ -47,21 +47,46 @@
   .info .socials a:hover{color:var(--ink)}
 
   /* 右:表單 */
-  .form .row{margin-bottom:26px}
-  .form label{display:block;font-family:var(--serif);font-size:12px;letter-spacing:3px;color:var(--muted);
-    text-transform:uppercase;margin-bottom:10px}
-  .form input,.form select,.form textarea{width:100%;background:none;border:0;border-bottom:1px solid var(--line);
-    padding:10px 2px;font-family:var(--sans);font-size:1rem;color:var(--ink);outline:none;transition:border-color .3s;
-    border-radius:0}
-  .form input:focus,.form select:focus,.form textarea:focus{border-bottom-color:var(--ink)}
-  .form textarea{resize:vertical;min-height:110px;line-height:1.8}
-  .form select{cursor:pointer}
-  .form .submit{margin-top:8px;font-family:var(--serif);letter-spacing:3px;font-size:14px;color:var(--paper);
-    background:var(--ink);border:0;padding:15px 44px;cursor:pointer;transition:.3s;outline:none}
+  .form fieldset{border:0;margin:0;padding:0;min-width:0}
+  .form .row{margin-bottom:28px}
+  .form .two{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+  @media(max-width:560px){.form .two{grid-template-columns:1fr}}
+  .form label,.form legend{display:block;font-family:var(--serif);font-size:12.5px;letter-spacing:3px;color:var(--muted);margin-bottom:10px;padding:0}
+  .form .req{color:var(--ink);margin-left:4px}
+  .form .opt{font-size:11px;letter-spacing:1px;margin-left:6px}
+  .form input[type=text],.form input[type=email],.form input[type=tel],.form textarea{width:100%;background:none;border:0;border-bottom:1px solid var(--line);
+    padding:10px 2px;font-family:var(--sans);font-size:1rem;color:var(--ink);outline:none;transition:border-color .3s;border-radius:0;-webkit-appearance:none}
+  .form input::placeholder,.form textarea::placeholder{color:#a8a194}
+  .form input:focus,.form textarea:focus{border-bottom-color:var(--ink)}
+  .form textarea{resize:vertical;min-height:120px;line-height:1.8}
+  /* 需求類型:直接可點的標籤,取代下拉選單 */
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chips input{position:absolute;opacity:0;pointer-events:none}
+  .chips label{margin:0;cursor:pointer;font-family:var(--serif);font-size:14px;letter-spacing:2px;color:var(--ink);
+    border:1px solid var(--line);padding:10px 18px;transition:border-color .2s,background .2s,color .2s}
+  .chips label:hover{border-color:var(--ink)}
+  .chips input:checked+label{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .chips input:focus-visible+label{outline:2px solid var(--ink);outline-offset:2px}
+  /* 錯誤提示:顯示在欄位下方 */
+  .form .err{display:none;color:#9b3b2e;font-size:12.5px;letter-spacing:1px;margin-top:8px}
+  .form .row.bad .err{display:block}
+  .form .row.bad input,.form .row.bad textarea{border-bottom-color:#9b3b2e}
+  .form .submit{margin-top:6px;font-family:var(--serif);letter-spacing:3px;font-size:15px;color:var(--paper);
+    background:var(--ink);border:0;padding:16px 48px;cursor:pointer;transition:opacity .3s;outline:none}
   .form .submit:hover{opacity:.85}
-  .form .hint{color:var(--muted);font-size:12px;letter-spacing:1px;margin-top:14px;line-height:1.8}
-  .form-sent{display:none;font-family:var(--serif);letter-spacing:2px;color:var(--ink);
-    background:var(--paper-2);padding:26px;text-align:center;font-size:clamp(1rem,2vw,1.15rem)}
+  .form .submit:disabled{opacity:.5;cursor:wait}
+  .form .hint{color:var(--muted);font-size:12.5px;letter-spacing:1px;margin-top:14px;line-height:1.8}
+  .form .fail{display:none;margin-top:16px;padding:14px 16px;border:1px solid #9b3b2e;color:#9b3b2e;font-size:13.5px;letter-spacing:1px;line-height:1.8}
+  .form .fail a{text-decoration:underline;text-underline-offset:3px}
+  /* 送出成功 */
+  .form-sent{display:none;border-top:1px solid var(--ink);padding-top:30px}
+  .form-sent .k{font-family:var(--serif);font-size:12px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+  .form-sent h2{font-family:var(--serif);font-weight:500;font-size:clamp(1.4rem,2.6vw,1.8rem);letter-spacing:4px;margin:12px 0 16px}
+  .form-sent p{color:#4f4a42;line-height:2;letter-spacing:1px}
+  .form-sent .next{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+  .form-sent .next a{font-family:var(--serif);letter-spacing:2px;font-size:14px;padding:12px 26px;border:1px solid var(--ink);transition:.3s}
+  .form-sent .next a.solid{background:var(--ink);color:var(--paper)}
+  .form-sent .next a:hover{opacity:.8}
 
   .reveal{opacity:0;transform:translateY(22px);transition:.85s cubic-bezier(.19,1,.22,1)}
   .reveal.show{opacity:1;transform:none}
@@ -126,43 +151,68 @@
     </div>
 
     <!-- 右:表單 -->
-    <form class="form reveal" id="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+    <form class="form reveal" id="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
       <input type="hidden" name="form-name" value="contact">
       <p hidden><label>請留空：<input name="bot-field"></label></p>
-      <div class="row">
-        <label>姓名 / Name</label>
-        <input type="text" id="f-name" name="name" placeholder="您的稱呼" required>
+      <fieldset class="row" id="r-type">
+        <legend>需求類型<span class="req" aria-hidden="true">*</span></legend>
+        <div class="chips">
+          <input type="radio" id="t1" name="type" value="平面攝影" required><label for="t1">平面攝影</label>
+          <input type="radio" id="t2" name="type" value="動態影片"><label for="t2">動態影片</label>
+          <input type="radio" id="t3" name="type" value="企業形象"><label for="t3">企業形象</label>
+          <input type="radio" id="t4" name="type" value="器材租賃"><label for="t4">器材租賃</label>
+          <input type="radio" id="t5" name="type" value="其他洽詢"><label for="t5">其他洽詢</label>
+        </div>
+        <div class="err">請選擇一個需求類型</div>
+      </fieldset>
+      <div class="two">
+        <div class="row">
+          <label for="f-name">姓名<span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="f-name" name="name" placeholder="您的稱呼" autocomplete="name" required>
+          <div class="err">請留下稱呼</div>
+        </div>
+        <div class="row">
+          <label for="f-email">Email<span class="req" aria-hidden="true">*</span></label>
+          <input type="email" id="f-email" name="email" placeholder="回覆用信箱" autocomplete="email" inputmode="email" required>
+          <div class="err">請填寫正確的 Email</div>
+        </div>
+      </div>
+      <div class="two">
+        <div class="row">
+          <label for="f-phone">電話或 LINE ID<span class="opt">選填</span></label>
+          <input type="text" id="f-phone" name="phone" placeholder="方便的話，溝通會更快" autocomplete="tel">
+        </div>
+        <div class="row">
+          <label for="f-date">預計拍攝／租借時間<span class="opt">選填</span></label>
+          <input type="text" id="f-date" name="date" placeholder="例如：10 月中旬，可再討論">
+        </div>
       </div>
       <div class="row">
-        <label>Email</label>
-        <input type="email" id="f-email" name="email" placeholder="回覆用信箱" required>
-      </div>
-      <div class="row">
-        <label>需求類型 / Service</label>
-        <select id="f-type" name="type">
-          <option>平面攝影</option>
-          <option>動態影片</option>
-          <option>企業形象</option>
-          <option>器材租賃</option>
-          <option>其他洽詢</option>
-        </select>
-      </div>
-      <div class="row">
-        <label>訊息 / Message</label>
-        <textarea id="f-msg" name="message" placeholder="簡單描述你的需求、時間與預算，我們會盡快回覆"></textarea>
+        <label for="f-msg">想做什麼樣的影像？<span class="req" aria-hidden="true">*</span></label>
+        <textarea id="f-msg" name="message" placeholder="用途、風格、地點、預算範圍⋯⋯想到什麼都可以寫" required></textarea>
+        <div class="err">請簡單描述你的需求</div>
       </div>
       <button type="submit" class="submit">送出訊息</button>
-      <p class="hint">送出後我們會收到你的訊息，並盡快回覆到你留的信箱。</p>
+      <p class="hint">送出後我們會回覆到你留的信箱；有留電話或 LINE 的話，也可能直接聯繫你。</p>
+      <div class="fail" id="formFail" role="alert">送出失敗，請稍後再試，或直接透過 <a class="js-line" href="#">LINE</a> 或 <a class="js-mail" href="#">Email</a> 聯絡我們。</div>
     </form>
-    <div class="form-sent" id="formSent">已收到你的訊息，我們會盡快回覆 ✓</div>
+    <div class="form-sent" id="formSent" tabindex="-1">
+      <div class="k">Received</div>
+      <h2>已收到你的訊息</h2>
+      <p>謝謝你，<span id="sentName"></span>。我們會把回覆寄到 <b id="sentEmail"></b>。<br>如果比較急，也可以直接用 LINE 找我們。</p>
+      <div class="next">
+        <a class="solid js-line" href="#" target="_blank" rel="noopener">用 LINE 聯絡</a>
+        <a href="pingmian.html">繼續看作品</a>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
   let SITE={email:"qqqq8413@gmail.com"};
   /* 從作品頁 / 器材頁的預約按鈕進來時,帶入需求類型 */
-  (function(){const t=new URLSearchParams(location.search).get('type'),sel=document.getElementById('f-type');
-    if(t&&sel&&[...sel.options].some(o=>o.value===t))sel.value=t;})();
+  (function(){const t=new URLSearchParams(location.search).get('type');
+    const r=t&&[...document.querySelectorAll('input[name=type]')].find(i=>i.value===t);if(r)r.checked=true;})();
   fetch('content/site.json').then(r=>r.json()).then(d=>{
     SITE=d;
     const em=document.getElementById('c-email');
@@ -170,6 +220,8 @@
     const ln=document.getElementById('c-line');
     if(d.line){ln.textContent='＠'+String(d.line).replace(/^@/,'');
       ln.href='https://line.me/R/ti/p/~@'+String(d.line).replace(/^@/,'');}
+    document.querySelectorAll('.js-line').forEach(a=>{a.href=ln.href||'#';});
+    document.querySelectorAll('.js-mail').forEach(a=>{a.href='mailto:'+(d.email||'');});
     const ph=document.getElementById('c-phone');
     if(d.phone){const p=String(d.phone);
       ph.textContent=p.replace(/(\d{4})(\d{3})(\d{3})/,'$1 $2 $3');ph.href='tel:'+p;}
@@ -180,16 +232,28 @@
     if(!soc.children.length)document.getElementById('c-follow-blk').style.display='none';
   }).catch(()=>{});
 
-  document.getElementById('form').addEventListener('submit',function(e){
+  /* 表單:欄位下方即時提示;只有伺服器回 2xx 才算送出成功 */
+  const form=document.getElementById('form');
+  function check(row){
+    const inputs=[...row.querySelectorAll('input,textarea')];
+    const ok=inputs[0]&&inputs[0].type==='radio'?inputs.some(i=>i.checked):inputs.every(i=>i.checkValidity()&&(!i.required||i.value.trim()));
+    row.classList.toggle('bad',!ok);return ok;
+  }
+  const rows=[...form.querySelectorAll('.row')].filter(r=>r.querySelector('[required]'));
+  rows.forEach(r=>r.addEventListener('change',()=>{if(r.classList.contains('bad'))check(r)}));
+  rows.forEach(r=>r.addEventListener('input',()=>{if(r.classList.contains('bad'))check(r)}));
+  form.addEventListener('submit',function(e){
     e.preventDefault();
-    const form=e.target;
-    if(!form.checkValidity()){form.reportValidity();return;}
-    const data=new URLSearchParams(new FormData(form));
-    const btn=form.querySelector('.submit');btn.textContent='送出中…';btn.disabled=true;
-    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:data.toString()})
-      .then(()=>{form.style.display='none';document.getElementById('formSent').style.display='block';})
-      .catch(()=>{btn.textContent='送出訊息';btn.disabled=false;
-        alert('送出失敗，請稍後再試，或改用 Email / LINE 聯絡我們。');});
+    const bad=rows.filter(r=>!check(r));
+    if(bad.length){const f=bad[0].querySelector('input,textarea');f.focus();bad[0].scrollIntoView({block:'center',behavior:'smooth'});return;}
+    const btn=form.querySelector('.submit'),fail=document.getElementById('formFail');
+    btn.textContent='送出中…';btn.disabled=true;fail.style.display='none';
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(form)).toString()})
+      .then(r=>{if(!r.ok)throw new Error(r.status);
+        document.getElementById('sentName').textContent=form.elements.namedItem('name').value.trim();
+        document.getElementById('sentEmail').textContent=form.elements.namedItem('email').value.trim();
+        form.style.display='none';const done=document.getElementById('formSent');done.style.display='block';done.focus();})
+      .catch(()=>{btn.textContent='送出訊息';btn.disabled=false;fail.style.display='block';});
   });
 
   const io=new IntersectionObserver((es)=>{
