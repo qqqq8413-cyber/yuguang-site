@@ -30,20 +30,21 @@
       .hero .inner{position:relative;z-index:2;max-width:640px}
       .hero .logo{display:block;width:clamp(40px,5vw,64px);height:auto;aspect-ratio:192/208;margin-bottom:18px}
       .hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.1rem,5.2vw,3.6rem);letter-spacing:16px;line-height:1.1}
-      .hero .latin{font-family:var(--serif);font-size:clamp(10px,1.3vw,12px);letter-spacing:7px;opacity:.8;margin-top:14px}
-      .hero .tagline{font-family:var(--serif);margin-top:22px;letter-spacing:3px;font-size:clamp(.95rem,1.7vw,1.1rem);opacity:.92}
-      .hero .actions{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--serif);font-size:13px;letter-spacing:3px}
+      .hero .latin{font-family:var(--serif);font-size:clamp(11px,.95vw,14px);letter-spacing:7px;opacity:.8;margin-top:14px}
+      .hero .tagline{font-family:var(--serif);margin-top:22px;letter-spacing:3px;font-size:clamp(1rem,1.45vw,1.3rem);opacity:.92}
+      .hero .actions{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--serif);font-size:clamp(13px,1.05vw,15px);letter-spacing:3px}
       .hero .actions a{padding:12px 28px;border:1px solid rgba(243,241,236,.7);transition:background .3s,color .3s}
       .hero .actions a:hover,.hero .actions a.solid{background:#f3f1ec;color:var(--ink)}
       .hero .actions a.solid:hover{background:transparent;color:#f3f1ec}
       .hero .foot{position:absolute;z-index:2;left:0;right:0;bottom:0;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;border-top:1px solid rgba(243,241,236,.18);padding-top:16px!important;margin:0 clamp(20px,5vw,64px);padding-left:0!important;padding-right:0!important;
-            padding:0 clamp(20px,5vw,64px) 22px;font-family:var(--serif);font-size:12px;letter-spacing:2px}
+            padding:0 clamp(20px,5vw,64px) 26px;font-family:var(--serif);font-size:clamp(14px,1.25vw,18px);letter-spacing:2.5px}
       .hero .now{opacity:.88;transition:opacity .4s;text-align:left;max-width:70%}
       .hero .now:hover{opacity:1}
-      .hero .now small{display:block;font-size:10.5px;letter-spacing:3px;opacity:.7;margin-bottom:4px;text-transform:uppercase}
+      .hero .now small{display:block;font-size:clamp(11px,.85vw,13px);letter-spacing:3.5px;opacity:.75;margin-bottom:6px;text-transform:uppercase}
       .hero .dots{display:flex;gap:8px}
       .hero .dots button{width:22px;height:22px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-      .hero .dots button::before{content:"";width:18px;height:1px;background:rgba(243,241,236,.45);transition:background .3s}
+      .hero .dots button{width:clamp(22px,2.4vw,34px)}
+      .hero .dots button::before{content:"";width:100%;height:1px;background:rgba(243,241,236,.45);transition:background .3s}
       .hero .dots button[aria-current="true"]::before{background:#f3f1ec;height:2px}
       /* 直向螢幕:輪播改成 16:9 滿寬(影片原始比例,不裁切),品牌文字疊在下緣(留出底部約 15% 給影片內嵌字幕)、作品名稱與切換點在上緣;兩顆按鈕移到影像下方 */
       @media (max-aspect-ratio:4/5){
