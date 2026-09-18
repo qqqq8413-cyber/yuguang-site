@@ -116,6 +116,13 @@
   <script>
     const $=id=>document.getElementById(id);
     let KEY='', DATA={albums:[],videos:[],gear:[]}, curAlbum=-1, curProject=-1;
+    const P_ALBUMS='yuguang-site/content/albums.json',P_VIDEOS='yuguang-site/content/videos.json',P_GEAR='yuguang-site/content/gear.json';
+    /* SHA:載入時的版本,存檔時帶回做衝突檢查;SNAP:最後一次存檔/載入的內容,用來判斷有沒有未儲存的修改 */
+    const SHA={},SNAP={};
+    const bodyOf=p=>p===P_ALBUMS?{albums:DATA.albums}:p===P_VIDEOS?{videos:DATA.videos}:{gear:DATA.gear,cats:allGearCats()};
+    function snapAll(){[P_ALBUMS,P_VIDEOS,P_GEAR].forEach(p=>SNAP[p]=JSON.stringify(bodyOf(p)));}
+    function dirtyList(){return [[P_ALBUMS,'相簿'],[P_VIDEOS,'影片'],[P_GEAR,'器材']].filter(([p])=>SNAP[p]!==undefined&&SNAP[p]!==JSON.stringify(bodyOf(p))).map(x=>x[1]);}
+    window.addEventListener('beforeunload',e=>{if(KEY&&dirtyList().length){e.preventDefault();e.returnValue='';}});
 
     /* 登入 */
     async function api(fn,opts={}){
@@ -128,6 +135,7 @@
         KEY=k;
         const {status}=await api('list-orders');
         if(status===401){$('gerr').textContent='密碼錯誤';return;}
+        if(status!==200){$('gerr').textContent='暫時無法連線，請稍後再試';return;}
         sessionStorage.setItem('yg_admin_key',k);
         $('gate').classList.add('hidden');$('app').classList.remove('hidden');
         await loadAll();
@@ -137,13 +145,21 @@
 
     /* 載入內容 */
     async function loadAll(){
-        const t=Date.now();
+        /* 直接從 GitHub 讀最新版本(網站上的 /content 在每次儲存後約 1 分鐘才更新,
+           期間讀到舊資料再存檔,會蓋掉剛才的修改);GitHub 未設定時才退回讀網站上的檔案 */
+        const load=async(path,fallback,empty)=>{
+              const {status,data}=await api('get-content?path='+encodeURIComponent(path));
+              if(status===200&&data&&data.ok&&data.data){SHA[path]=data.sha;return data.data;}
+              SHA[path]=null;
+              return fetch(fallback+'?t='+Date.now()).then(r=>r.json()).catch(()=>empty);
+        };
         const [a,v,g]=await Promise.all([
-              fetch('/content/albums.json?t='+t).then(r=>r.json()).catch(()=>({albums:[]})),
-              fetch('/content/videos.json?t='+t).then(r=>r.json()).catch(()=>({videos:[]})),
-              fetch('/content/gear.json?t='+t).then(r=>r.json()).catch(()=>({gear:[]}))
+              load(P_ALBUMS,'/content/albums.json',{albums:[]}),
+              load(P_VIDEOS,'/content/videos.json',{videos:[]}),
+              load(P_GEAR,'/content/gear.json',{gear:[]})
             ]);
         DATA.albums=a.albums||[];DATA.videos=v.videos||[];DATA.gear=g.gear||[];DATA.gearCats=(Array.isArray(g.cats)&&g.cats.length)?g.cats.slice():null;
+        snapAll();
         renderPhoto();renderVideo();renderGear();
     }
 
@@ -168,10 +184,13 @@
     async function saveContent(path,dataObj,msg,btn){
         const old=btn?btn.textContent:'';if(btn){btn.textContent='儲存中…';btn.disabled=true;}
         const {status,data}=await api('save-content',{method:'POST',headers:{'Content-Type':'application/json'},
-                                                          body:JSON.stringify({path,data:dataObj,message:msg})});
+                                                          body:JSON.stringify({path,data:dataObj,message:msg,sha:SHA[path]||undefined})});
         if(btn){btn.textContent=old;btn.disabled=false;}
         if(data&&data.reason==='github-not-configured'){alert('尚未設定 GITHUB_TOKEN，請先在 Netlify 加上此環境變數。');return false;}
+        if(status===409){alert('這份內容在你開啟後台之後，已經在別處（其他分頁或裝置）被修改過。\n為了不蓋掉那邊的修改，這次沒有儲存。\n\n請先記下你剛才改了什麼，重新整理頁面後再改一次。');return false;}
         if(status!==200||!(data&&data.ok)){alert('儲存失敗，請稍後再試。');return false;}
+        if(data.sha)SHA[path]=data.sha;
+        SNAP[path]=JSON.stringify(dataObj);
         return true;
     }
     function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
@@ -321,7 +340,7 @@
     }
 
     /* 器材 */
-    const GEAR_CATS=['相機機身','鏡頭','燈光','收音','穩定器','空拍機','腳架']; let curGearCat=null; function allGearCats(){if(!Array.isArray(DATA.gearCats)){const s=new Set(GEAR_CATS);DATA.gear.forEach(g=>{if(g.cat)s.add(g.cat);});DATA.gearCats=[...s];}const set=new Set(DATA.gearCats);DATA.gear.forEach(g=>{if(g.cat)set.add(g.cat);});return [...set];} function renameGearCat(c){const n=(prompt('分類新名稱：',c)||'').trim();if(!n||n===c)return;if(allGearCats().indexOf(n)>=0){if(!confirm('已經有「'+n+'」這個分類，要把兩個分類合併嗎？'))return;}DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat=n;});allGearCats();DATA.gearCats=DATA.gearCats.map(x=>x===c?n:x).filter((x,i,a)=>a.indexOf(x)===i);if(curGearCat===c)curGearCat=n;renderGear();} function delGearCat(c){const n=DATA.gear.filter(g=>(g.cat||'')===c).length;const msg=n?('「'+c+'」底下有 '+n+' 項器材。刪除分類會把這些器材移到「未分類」（器材不會被刪除），確定嗎？'):('確定刪除分類「'+c+'」？');if(!confirm(msg))return;DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat='';});allGearCats();DATA.gearCats=DATA.gearCats.filter(x=>x!==c);if(curGearCat===c)curGearCat=null;renderGear();} function gearCatOptions(cur){const list=allGearCats();const c0=cur||'';let o='<option value=""'+(!c0?' selected':'')+' disabled>— 請選擇分類 —</option>';o+=list.map(c=>'<option value="'+esc(c)+'"'+(c===c0?' selected':'')+'>'+esc(c)+'</option>').join('');return o+'<option value="__custom__">＋ 自訂新分類…</option>';} function gearCatChange(i,val){if(val==='__custom__'){const c=(prompt('輸入新的分類名稱：')||'').trim();if(c)DATA.gear[i].cat=c;renderGear();return;}DATA.gear[i].cat=val;renderGear();} function addGearCat(){const c=(prompt('輸入新分類名稱：')||'').trim();if(!c)return;allGearCats();if(DATA.gearCats.indexOf(c)<0)DATA.gearCats.push(c);curGearCat=c;renderGear();} function openGearCat(c){curGearCat=c;renderGear();} function addGearToCurrentCat(){DATA.gear.push({name:'',cat:curGearCat||'',price:0,image:'',spec:'',desc:''});renderGear();} function renderGear(){ if(curGearCat!==null)return renderGearCat(); const box=$('p-gear'); let h='<div class="hint">器材依分類整理。點分類進去可新增／管理該分類的器材。</div>'; h+='<div class="sechead"><h2>器材分類</h2><button class="btn" onclick="addGearCat()">+ 新增分類</button></div>'; const cats=allGearCats(); h+='<div>'; cats.forEach(c=>{const n=DATA.gear.filter(g=>g.cat===c).length;h+='<div class="card albumcard"><div class="row top"><div><span class="an">'+esc(c)+'</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+n+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\''+esc(c)+'\')">管理器材</button><button class="btn sm ghost" onclick="renameGearCat(\''+esc(c)+'\')">重新命名</button><button class="btn sm ghost" onclick="delGearCat(\''+esc(c)+'\')">刪除</button></div></div></div>';}); const un=DATA.gear.filter(g=>!g.cat).length; if(un)h+='<div class="card albumcard"><div class="row top"><div><span class="an">未分類</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+un+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\'\')">管理器材</button></div></div></div>'; h+='</div>'; box.innerHTML=h; } function renderGearCat(){
+    const GEAR_CATS=['相機','鏡頭','燈光','燈光配件','燈架','穩定器','收音','空拍機']; let curGearCat=null; function allGearCats(){if(!Array.isArray(DATA.gearCats)){const s=new Set(GEAR_CATS);DATA.gear.forEach(g=>{if(g.cat)s.add(g.cat);});DATA.gearCats=[...s];}const set=new Set(DATA.gearCats);DATA.gear.forEach(g=>{if(g.cat)set.add(g.cat);});return [...set];} function renameGearCat(c){const n=(prompt('分類新名稱：',c)||'').trim();if(!n||n===c)return;if(allGearCats().indexOf(n)>=0){if(!confirm('已經有「'+n+'」這個分類，要把兩個分類合併嗎？'))return;}DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat=n;});allGearCats();DATA.gearCats=DATA.gearCats.map(x=>x===c?n:x).filter((x,i,a)=>a.indexOf(x)===i);if(curGearCat===c)curGearCat=n;renderGear();} function delGearCat(c){const n=DATA.gear.filter(g=>(g.cat||'')===c).length;const msg=n?('「'+c+'」底下有 '+n+' 項器材。刪除分類會把這些器材移到「未分類」（器材不會被刪除），確定嗎？'):('確定刪除分類「'+c+'」？');if(!confirm(msg))return;DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat='';});allGearCats();DATA.gearCats=DATA.gearCats.filter(x=>x!==c);if(curGearCat===c)curGearCat=null;renderGear();} function gearCatOptions(cur){const list=allGearCats();const c0=cur||'';let o='<option value=""'+(!c0?' selected':'')+' disabled>— 請選擇分類 —</option>';o+=list.map(c=>'<option value="'+esc(c)+'"'+(c===c0?' selected':'')+'>'+esc(c)+'</option>').join('');return o+'<option value="__custom__">＋ 自訂新分類…</option>';} function gearCatChange(i,val){if(val==='__custom__'){const c=(prompt('輸入新的分類名稱：')||'').trim();if(c)DATA.gear[i].cat=c;renderGear();return;}DATA.gear[i].cat=val;renderGear();} function addGearCat(){const c=(prompt('輸入新分類名稱：')||'').trim();if(!c)return;allGearCats();if(DATA.gearCats.indexOf(c)<0)DATA.gearCats.push(c);curGearCat=c;renderGear();} function openGearCat(c){curGearCat=c;renderGear();} function addGearToCurrentCat(){DATA.gear.push({name:'',cat:curGearCat||'',price:0,image:'',spec:'',desc:''});renderGear();} function renderGear(){ if(curGearCat!==null)return renderGearCat(); const box=$('p-gear'); let h='<div class="hint">器材依分類整理。點分類進去可新增／管理該分類的器材。</div>'; h+='<div class="sechead"><h2>器材分類</h2><button class="btn" onclick="addGearCat()">+ 新增分類</button></div>'; const cats=allGearCats(); h+='<div>'; cats.forEach(c=>{const n=DATA.gear.filter(g=>g.cat===c).length;h+='<div class="card albumcard"><div class="row top"><div><span class="an">'+esc(c)+'</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+n+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\''+esc(c)+'\')">管理器材</button><button class="btn sm ghost" onclick="renameGearCat(\''+esc(c)+'\')">重新命名</button><button class="btn sm ghost" onclick="delGearCat(\''+esc(c)+'\')">刪除</button></div></div></div>';}); const un=DATA.gear.filter(g=>!g.cat).length; if(un)h+='<div class="card albumcard"><div class="row top"><div><span class="an">未分類</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+un+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\'\')">管理器材</button></div></div></div>'; h+='</div>'; box.innerHTML=h; } function renderGearCat(){
         const box=$('p-gear');
         const CG=curGearCat||''; let h='<div style="margin-bottom:12px"><button class="btn sm ghost" onclick="curGearCat=null;renderGear()">← 返回分類</button></div>'; h+='<div class="sechead"><h2>'+esc(CG||'未分類')+'</h2><button class="btn" onclick="addGearToCurrentCat()">+ 新增器材</button></div>';
         h+='<div id="gearList">';

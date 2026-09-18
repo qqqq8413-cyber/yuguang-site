@@ -129,6 +129,7 @@ async function login(key){
   KEY=key;
   const {status,data}=await api('list-orders');
   if(status===401){$('gerr').textContent='密碼錯誤';return false;}
+  if(status!==200){$('gerr').textContent='暫時無法連線，請稍後再試';return false;}
   if(data&&data.reason==='airtable-not-configured'){
     // 密碼對,但 Airtable 尚未接上
     sessionStorage.setItem('yg_admin_key',key);
@@ -188,7 +189,9 @@ function render(){
 function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 
 async function updateStatus(id,status){
-  const {status:code}=await api('update-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
+  const {status:code,data}=await api('update-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
+  /* 只有真的更新成功才改畫面;原本失敗也會顯示成新狀態 */
+  if(code!==200||!(data&&data.ok)){alert('狀態更新失敗，請稍後再試。');render();return;}
   const o=ALL.find(x=>x.id===id);if(o){o['狀態']=status;}
   render();
 }

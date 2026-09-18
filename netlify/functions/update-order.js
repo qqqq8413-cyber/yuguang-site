@@ -17,7 +17,9 @@ exports.handler = async (event) => {
   try { o = JSON.parse(event.body || '{}'); } catch (e) {
     return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'invalid-json' }) };
   }
-  if (!o.id) return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'no-id' }) };
+  if (!/^rec[A-Za-z0-9]{14}$/.test(String(o.id || ''))) return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'bad-id' }) };
+  const STATUSES = ['待處理', '已報價', '已確認', '租借中', '已歸還', '已取消'];
+  if (!STATUSES.includes(o.status)) return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'bad-status' }) };
   try {
     const res = await fetch(
       `https://api.airtable.com/v0/${BASE}/${encodeURIComponent(TABLE)}/${o.id}`,
