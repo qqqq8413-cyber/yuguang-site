@@ -160,6 +160,9 @@
 
 <script>
   let SITE={email:"qqqq8413@gmail.com"};
+  /* 從作品頁 / 器材頁的預約按鈕進來時,帶入需求類型 */
+  (function(){const t=new URLSearchParams(location.search).get('type'),sel=document.getElementById('f-type');
+    if(t&&sel&&[...sel.options].some(o=>o.value===t))sel.value=t;})();
   fetch('content/site.json').then(r=>r.json()).then(d=>{
     SITE=d;
     const em=document.getElementById('c-email');

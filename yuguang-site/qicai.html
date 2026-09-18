@@ -58,7 +58,7 @@
   .mobilebar{display:none}
   @media(max-width:760px){
     .sidebar{display:none}
-    .mobilebar{display:block;position:sticky;top:53px;z-index:45;background:var(--paper);
+    .mobilebar{display:block;position:sticky;top:70px;z-index:45;background:var(--paper);
       padding:8px 0 12px;margin-bottom:6px}
     .mb-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;
       font-family:var(--serif);font-size:15px;letter-spacing:3px;color:var(--ink);
@@ -302,9 +302,12 @@ fetch('content/gear.json').then(r=>r.json()).then(data=>{
 }).catch(()=>{document.getElementById('grid').innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無器材資料</p>';});
 
 function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
+const GEARICON={'攝影機':'camera','鏡頭':'lens','燈光':'light','收音':'audio','穩定器':'gimbal','空拍機':'drone','腳架':'tripod'};
+function gearIcon(cat){return 'assets/gear-icons/'+(GEARICON[cat]||'other')+'.svg';}
 function gbg(g,w){w=w||800;
+  /* 沒有照片時:紙色底 + 分類線稿圖示,不再是空灰色塊 */
   return g.image ? `background-image:url('${opt(g.image,w)}');background-size:cover;background-position:center`
-                 : `background:linear-gradient(150deg,${g.grad[0]},${g.grad[1]})`;
+                 : `background:#e9e6df url('${gearIcon(g.cat)}') center/34% no-repeat`;
 }
 function buildCats(container,cls){
   container.innerHTML='';
