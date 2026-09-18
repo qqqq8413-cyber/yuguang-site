@@ -45,14 +45,24 @@
       .hero .dots button{width:22px;height:22px;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
       .hero .dots button::before{content:"";width:18px;height:1px;background:rgba(243,241,236,.45);transition:background .3s}
       .hero .dots button[aria-current="true"]::before{background:#f3f1ec;height:2px}
-      /* 直向螢幕:寬幅影像撐滿會被放大裁切,改成影像依原比例完整顯示,文字排在下方 */
+      /* 直向螢幕:寬幅影像無法撐滿直式畫面。改成紙感編輯式——影像滿寬 16:9(輕微裁切、無黑邊),文字排在米白底上 */
       @media (max-aspect-ratio:4/5){
-        .hero{height:auto;min-height:0;max-height:none;justify-content:flex-start;padding:0 0 26px}
+        .hero{height:auto;min-height:0;max-height:none;justify-content:flex-start;padding:0 0 6px;background:var(--paper);color:var(--ink)}
         .hero::after{display:none}
-        .hero .slides{position:relative;inset:auto;width:100%;aspect-ratio:16/9;flex:none;overflow:hidden}
-        .hero .slide{background-size:contain;background-repeat:no-repeat;background-position:center}
-        .hero .inner{padding:30px 20px 0}
-        .hero .foot{position:static;margin:30px 20px 0}
+        .hero .slides{position:relative;inset:auto;width:100%;aspect-ratio:16/9;flex:none;overflow:hidden;background:#e7e4dd}
+        .hero .inner{padding:28px 20px 0}
+        .hero .logo{display:none}
+        .hero h1{font-size:2rem;letter-spacing:12px}
+        .hero .latin{color:var(--muted);opacity:1;margin-top:10px}
+        .hero .tagline{margin-top:16px;opacity:1;color:#4f4a42}
+        .hero .actions{margin-top:24px}
+        .hero .actions a{border-color:var(--ink)}
+        .hero .actions a:hover,.hero .actions a.solid{background:var(--ink);color:var(--paper)}
+        .hero .actions a.solid:hover{background:transparent;color:var(--ink)}
+        .hero .foot{position:static;margin:28px 20px 0;border-top-color:var(--line)}
+        .hero .now{color:var(--ink)}
+        .hero .dots button::before{background:var(--line)}
+        .hero .dots button[aria-current="true"]::before{background:var(--ink)}
       }
       @media (prefers-reduced-motion:reduce){.hero .slide.on.zoom{animation:none}.hero .slide{transition:none}}
 
