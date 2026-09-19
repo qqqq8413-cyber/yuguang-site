@@ -3,11 +3,13 @@
     {
       "zh": "形象照片",
       "en": "Professional portrait",
+      "slug": "professional-portrait",
       "photos": [],
       "projects": [
         {
           "zh": "PsycoDive",
           "en": "",
+          "slug": "psycodive",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961839/bpuq94r9lfyrxx5qx1dt.jpg",
@@ -74,6 +76,7 @@
         {
           "zh": "業務形象",
           "en": "",
+          "slug": "business-portrait",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963519/pvbyyt1yiagerkrvktxf.jpg",
@@ -128,6 +131,7 @@
         {
           "zh": "個人形象",
           "en": "",
+          "slug": "personal-portrait",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786963635/fthwfgkprueb3i1d5xl6.jpg",
@@ -196,11 +200,13 @@
     {
       "zh": "人像寫真",
       "en": "Portrait",
+      "slug": "portrait",
       "photos": [],
       "projects": [
         {
           "zh": "髮型模特",
           "en": "禦寒",
+          "slug": "hair-model-winter",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961473/szyflmuw8sc03a3yusyf.jpg",
@@ -261,6 +267,7 @@
         {
           "zh": "髮型模特",
           "en": "",
+          "slug": "hair-model-2",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961558/jrgbsox7avvrxvg48nil.jpg",
@@ -339,6 +346,7 @@
         {
           "zh": "髮型模特",
           "en": "",
+          "slug": "hair-model-3",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961616/tbg0tbgyl3gt13iii3rk.jpg",
@@ -405,6 +413,7 @@
         {
           "zh": "髮型模特",
           "en": "",
+          "slug": "hair-model-4",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961703/qli5egzfyzh48kmisvbz.jpg",
@@ -473,11 +482,13 @@
     {
       "zh": "活動紀錄",
       "en": "Event",
+      "slug": "event",
       "photos": [],
       "projects": [
         {
           "zh": "南纛市",
           "en": "",
+          "slug": "nandao-market",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024068/ktcgwje6iqtm4w4t3jjk.jpg",
@@ -1037,6 +1048,7 @@
         {
           "zh": "南人的浪漫",
           "en": "",
+          "slug": "nanren-romance",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024427/u6fnaiihfaa6kk9glxry.jpg",
@@ -1418,11 +1430,13 @@
     {
       "zh": "空間建築",
       "en": "Space",
+      "slug": "space",
       "photos": [],
       "projects": [
         {
           "zh": "龍騰",
           "en": "",
+          "slug": "longteng",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787025044/r2hmhgv8xsd03jpzsa5a.jpg",
@@ -1623,10 +1637,12 @@
     {
       "zh": "婚紗寫真",
       "en": "",
+      "slug": "wedding-portrait",
       "projects": [
         {
           "zh": "夏哥&佩琪",
           "en": "",
+          "slug": "xiage-peiqi",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024822/d8fnskrvbok2vgjo4gjf.jpg",
@@ -1919,10 +1935,12 @@
     {
       "zh": "婚禮紀錄",
       "en": "",
+      "slug": "wedding",
       "projects": [
         {
           "zh": "阿嘎＆佳惠婚禮",
           "en": "",
+          "slug": "aga-jiahui-wedding",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787889544/ctjybqj5kmi1i9fh1dcv.jpg",
@@ -2545,10 +2563,12 @@
     {
       "zh": "寵物攝影",
       "en": "",
+      "slug": "pet",
       "projects": [
         {
           "zh": "喬恩",
           "en": "",
+          "slug": "qiaoen",
           "photos": [
             {
               "image": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787891283/tzaeiiydxmpjivkw237o.jpg",
