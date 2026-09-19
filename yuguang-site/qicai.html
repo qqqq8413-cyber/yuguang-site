@@ -284,7 +284,7 @@
       <h2 id="dName"></h2>
       <div class="dprice"><b id="dPrice"></b><span>/ 日</span></div>
       <p class="ddesc" id="dDesc"></p>
-      <div class="dsec" id="dUsesSec"><h4>適合拍攝情境</h4><ul class="dspecs" id="dUses"></ul></div>
+      <div class="dsec" id="dUsesSec"><h4>推薦用途</h4><ul class="dspecs" id="dUses"></ul></div>
       <div class="dsec"><h4>規格重點</h4><ul class="dspecs" id="dSpecs"></ul></div>
       <div class="dsec" id="dNoteSec"><h4>租借說明</h4><p class="dnote" id="dNote"></p></div>
       <div class="dactions">
@@ -404,7 +404,7 @@ function render(){
 }
 
 /* ====== 器材介紹頁 ====== */
-/* 規格用「・」分隔、適合情境每行一項;兩種分隔都接受 */
+/* 規格用「・」分隔、推薦用途每行一項;兩種分隔都接受 */
 function lis(t){const e=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   return String(t||'').split(/・|\n/).map(x=>x.trim()).filter(Boolean).map(x=>`<li>${e(x)}</li>`).join('');}
 const catalogView=document.getElementById('catalogView');
