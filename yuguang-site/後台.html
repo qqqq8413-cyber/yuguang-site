@@ -117,8 +117,8 @@
       @media(max-width:720px){.orow{grid-template-columns:1fr auto;gap:6px 12px}.orow .obadge{grid-column:2;grid-row:1;justify-self:end}
         .orow .who{grid-column:1;grid-row:1}.orow .dt{grid-column:1/-1}.orow .am{grid-column:1/-1;text-align:left}.orow .go{display:none}}
       .odetail{background:#fff;border:1px solid var(--line);padding:clamp(18px,3vw,30px);margin-bottom:40px}
-      .odetail .oback{display:block;font-family:var(--serif);font-size:13px;letter-spacing:2px;color:var(--muted);cursor:pointer;background:none;border:0;padding:0;margin-bottom:18px}
-      .odetail .oback:hover{color:var(--ink)}
+      .oback{font-family:var(--serif);font-size:1.15rem;letter-spacing:3px;color:var(--ink);cursor:pointer;background:none;border:0;padding:0}
+      .oback:hover{opacity:.65}
       .odetail h3{font-family:var(--serif);font-weight:500;font-size:1.5rem;letter-spacing:2px;margin:6px 0 4px}
       .odetail .sub{color:var(--muted);font-size:12.5px;letter-spacing:1px}
       .odetail .sec{margin-top:24px}
@@ -177,7 +177,7 @@
                     <button data-sub="gearlist">器材管理</button>
               </div>
               <div id="p-orders" class="subpanel on">
-                    <div class="sechead"><h2>租借訂單</h2><button class="btn sm ghost" id="ordRefresh">重新整理</button></div>
+                    <div class="sechead"><h2 id="ordTitle">租借訂單</h2><button class="oback hidden" type="button" id="ordBack" onclick="backToOrders()">← 返回訂單列表</button><button class="btn sm ghost" id="ordRefresh">重新整理</button></div>
                     <div class="ostats" id="ostats"></div>
                     <div class="ofilters" id="ofilters"></div>
                     <div class="olist" id="olist"><div class="oempty">載入中…</div></div>
@@ -353,11 +353,10 @@
     function lineId(c){const m=String(c||'').match(/LINE\s*[:：]?\s*(\S+)/i);return m?m[1].replace(/^@/,''):'';}
     function showOrder(id){
         const o=ORDERS.find(x=>x.id===id);
-        const box=$('olist');$('ostats').classList.add('hidden');$('ofilters').classList.add('hidden');
+        const box=$('olist');['ostats','ofilters','ordTitle','ordRefresh'].forEach(k=>$(k).classList.add('hidden'));$('ordBack').classList.remove('hidden');
         if(!o){box.innerHTML='<div class="oempty">找不到這筆訂單（可能已刪除）<br><button class="btn sm ghost" onclick="history.back()">← 返回訂單列表</button></div>';return;}
         const st=ost(o),items=parseItems(o['租借器材']),lid=lineId(o['聯絡方式']);
         box.innerHTML=`<div class="odetail">
-            <button class="oback" type="button" onclick="backToOrders()">← 返回訂單列表</button>
             <span class="obadge ob${st}">${st}</span>
             <h3>${esc(o['客戶姓名']||'未具名')}</h3>
             <div class="sub">送出時間 ${esc(oTime(o._created))}</div>
@@ -395,7 +394,7 @@
     function orderRoute(){
         const m=location.hash.match(/^#order-(rec[A-Za-z0-9]{14})$/);
         if(m){if(!KEY)return;showOrder(m[1]);return;}
-        $('ostats').classList.remove('hidden');$('ofilters').classList.remove('hidden');renderOrders();
+        ['ostats','ofilters','ordTitle','ordRefresh'].forEach(k=>$(k).classList.remove('hidden'));$('ordBack').classList.add('hidden');renderOrders();
         if(location.hash==='#orders'||location.hash==='')requestAnimationFrame(()=>window.scrollTo(0,oScroll));
     }
     window.addEventListener('hashchange',()=>{if(/^#order-/.test(location.hash))history.replaceState(Object.assign({},history.state,{fromList:true}),'');orderRoute();});
