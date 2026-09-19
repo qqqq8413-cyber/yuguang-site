@@ -22,6 +22,66 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="嶼光映像 PHOS OF ISLE — 以光為筆，紀錄島嶼的每一道影像">
     <meta name="twitter:card" content="summary_large_image">
+    <!-- 結構化資料:讓 Google 認得網站名稱與工作室資訊(名稱、聯絡方式、地址);內容與 content/site.json 一致,改聯絡資料時兩邊都要改 -->
+    <script type="application/ld+json">
+{
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://phosofisle.com/#website",
+          "url": "https://phosofisle.com/",
+          "name": "嶼光映像",
+          "alternateName": [
+            "PHOS OF ISLE",
+            "嶼光映像 PHOS OF ISLE"
+          ],
+          "inLanguage": "zh-TW",
+          "publisher": {
+            "@id": "https://phosofisle.com/#business"
+          }
+        },
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://phosofisle.com/#business",
+          "name": "嶼光映像",
+          "alternateName": "PHOS OF ISLE",
+          "url": "https://phosofisle.com/",
+          "logo": "https://phosofisle.com/images/icon-512.png",
+          "image": "https://phosofisle.com/images/og.jpg",
+          "description": "屏東影像工作室：平面攝影、動態影像製作與影像器材日租。",
+          "email": "qqqq8413@gmail.com",
+          "telephone": "+886-908-192-807",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "公園里中華路 80-1 號",
+            "addressLocality": "屏東市",
+            "addressRegion": "屏東縣",
+            "postalCode": "900",
+            "addressCountry": "TW"
+          },
+          "areaServed": [
+            {
+              "@type": "AdministrativeArea",
+              "name": "屏東縣"
+            },
+            {
+              "@type": "AdministrativeArea",
+              "name": "高雄市"
+            }
+          ],
+          "knowsAbout": [
+            "形象影片",
+            "商業攝影",
+            "人像攝影",
+            "活動紀錄",
+            "婚禮紀錄",
+            "影像器材租借"
+          ]
+        }
+      ]
+    }
+    </script>
   <style>
       :root{
             --paper:#f3f1ec;--paper-2:#eeece6;--ink:#171613;--muted:#a19a8d;

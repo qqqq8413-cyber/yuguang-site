@@ -248,6 +248,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - 從分享連結直接進入作品時，頁面上的「返回列表」會新增一筆紀錄，之後按上一頁可以回到該作品
 - 後台訂單詳情同樣適用（`#order-<id>`）
 
+### 結構化資料（SEO）
+首頁 `<head>` 有 JSON-LD：`WebSite`（網站名稱「嶼光映像」／PHOS OF ISLE）與 `LocalBusiness`（聯絡方式、屏東地址、服務區域）。內容與 `content/site.json` 相同，**修改聯絡資料時兩邊都要改**。
+
 ### 分享預覽
 7 個公開頁面都有 Open Graph／Twitter 卡片標籤、頁面描述、網站圖示與 PWA manifest；分享圖為 `images/og.jpg`。
 
