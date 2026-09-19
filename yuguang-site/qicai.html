@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>器材租賃 · 嶼光映像</title>
-<meta name="description" content="屏東影像器材日租：攝影機、鏡頭、燈光、收音、穩定器、空拍機與腳架，線上加入詢價單一次送出。">
+<meta name="description" content="屏東影像器材日租：攝影機、鏡頭、燈光、收音、穩定器、空拍機與腳架，選好器材與日期即可線上送出租借需求。">
 <link rel="canonical" href="https://super-bombolone-186f83.netlify.app/qicai.html">
 <meta name="theme-color" content="#f3f1ec">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -15,7 +15,7 @@
 <meta property="og:site_name" content="嶼光映像 PHOS OF ISLE">
 <meta property="og:locale" content="zh_TW">
 <meta property="og:title" content="器材租賃 · 嶼光映像">
-<meta property="og:description" content="屏東影像器材日租：攝影機、鏡頭、燈光、收音、穩定器、空拍機與腳架，線上加入詢價單一次送出。">
+<meta property="og:description" content="屏東影像器材日租：攝影機、鏡頭、燈光、收音、穩定器、空拍機與腳架，選好器材與日期即可線上送出租借需求。">
 <meta property="og:url" content="https://super-bombolone-186f83.netlify.app/qicai.html">
 <meta property="og:image" content="https://super-bombolone-186f83.netlify.app/images/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -159,7 +159,7 @@
   .detail .dactions .btn.primary:hover{opacity:.85}
   .detail .dactions .btn.ghost:hover{background:var(--paper-2)}
 
-  /* 詢價單抽屜 */
+  /* 租借清單抽屜 */
   .cartpanel{position:fixed;inset:0;z-index:110;display:none}
   .cartpanel.open{display:block}
   .cartpanel .scrim{position:absolute;inset:0;background:rgba(18,16,13,.5);backdrop-filter:blur(3px)}
@@ -188,6 +188,9 @@
   .cartpanel .foot .srow.big{border-top:1px solid var(--line);margin-top:8px;padding-top:10px;font-size:15px;color:var(--ink)}
   .cartpanel .foot .srow.big b{font-size:1.3rem;font-weight:600}
   .cartpanel .foot .srow b.warn{color:#b04a3a;font-size:13px}
+  .cartpanel .foot .srow span{white-space:nowrap}
+  .cartpanel .foot .srow b small{display:block;font-size:11px;font-weight:400;color:var(--muted);letter-spacing:1px;margin-top:2px}
+  .cartpanel .foot .cfl,.cartpanel .foot .cfl .cf{min-width:0}
   .cartpanel .foot .sum .note{margin:8px 0 0}
   .cartpanel .foot .total b{font-size:1.2rem}
   .cartpanel .foot .note{color:var(--muted);font-size:11px;letter-spacing:1px;margin-bottom:16px}
@@ -199,6 +202,8 @@
     padding:11px 14px;margin-bottom:10px;font-family:var(--sans);font-size:14px;color:var(--ink);
     border-radius:0;outline:none;-webkit-appearance:none}
   .cartpanel .foot .cf:focus{border-color:var(--ink)}
+  .cartpanel .foot .err{color:#b04a3a;font-family:var(--serif);font-size:12.5px;letter-spacing:1px;min-height:0;margin:-2px 0 10px}
+  .cartpanel .foot .err:empty{display:none}
   .cartpanel .foot .send{cursor:pointer;border:0;width:100%}
   .cartpanel .foot .cfrow{display:flex;gap:10px}
   .cartpanel .foot .cfl{flex:1;display:flex;flex-direction:column;gap:5px;font-family:var(--serif);font-size:11px;letter-spacing:2px;color:var(--muted)}
@@ -238,7 +243,7 @@
 <div class="topbar">
   <a class="mark" href="index.html"><svg><use href="#logo"/></svg><span class="name">嶼光映像</span></a>
   <div class="right">
-    <button class="cartbtn" id="cartBtn">詢價單 <span class="n" id="cartN">0</span></button>
+    <button class="cartbtn" id="cartBtn">租借清單 <span class="n" id="cartN">0</span></button>
     <a class="back" href="index.html">← 返回首頁</a>
   </div>
 </div>
@@ -253,7 +258,7 @@
   <div class="pagehead">
     <div class="kicker">Rental</div>
     <h1>器材租賃</h1>
-    <p class="sub">專業影像器材，日租出借，加入詢價後一次送出</p>
+    <p class="sub">專業影像器材，日租出借，選好器材與日期，直接送出租借需求</p>
   </div>
   <div class="catalog">
     <aside class="sidebar">
@@ -276,17 +281,17 @@
       <ul class="dspecs" id="dSpecs"></ul>
       <p class="ddesc" id="dDesc"></p>
       <div class="dactions">
-        <button class="btn primary" id="dAdd">加入詢價</button>
+        <button class="btn primary" id="dAdd">加入租借</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 詢價單抽屜 -->
+<!-- 租借清單抽屜 -->
 <div class="cartpanel" id="cartPanel">
   <div class="scrim" id="cartScrim"></div>
   <div class="drawer">
-    <div class="dhead"><h3>詢價單</h3><span class="x" id="cartClose">×</span></div>
+    <div class="dhead"><h3>租借清單</h3><span class="x" id="cartClose">×</span></div>
     <div class="items" id="cartItems"></div>
     <div class="foot">
       <div id="cartForm">
@@ -299,23 +304,25 @@
           <div class="srow"><span>日租合計</span><b id="cartTotal">NT$ 0</b></div>
           <div class="srow"><span>租期</span><b id="cartDays">請先選擇日期</b></div>
           <div class="srow big"><span>預估總額</span><b id="cartAmount">—</b></div>
-          <div class="note" id="cartNote">＊租期含取件日與歸還日；實際金額以我們確認檔期後的報價為準</div>
+          <div class="note" id="cartNote">＊租期含取件日與歸還日；送出後我們會以手機或 LINE 跟你確認檔期與取件方式</div>
         </div>
-        <input class="cf" id="cName" type="text" placeholder="您的稱呼（選填）">
-        <input class="cf" id="cContact" type="text" placeholder="聯絡方式（電話 / Email / LINE）">
-        <button class="send disabled" id="cartSend" type="button">送出租借申請</button>
+        <input class="cf" id="cName" type="text" placeholder="姓名" autocomplete="name" maxlength="40">
+        <input class="cf" id="cPhone" type="tel" placeholder="手機（例：0912345678）" autocomplete="tel" inputmode="tel" maxlength="20">
+        <input class="cf" id="cLine" type="text" placeholder="LINE ID" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="40">
+        <div class="err" id="cartErr" role="alert"></div>
+        <button class="send disabled" id="cartSend" type="button">送出租借需求</button>
       </div>
-      <div class="sent" id="cartSent">已收到你的租借申請，我們會盡快確認檔期並回覆 ✓</div>
+      <div class="sent" id="cartSent">已收到你的租借需求 ✓<br>我們會盡快以手機或 LINE 跟你確認檔期</div>
     </div>
   </div>
 </div>
 
 <!-- Netlify 表單偵測用(隱藏) -->
 <form name="rental-inquiry" data-netlify="true" netlify-honeypot="bot-field" hidden>
-  <input type="text" name="name"><input type="text" name="contact"><input type="text" name="items"><input type="text" name="start"><input type="text" name="end"><input type="text" name="amount"><input type="text" name="bot-field">
+  <input type="text" name="name"><input type="text" name="contact"><input type="text" name="phone"><input type="text" name="line"><input type="text" name="items"><input type="text" name="start"><input type="text" name="end"><input type="text" name="amount"><input type="text" name="bot-field">
 </form>
 
-<div class="toast" id="toast">已加入詢價單</div>
+<div class="toast" id="toast">已加入租借清單</div>
 
 <script>
 /* ====== 器材資料(由後台 content/gear.json 載入) ====== */
@@ -337,9 +344,9 @@ fetch('content/gear.json').then(r=>r.json()).then(data=>{
 function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
 const GEARICON={'攝影機':'camera','相機機身':'camera','相機':'camera','燈光配件':'light','燈架':'tripod','鏡頭':'lens','燈光':'light','收音':'audio','穩定器':'gimbal','空拍機':'drone','腳架':'tripod'};
 function gearIcon(cat){return 'assets/gear-icons/'+(GEARICON[cat]||'other')+'.svg';}
-/* 尚未定價的器材顯示「價格洽詢」,不再因 price 空白而整頁出錯 */
+/* 尚未定價的器材顯示「價格另計」,不再因 price 空白而整頁出錯 */
 function hasP(g){return typeof g.price==='number'&&g.price>0;}
-function fmtP(g){return hasP(g)?'NT$ '+g.price.toLocaleString():'價格洽詢';}
+function fmtP(g){return hasP(g)?'NT$ '+g.price.toLocaleString():'價格另計';}
 function gbg(g,w){w=w||800;
   /* 沒有照片時:紙色底 + 分類線稿圖示,不再是空灰色塊 */
   return g.image ? `background-image:url('${opt(g.image,w)}');background-size:cover;background-position:center`
@@ -382,7 +389,7 @@ function render(){
       <div class="pspec">${g.spec}</div>
       <div class="prow">
         <span class="price"><b>${fmtP(g)}</b>${hasP(g)?'<span>/ 日</span>':''}</span>
-        <button class="add" data-add="${g.id}">加入詢價</button>
+        <button class="add" data-add="${g.id}">加入租借</button>
       </div>`;
     grid.appendChild(el);
   });
@@ -410,7 +417,7 @@ document.getElementById('detailBack').addEventListener('click',()=>{
   detailView.style.display='none';catalogView.style.display='block';window.scrollTo({top:0});
 });
 
-/* ====== 詢價單 ====== */
+/* ====== 租借清單 ====== */
 let cart=[];
 const cartN=document.getElementById('cartN');
 const panel=document.getElementById('cartPanel');
@@ -433,9 +440,9 @@ function updateSum(){
   dEl.classList.toggle('warn',n<0);
   dEl.textContent=n<0?'迄租日要在起租日之後':n===0?'請先選擇日期':`${n} 天`;
   if(!cart.length){aEl.textContent='—';return;}
-  if(!priced.length){aEl.textContent='由我們報價';return;}
+  if(!priced.length){aEl.textContent='由我們確認後報價';return;}
   if(n<=0){aEl.textContent=`NT$ ${daily.toLocaleString()} × ? 天`;return;}
-  aEl.textContent=`NT$ ${(daily*n).toLocaleString()}`+(ask?' ＋ 洽詢品項':'');
+  aEl.innerHTML=`NT$ ${(daily*n).toLocaleString()}`+(ask?'<small>＋ 未定價品項另計</small>':'');
 }
 (function(){
   const s=document.getElementById('cStart'),e=document.getElementById('cEnd');
@@ -448,7 +455,7 @@ function renderCart(){
   const box=document.getElementById('cartItems');
   const send=document.getElementById('cartSend');
   if(cart.length===0){
-    box.innerHTML='<div class="empty">— 詢價單是空的 —</div>';
+    box.innerHTML='<div class="empty">— 還沒有選擇器材 —</div>';
     document.getElementById('cartTotal').textContent='NT$ 0';
     send.classList.add('disabled');updateSum();return;
   }
@@ -458,51 +465,58 @@ function renderCart(){
     return `<div class="ci"><div><div class="cn">${g.name}</div><div class="cp">${g.cat}</div></div>
       <div style="text-align:right"><div class="cn">${fmtP(g)}${hasP(g)?'<span style="color:var(--muted);font-size:11px"> /日</span>':''}</div></div>
       <span class="rm" data-rm="${id}">×</span></div>`;}).join('');
-  document.getElementById('cartTotal').textContent=total>0?'NT$ '+total.toLocaleString()+(ask?' ＋ 洽詢品項':''):'價格洽詢';
+  document.getElementById('cartTotal').innerHTML=total>0?'NT$ '+total.toLocaleString()+(ask?'<small>＋ 未定價品項另計</small>':''):'價格另計';
   updateSum();
   box.querySelectorAll('[data-rm]').forEach(n=>n.addEventListener('click',()=>removeFromCart(+n.dataset.rm)));
   send.classList.remove('disabled');
-}
-function mailLink(name){
-  return `mailto:qqqq8413@gmail.com?subject=${encodeURIComponent('器材租賃洽詢：'+name)}`
-    +`&body=${encodeURIComponent('您好，我想詢問「'+name+'」的租借事宜：\n\n租借日期：\n租借天數：\n聯絡方式：')}`;
 }
 document.getElementById('cartBtn').addEventListener('click',()=>{
   document.getElementById('cartSent').style.display='none';
   document.getElementById('cartForm').style.display='';
   renderCart();panel.classList.add('open');
 });
-/* 送出租借申請:寫入 Netlify 表單(備援)+ Netlify 函式(進 Airtable 後端) */
+/* 送出租借需求:寫入 Netlify 表單(備援)+ Netlify 函式(進 Airtable 後端),任一成功才算送出 */
+function fieldErr(el,msg){
+  document.getElementById('cartErr').textContent=msg;
+  if(el){el.style.borderColor='#b04a3a';el.focus();}
+}
+['cName','cPhone','cLine'].forEach(k=>document.getElementById(k).addEventListener('input',e=>{
+  e.target.style.borderColor='';document.getElementById('cartErr').textContent='';}));
 document.getElementById('cartSend').addEventListener('click',()=>{
   const send=document.getElementById('cartSend');
   if(send.classList.contains('disabled')||!cart.length)return;
-  const name=document.getElementById('cName').value.trim();
-  const cContact=document.getElementById('cContact');
-  const contact=cContact.value.trim();
-  const cStart=document.getElementById('cStart');
-  const cEnd=document.getElementById('cEnd');
-  const start=cStart.value,end=cEnd.value;
-  if(!contact){cContact.style.borderColor='#b04a3a';cContact.focus();return;}
-  if(!start){cStart.style.borderColor='#b04a3a';cStart.focus();return;}
-  if(!end){cEnd.style.borderColor='#b04a3a';cEnd.focus();return;}
-  if(rentDays()<0){cEnd.style.borderColor='#b04a3a';cEnd.focus();return;}
-  let days=1;
-  const d=(new Date(end)-new Date(start))/86400000;
-  if(!isNaN(d)&&d>=0)days=d+1;
+  const $=k=>document.getElementById(k);
+  const name=$('cName').value.trim();
+  const phone=$('cPhone').value.replace(/[\s-]/g,'').replace(/^\+886/,'0');
+  const line=$('cLine').value.trim();
+  const start=$('cStart').value,end=$('cEnd').value;
+  if(!start)return fieldErr($('cStart'),'請選擇起租日');
+  if(!end)return fieldErr($('cEnd'),'請選擇迄租日');
+  if(rentDays()<0)return fieldErr($('cEnd'),'迄租日要在起租日之後');
+  if(!name)return fieldErr($('cName'),'請填寫姓名');
+  if(!/^09\d{8}$/.test(phone))return fieldErr($('cPhone'),'請填寫 10 碼手機號碼（09 開頭）');
+  if(!line)return fieldErr($('cLine'),'請填寫 LINE ID，方便我們聯絡你');
+  $('cartErr').textContent='';
+  const days=rentDays();
   const dailyTotal=cart.reduce((s,id)=>s+(hasP(gear[id])?gear[id].price:0),0);
   const amount=dailyTotal*days;
-  const items=cart.map(id=>`${gear[id].name}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格洽詢'}）`).join('、');
-  const order={name:name||'未具名',contact,start,end,days,items,dailyTotal,amount};
+  const items=cart.map(id=>`${gear[id].name}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格另計'}）`).join('、');
+  const contact=`手機 ${phone} ／ LINE ${line}`;
+  const order={name,contact,phone,line,start,end,days,items,dailyTotal,amount};
   send.textContent='送出中…';send.classList.add('disabled');
-  const formData=new URLSearchParams({'form-name':'rental-inquiry',name:order.name,contact,items,start,end,amount:String(amount)});
-  Promise.allSettled([
-    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:formData.toString()}),
-    fetch('/.netlify/functions/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)})
+  const formData=new URLSearchParams({'form-name':'rental-inquiry',name,contact,phone,line,items,start,end,amount:String(amount)});
+  const ok=p=>p.then(r=>{if(!r.ok)throw r;return r;});
+  Promise.any([
+    ok(fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:formData.toString()})),
+    ok(fetch('/.netlify/functions/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)}))
   ]).then(()=>{
-    document.getElementById('cartForm').style.display='none';
-    document.getElementById('cartSent').style.display='block';
+    $('cartForm').style.display='none';
+    $('cartSent').style.display='block';
     cart=[];cartN.textContent='0';renderCart();
-  });
+  }).catch(()=>{
+    fieldErr(null,'送出失敗，請檢查網路後再試一次，或直接用 LINE 聯絡我們');
+    send.classList.remove('disabled');
+  }).finally(()=>{send.textContent='送出租借需求';});
 });
 document.getElementById('cartClose').addEventListener('click',()=>panel.classList.remove('open'));
 document.getElementById('cartScrim').addEventListener('click',()=>panel.classList.remove('open'));
