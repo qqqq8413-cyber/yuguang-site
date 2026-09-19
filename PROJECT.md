@@ -73,9 +73,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | 頁面 | 檔案 | 可分享的網址參數 |
 |---|---|---|
 | 首頁 | `index.html` | — |
-| 平面作品 | `pingmian.html` | `?cat=分類序號`、`?cat=0&proj=專案序號` |
+| 平面作品 | `pingmian.html` | `?album=分類代稱`、`?album=portrait&project=hair-model-2`（舊的 `?cat=&proj=` 序號網址仍可開啟，會自動換成代稱） |
 | 動態作品 | `dongtai.html` | `?cat=分類名稱`、`?v=YouTube影片ID` |
-| 器材租賃 | `qicai.html` | `?item=器材序號` |
+| 器材租賃 | `qicai.html` | `?item=器材代稱`，例：`?item=aputure-amaran-300c`（舊的 `?item=4` 仍可開啟） |
 | 製作流程 | `liucheng.html` | — |
 | 關於嶼光 | `guanyu.html` | — |
 | 聯絡我們 | `lianluo.html` | `?type=服務類型`（預選需求標籤） |
@@ -87,13 +87,15 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 
 | 檔案 | 用途 | 主要欄位 |
 |---|---|---|
-| `albums.json` | 平面作品 | `albums[]`：`zh`、`en`、`cover`、`photos[]`、`projects[]`；照片 `image`、`caption`、`w`、`h` |
+| `albums.json` | 平面作品 | `albums[]`：`zh`、`en`、`slug`、`cover`、`photos[]`、`projects[]`（專案也有 `slug`）；照片 `image`、`caption`、`w`、`h` |
 | `videos.json` | 動態作品 | `videos[]`：`title`、`cat`、`yt`、`client`、`year`、`featured`、`cover`、`sub`、`desc`、`credits` |
-| `gear.json` | 器材 | `gear[]`：`name`、`cat`、`price`（日租）、`qty`（可租數量，0＝暫停出租）、`image`、`spec`（用「・」分隔）、`desc`、`uses`（每行一項）、`note`（租借說明）；`cats[]` 分類順序 |
+| `gear.json` | 器材 | `gear[]`：`name`、`slug`、`cat`、`price`（日租）、`qty`（可租數量，0＝暫停出租）、`image`、`spec`（用「・」分隔）、`desc`、`uses`（每行一項）、`note`（租借說明）；`cats[]` 分類順序 |
 | `site.json` | 網站資訊 | 品牌名、Email、LINE、電話、地址、社群連結（頁尾讀這裡） |
 | `about.json` / `process.json` | 關於、流程頁內容 | — |
 
 目前規模：平面 7 個分類、455 張照片；動態 14 部影片；器材 9 項。
+
+**網址代稱（`slug`）**：分類、專案、器材各有一個固定的英文代稱，網址用它而不是排列序號，所以後台拖曳排序、改中文名稱都不會讓分享出去的連結跑掉。後台留空時存檔會自動產生（英文名稱轉小寫；沒有英文就用隨機碼），也可以手動修改——但改了代稱，舊的分享連結就會失效。
 
 **照片寬高（`w`、`h`）**：每張照片都記錄原始尺寸，頁面載入時先保留正確比例的空間，照片載入後版面不會跳動。後台上傳時自動寫入。
 

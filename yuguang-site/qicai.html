@@ -384,7 +384,7 @@ fetch('content/gear.json').then(r=>r.json()).then(data=>{
   gear=(data.gear||[]).map((g,i)=>Object.assign({grad:GEARGRADS[i%GEARGRADS.length]},g,{id:i}));
   cats=["全部器材",...[...new Set(gear.map(g=>g.cat))]];
   buildCats(catBox,'cat');buildCats(mbCats,'mb-cat');render();
-  const it=qItem();if(it!=null)openDetail(it);
+  const it=qItem();if(it!=null){openDetail(it);const u=urlItem(it);if(u!==location.pathname+location.search)history.replaceState(history.state,'',u);}
 }).catch(()=>{document.getElementById('grid').innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無器材資料</p>';});
 
 function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
@@ -499,8 +499,10 @@ document.getElementById('detailBack').addEventListener('click',upDetail);
    租借清單視窗也佔一筆歷史,手機返回手勢會先關閉視窗而不是離開頁面 */
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const BASE_TITLE=document.title;
-function qItem(){const v=new URLSearchParams(location.search).get('item');return v!==null&&gear[+v]?+v:null;}
-function urlItem(i){return location.pathname+(i==null?'':'?item='+i);}
+/* 器材網址用固定代稱(?item=aputure-amaran-300c),排序改變也不影響;舊的序號網址(?item=4)仍可開啟 */
+function qItem(){const v=new URLSearchParams(location.search).get('item');if(v===null)return null;
+  const i=gear.findIndex(g=>g.slug===v);if(i>=0)return i;return /^\d+$/.test(v)&&gear[+v]?+v:null;}
+function urlItem(i){return location.pathname+(i==null?'':'?item='+encodeURIComponent((gear[i]&&gear[i].slug)||i));}
 function goDetail(id){
   history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
   history.pushState({sub:1},'',urlItem(id));openDetail(id);
