@@ -85,14 +85,28 @@
       }
       @media (prefers-reduced-motion:reduce){.hero .slide.on.zoom{animation:none}.hero .slide{transition:none}}
 
-      /* 首頁頂欄:捲過主視覺才出現 */
+      /* 首頁頂欄:第一屏就可見;在主視覺上為透明、淺色字,捲過主視覺後轉米白底 */
       .topbar{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;
-            padding:15px clamp(20px,5vw,64px);background:var(--paper);border-bottom:1px solid var(--hair);
-            transform:translateY(-100%);transition:transform .35s ease}
-      .topbar.show,.nav-open .topbar{transform:none}
+            padding:15px clamp(20px,5vw,64px);background:var(--paper);border-bottom:1px solid var(--hair);color:var(--ink);
+            transition:background-color .35s ease,color .35s ease,border-color .35s ease}
+      html:not(.nav-open) .topbar:not(.solid){background:transparent;border-bottom-color:transparent;color:#f3f1ec}
+      html:not(.nav-open) .topbar:not(.solid) .sitenav a{color:rgba(243,241,236,.82)}
+      html:not(.nav-open) .topbar:not(.solid) .sitenav a:hover{color:#f3f1ec}
+      html:not(.nav-open) .topbar:not(.solid) .sitenav a[aria-current="page"]::after{background:#f3f1ec}
+      html:not(.nav-open) .topbar:not(.solid) .sitenav a.cta{background:#f3f1ec;color:var(--ink)}
+      html:not(.nav-open) .topbar:not(.solid) .navtoggle{color:#f3f1ec}
+      html:not(.nav-open) .topbar:not(.solid) .sitenav a,html:not(.nav-open) .topbar:not(.solid) .name{text-shadow:0 1px 8px rgba(0,0,0,.25)}
       .topbar .mark{display:flex;align-items:center;gap:11px}
       .topbar .name{font-family:var(--serif);font-size:14px;letter-spacing:5px;text-indent:5px}
       .rows{padding-top:clamp(36px,6vh,64px)}
+      #rows{scroll-margin-top:var(--barh,70px)}
+      /* 手機直式:主視覺只有 16:9,頂欄固定米白底,主視覺往下讓出頂欄高度(需放在透明頂欄規則之後) */
+      @media (max-aspect-ratio:4/5){
+        html:not(.nav-open) .topbar:not(.solid){background:var(--paper);border-bottom-color:var(--hair);color:var(--ink)}
+        html:not(.nav-open) .topbar:not(.solid) .navtoggle{color:var(--ink)}
+        html:not(.nav-open) .topbar:not(.solid) .name{text-shadow:none}
+        body{padding-top:var(--barh,70px)}
+      }
 
       .rows{padding-bottom:clamp(48px,8vh,88px)}
       .row{margin-bottom:clamp(30px,5vh,50px)}
@@ -258,11 +272,13 @@
         go(0);play();
     }
 
-    /* 頂欄:捲過主視覺才滑入 */
+    /* 頂欄:一直可見,捲過主視覺後轉為米白底 */
     (function(){
         const bar=document.getElementById('topbar'),hero=document.getElementById('hero');
-        const upd=()=>bar.classList.toggle('show',window.scrollY>hero.offsetHeight-80);
+        const upd=()=>{bar.classList.toggle('solid',window.scrollY>hero.offsetTop+hero.offsetHeight-bar.offsetHeight);
+            document.documentElement.style.setProperty('--barh',bar.offsetHeight+'px');};
         window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+        if('ResizeObserver' in window)new ResizeObserver(upd).observe(bar);
     })();
 
     Promise.all([
@@ -283,10 +299,28 @@
                 const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover?heroImg(x.cover,1200):`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids,'lg');
 
-                const gear=(g.gear||[]).map(x=>({href:'qicai.html',img:opt(x.image,800),icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
+                const gear=(g.gear||[]).map((x,i)=>({href:'qicai.html?item='+i,img:opt(x.image,800),icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
         addRow('器材租賃','Rental','qicai.html',gear);
         buildHero(v,a);
+        restoreY();
     }).catch(()=>{rows.innerHTML='<div class="empty">作品載入中,請稍後重新整理。</div>';});
+
+    /* 首頁內容是載入後才產生的,瀏覽器自動還原捲動位置常常失敗;
+       離開前記下位置,按上一頁回來、內容產生後再捲回去 */
+    function restoreY(){
+        try{
+            const nav=performance.getEntriesByType('navigation')[0];
+            const y=+sessionStorage.getItem('homeY');
+            if(!(nav&&nav.type==='back_forward'&&y>0))return;
+            /* 字型、圖片陸續載入會改變頁面高度:穩定前多捲幾次,使用者一滑動就停止 */
+            let stop=false;const halt=()=>{stop=true;};
+            ['wheel','touchstart','keydown'].forEach(t=>window.addEventListener(t,halt,{once:true,passive:true}));
+            const go=()=>{if(!stop)window.scrollTo(0,y);};
+            requestAnimationFrame(go);[150,400,800,1500].forEach(ms=>setTimeout(go,ms));
+            if(document.fonts)document.fonts.ready.then(go);
+        }catch(e){}
+    }
+    window.addEventListener('pagehide',()=>{try{sessionStorage.setItem('homeY',String(window.scrollY));}catch(e){}});
 </script>
   </body>
 </html>

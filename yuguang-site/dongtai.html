@@ -195,9 +195,7 @@
 
     fetch('content/videos.json').then(r=>r.json()).then(data=>{
         videos=(data.videos||[]).map((v,i)=>Object.assign({grad:GRADS[i%GRADS.length]},v));
-        buildFilters();render();
-        const qv=new URLSearchParams(location.search).get('v');
-        if(qv){const hit=videos.find(x=>ytid(x.yt)===qv);if(hit)openDetail(hit);}
+        buildFilters();route(0);
     }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無影片資料</p>';});
 
     function isFeatured(v){return v.featured===true||v.cat==='精選作品';}function buildFilters(){
@@ -206,9 +204,8 @@
         cats.forEach(c=>{
               const b=document.createElement('button');
               b.className='filter'+(c===activeCat?' active':'');b.textContent=c;
-              b.addEventListener('click',()=>{activeCat=c;
-                                                    document.querySelectorAll('.filter').forEach(f=>f.classList.toggle('active',f.textContent===c));
-                                                    render();});
+              b.addEventListener('click',()=>{setCat(c);render();
+                                                    history.replaceState(history.state,'',urlFor({cat:c}));});
               filters.appendChild(b);
         });
     }
@@ -226,7 +223,7 @@
                       const el=document.createElement('div');
                       el.className='vid fade';el.style.gridColumn='span '+cspan;el.style.gridRow='span '+rspan;el.style.animationDelay=(i*0.05)+'s';
                       el.innerHTML=`<div class="media"><div class="bg" style="${thumb}"></div><div class="grain"></div><div class="play"></div></div><div class="info"><span class="t">${esc(v.title)}</span><span class="d">${[v.client,v.year].filter(Boolean).map(esc).join(' · ')}</span></div>`;
-                      el.addEventListener('click',()=>openDetail(v));
+                      el.addEventListener('click',()=>nav({cat:activeCat,v:vkey(v)}));
                       grid.appendChild(el);
                       i++;
               }
@@ -252,7 +249,7 @@
               : '';
         const metaParts=[v.client,v.year].filter(Boolean).map(esc);
         detail.innerHTML=`<div class="dwrap fade">
-            <div class="dback" onclick="backToGrid()">← 返回作品列表</div>
+            <div class="dback" onclick="up()">← 返回作品列表</div>
                 <div class="dcat">${esc(v.cat||'')}</div>
                     <h1 class="dtitle">${esc(v.title||'')}</h1>
                         ${v.sub?`<div class="dsub">${esc(v.sub)}</div>`:''}
@@ -263,14 +260,41 @@
                                           </div>`;
         indexView.style.display='none';
         detail.style.display='block';
+        document.title=(v.title?v.title+' · ':'')+BASE_TITLE;
         window.scrollTo({top:0});
     }
     function backToGrid(){
         detail.style.display='none';detail.innerHTML='';
         indexView.style.display='block';
-        window.scrollTo({top:0});
+        document.title=BASE_TITLE;
     }
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&detail.style.display==='block')backToGrid();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&detail.style.display==='block')up();});
+
+    /* 網址同步:分類與單一作品寫進網址(?cat=&v=),瀏覽器上一頁回到列表並還原分類與捲動位置 */
+    const BASE_TITLE=document.title;
+    if('scrollRestoration' in history)history.scrollRestoration='manual';
+    function vkey(v){return ytid(v.yt)||('n'+videos.indexOf(v));}
+    function qs(){const q=new URLSearchParams(location.search);return {cat:q.get('cat'),v:q.get('v')};}
+    function urlFor(p){const q=new URLSearchParams();if(p.cat&&p.cat!=='精選作品')q.set('cat',p.cat);if(p.v)q.set('v',p.v);const t=q.toString();return location.pathname+(t?'?'+t:'');}
+    function setCat(c){activeCat=c;document.querySelectorAll('.filter').forEach(f=>f.classList.toggle('active',f.textContent===c));}
+    function nav(p){
+        history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
+        history.pushState({sub:1,y:0},'',urlFor(p));route(0);
+    }
+    function up(){
+        if(history.state&&history.state.sub)return history.back();
+        history.pushState({y:0},'',urlFor({cat:activeCat}));route(0);
+    }
+    function route(y){
+        const c=qs(),cats=[...document.querySelectorAll('.filter')].map(f=>f.textContent);
+        const cat=c.cat&&cats.includes(c.cat)?c.cat:'精選作品';
+        if(cat!==activeCat||!grid.children.length){setCat(cat);render();}
+        const hit=c.v&&videos.find(x=>vkey(x)===c.v);
+        if(hit){openDetail(hit);return;}
+        if(detail.style.display==='block')backToGrid();
+        requestAnimationFrame(()=>window.scrollTo(0,y||0));
+    }
+    window.addEventListener('popstate',e=>route(e.state&&e.state.y));
   </script>
   </body>
 </html>
