@@ -11,8 +11,8 @@
 |---|---|
 | 品牌 | 嶼光映像 PHOS OF ISLE（屏東） |
 | 服務 | 平面攝影、動態影像製作、影像器材日租 |
-| 正式網址 | https://super-bombolone-186f83.netlify.app/ （尚未綁定自有網域） |
-| 後台 | https://super-bombolone-186f83.netlify.app/後台 |
+| 正式網址 | https://phosofisle.com/ （網域於 Cloudflare 註冊，DNS 在 Cloudflare；舊網址 super-bombolone-186f83.netlify.app 301 轉到正式網域） |
+| 後台 | https://phosofisle.com/後台 |
 | 原始碼 | GitHub `qqqq8413-cyber/yuguang-site`（`main` 分支即正式站） |
 | 主機 | Netlify（靜態網站 + Functions + Forms + Deploy Preview） |
 
@@ -303,8 +303,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 ## 10. 待辦與建議
 
 ### 優先
-- [ ] **綁定自有網域**（例：`yuguang.tw`）：目前 Netlify 子網域影響可信度
-- [ ] **sitemap.xml 與 robots.txt**：讓 Google 完整收錄（建議換網域後再做）
+- [x] **綁定自有網域**：phosofisle.com（2026-09-20）
+- [x] **sitemap.xml 與 robots.txt**
+- [ ] **Google Search Console**：驗證網域、提交 sitemap
 - [ ] **首頁主視覺封面**：替換帶有影片字幕的封面
 
 ### 一般
