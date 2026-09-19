@@ -285,6 +285,17 @@
         else if(/gear\.json$/.test(path))(dataObj.gear||[]).forEach(g=>add(g,g.name,'gear'));
         else return;
         list.forEach(([o,name,prefix])=>{let b=slugify(name)||prefix+'-'+Math.random().toString(36).slice(2,8),s=b,n=2;while(used.has(s))s=b+'-'+(n++);o.slug=s;used.add(s);});
+    /* 把「gear[0].price」這種位置換成看得懂的名稱:「Canon EOS R50」的 日租價 */
+    const FIELD_ZH={price:'日租價',qty:'可租數量',name:'名稱',image:'照片',slug:'代稱',yt:'YouTube 網址',title:'標題',zh:'中文名稱',w:'照片寬度',h:'照片高度',cover:'封面',featured:'精選'};
+    function friendlyPath(msg){
+        return msg.replace(/^([a-z]+)\[(\d+)\](?:\.projects\[(\d+)\])?(?:\.photos\[(\d+)\])?(?:\.([a-zA-Z_]+))?/,(m,top,i,j,k,f)=>{
+            const it=(DATA[top]||[])[+i];if(!it)return m;
+            const pj=j!=null&&it.projects?it.projects[+j]:null;
+            let s='「'+(it.name||it.title||it.zh||('第 '+(+i+1)+' 項'))+'」';
+            if(pj)s+=' › 「'+(pj.zh||('專案 '+(+j+1)))+'」';
+            if(k!=null)s+=' 第 '+(+k+1)+' 張照片';
+            if(f)s+=' 的'+(FIELD_ZH[f]||f);
+            return s;});
     }
     async function saveContent(path,dataObj,msg,btn){
         ensureSlugs(path,dataObj);
@@ -294,6 +305,7 @@
         if(btn){btn.textContent=old;btn.disabled=false;}
         if(data&&data.reason==='github-not-configured'){alert('尚未設定 GITHUB_TOKEN，請先在 Netlify 加上此環境變數。');return false;}
         if(status===409){alert('這份內容在你開啟後台之後，已經在別處（其他分頁或裝置）被修改過。\n為了不蓋掉那邊的修改，這次沒有儲存。\n\n請先記下你剛才改了什麼，重新整理頁面後再改一次。');return false;}
+        if(status===422&&data&&data.details){alert('內容格式有問題，這次沒有儲存：\n\n・'+data.details.map(friendlyPath).join('\n・')+'\n\n請修正上面的欄位後再存一次。');return false;}
         if(status!==200||!(data&&data.ok)){alert('儲存失敗，請稍後再試。');return false;}
         if(data.sha)SHA[path]=data.sha;
         SNAP[path]=JSON.stringify(dataObj);
