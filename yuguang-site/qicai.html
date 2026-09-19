@@ -151,7 +151,12 @@
   .detail .dspecs{list-style:none;margin:24px 0;display:flex;flex-direction:column;gap:11px}
   .detail .dspecs li{font-size:14px;letter-spacing:1px;color:#403c34;padding-left:18px;position:relative}
   .detail .dspecs li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:1px;background:var(--muted)}
-  .detail .ddesc{color:#5a554c;font-size:14px;line-height:2;letter-spacing:.5px;margin-bottom:30px}
+  .detail .ddesc{color:#5a554c;font-size:14px;line-height:2;letter-spacing:.5px;margin:24px 0 6px}
+  .detail .dsec{margin:26px 0 0}
+  .detail .dsec h4{font-family:var(--serif);font-weight:500;font-size:13px;letter-spacing:3px;color:var(--ink);margin-bottom:12px}
+  .detail .dsec .dspecs{margin:0}
+  .detail .dnote{color:#5a554c;font-size:13.5px;line-height:1.9;letter-spacing:.5px;background:var(--paper-2);padding:14px 16px;white-space:pre-line}
+  .detail .dactions{margin-top:34px}
   .detail .dactions{display:flex;gap:12px;flex-wrap:wrap}
   .detail .dactions .btn{font-family:var(--serif);letter-spacing:2px;font-size:14px;padding:13px 30px;
     border:1px solid var(--ink);cursor:pointer;transition:.3s;outline:none}
@@ -278,8 +283,10 @@
       <div class="dtag" id="dTag"></div>
       <h2 id="dName"></h2>
       <div class="dprice"><b id="dPrice"></b><span>/ 日</span></div>
-      <ul class="dspecs" id="dSpecs"></ul>
       <p class="ddesc" id="dDesc"></p>
+      <div class="dsec" id="dUsesSec"><h4>適合拍攝情境</h4><ul class="dspecs" id="dUses"></ul></div>
+      <div class="dsec"><h4>規格重點</h4><ul class="dspecs" id="dSpecs"></ul></div>
+      <div class="dsec" id="dNoteSec"><h4>租借說明</h4><p class="dnote" id="dNote"></p></div>
       <div class="dactions">
         <button class="btn primary" id="dAdd">加入租借</button>
       </div>
@@ -397,6 +404,9 @@ function render(){
 }
 
 /* ====== 器材介紹頁 ====== */
+/* 規格用「・」分隔、適合情境每行一項;兩種分隔都接受 */
+function lis(t){const e=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  return String(t||'').split(/・|\n/).map(x=>x.trim()).filter(Boolean).map(x=>`<li>${e(x)}</li>`).join('');}
 const catalogView=document.getElementById('catalogView');
 const detailView=document.getElementById('detailView');
 function openDetail(id){
@@ -405,8 +415,12 @@ function openDetail(id){
   document.getElementById('dTag').textContent=g.cat;
   document.getElementById('dName').textContent=g.name;
   document.getElementById('dPrice').textContent=fmtP(g);document.getElementById('dPrice').nextElementSibling.style.display=hasP(g)?'':'none';
-  document.getElementById('dSpecs').innerHTML=g.spec.split('・').map(s=>`<li>${s}</li>`).join('');
-  document.getElementById('dDesc').textContent=g.desc;
+  document.getElementById('dSpecs').innerHTML=lis(g.spec);
+  document.getElementById('dDesc').textContent=g.desc||'';
+  document.getElementById('dUses').innerHTML=lis(g.uses);
+  document.getElementById('dUsesSec').style.display=g.uses&&g.uses.trim()?'':'none';
+  document.getElementById('dNote').textContent=g.note||'';
+  document.getElementById('dNoteSec').style.display=g.note&&g.note.trim()?'':'none';
   document.getElementById('dAdd').onclick=()=>addToCart(id);
   catalogView.style.display='none';detailView.style.display='block';
   detailView.classList.remove('fade');void detailView.offsetWidth;detailView.classList.add('fade');
