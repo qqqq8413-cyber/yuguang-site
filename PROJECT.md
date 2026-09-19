@@ -1,7 +1,7 @@
 # 嶼光映像 PHOS OF ISLE · 官網專案說明
 
 > 本文件整理官網的專案背景、技術架構、後台與資料、UI/UX 設計系統、開發流程與待辦。
-> 最後更新：2026-09-20（對應 PR #1–#20）
+> 最後更新：2026-09-20（對應 PR #1–#27）
 
 ---
 
@@ -73,9 +73,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | 頁面 | 檔案 | 可分享的網址參數 |
 |---|---|---|
 | 首頁 | `index.html` | — |
-| 平面作品 | `pingmian.html` | `?cat=分類序號`、`?cat=0&proj=專案序號` |
+| 平面作品 | `pingmian.html` | `?album=分類代稱`、`?album=portrait&project=hair-model-2`（舊的 `?cat=&proj=` 序號網址仍可開啟，會自動換成代稱） |
 | 動態作品 | `dongtai.html` | `?cat=分類名稱`、`?v=YouTube影片ID` |
-| 器材租賃 | `qicai.html` | `?item=器材序號` |
+| 器材租賃 | `qicai.html` | `?item=器材代稱`，例：`?item=aputure-amaran-300c`（舊的 `?item=4` 仍可開啟） |
 | 製作流程 | `liucheng.html` | — |
 | 關於嶼光 | `guanyu.html` | — |
 | 聯絡我們 | `lianluo.html` | `?type=服務類型`（預選需求標籤） |
@@ -87,13 +87,15 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 
 | 檔案 | 用途 | 主要欄位 |
 |---|---|---|
-| `albums.json` | 平面作品 | `albums[]`：`zh`、`en`、`cover`、`photos[]`、`projects[]`；照片 `image`、`caption`、`w`、`h` |
+| `albums.json` | 平面作品 | `albums[]`：`zh`、`en`、`slug`、`cover`、`photos[]`、`projects[]`（專案也有 `slug`）；照片 `image`、`caption`、`w`、`h` |
 | `videos.json` | 動態作品 | `videos[]`：`title`、`cat`、`yt`、`client`、`year`、`featured`、`cover`、`sub`、`desc`、`credits` |
-| `gear.json` | 器材 | `gear[]`：`name`、`cat`、`price`（日租）、`qty`（可租數量，0＝暫停出租）、`image`、`spec`（用「・」分隔）、`desc`、`uses`（每行一項）、`note`（租借說明）；`cats[]` 分類順序 |
+| `gear.json` | 器材 | `gear[]`：`name`、`slug`、`cat`、`price`（日租）、`qty`（可租數量，0＝暫停出租）、`image`、`spec`（用「・」分隔）、`desc`、`uses`（每行一項）、`note`（租借說明）；`cats[]` 分類順序 |
 | `site.json` | 網站資訊 | 品牌名、Email、LINE、電話、地址、社群連結（頁尾讀這裡） |
 | `about.json` / `process.json` | 關於、流程頁內容 | — |
 
 目前規模：平面 7 個分類、455 張照片；動態 14 部影片；器材 9 項。
+
+**網址代稱（`slug`）**：分類、專案、器材各有一個固定的英文代稱，網址用它而不是排列序號，所以後台拖曳排序、改中文名稱都不會讓分享出去的連結跑掉。後台留空時存檔會自動產生（英文名稱轉小寫；沒有英文就用隨機碼），也可以手動修改——但改了代稱，舊的分享連結就會失效。
 
 **照片寬高（`w`、`h`）**：每張照片都記錄原始尺寸，頁面載入時先保留正確比例的空間，照片載入後版面不會跳動。後台上傳時自動寫入。
 
@@ -132,7 +134,8 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | `get-content.js` | 後台 | 從 GitHub 讀取內容 JSON 與版本（sha） |
 | `save-content.js` | 後台 | 寫回內容 JSON 到 GitHub；只允許 `yuguang-site/content/*.json`；版本不符回 409 |
 | `sign-upload.js` | 後台 | 產生 Cloudinary 簽名上傳參數 |
-| `upload-image.js` | （已不使用） | 舊版：把圖片上傳到 GitHub repo。可移除 |
+
+**內容格式檢查**：`netlify/functions/lib/content-schema.js` 定義每份內容 JSON 允許的欄位與型別（欄位打錯字、價格填成文字、網址格式錯、代稱重複都會被抓到）。後台存檔時 `save-content` 先檢查，不通過回 422 並列出問題，後台會把位置翻成器材／相簿名稱顯示。
 
 ### 5.1 環境變數（在 Netlify 設定，只記名稱）
 
@@ -245,6 +248,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - 從分享連結直接進入作品時，頁面上的「返回列表」會新增一筆紀錄，之後按上一頁可以回到該作品
 - 後台訂單詳情同樣適用（`#order-<id>`）
 
+### 結構化資料（SEO）
+首頁 `<head>` 有 JSON-LD：`WebSite`（網站名稱「嶼光映像」／PHOS OF ISLE）與 `LocalBusiness`（聯絡方式、屏東地址、服務區域）。內容與 `content/site.json` 相同，**修改聯絡資料時兩邊都要改**。
+
 ### 分享預覽
 7 個公開頁面都有 Open Graph／Twitter 卡片標籤、頁面描述、網站圖示與 PWA manifest；分享圖為 `images/og.jpg`。
 
@@ -265,6 +271,11 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - Commit 與 PR 說明使用中文，描述「改了什麼、為什麼」
 
 ### 8.1 測試方式
+- **自動檢查（GitHub Actions，`.github/workflows/check.yml`）**：每個 PR 與 main 都會跑
+  - `node scripts/validate-content.js`：內容 JSON 格式
+  - 每個後端函式都能載入
+  - `node scripts/check-scripts.js`：每個頁面的內嵌程式與 assets/*.js 沒有語法錯誤
+  - `node scripts/check-links.js`：網站內部連結都指到存在的檔案
 - **上一頁回歸測試**：38 個情境（首頁、動態、平面、器材、分享連結進入），桌面與手機各跑一次
 - **租借流程**：模擬送出，檢查必填、日期防呆、金額計算、兩個送出管道其中一邊失敗的情況
 - **後台訂單**：模擬 Airtable 回應，測列表 → 詳情 → 改狀態 → 上一頁 → 刪除
@@ -297,6 +308,13 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #18 | 首頁第一屏導覽列、作品頁與器材頁的上一頁行為、首頁捲動位置還原 |
 | #19 | 後台訂單：單筆詳情＋刪除 |
 | #20 | 器材照片完整顯示（保留去背）＋介紹頁 AI 放大 |
+| #21 | 新增本文件 PROJECT.md |
+| #22 | 正式網域 phosofisle.com、舊網址 301 轉址、robots.txt、sitemap.xml |
+| #23 | 品牌風格的 404 頁面 |
+| #24 | 內容格式檢查：後台存檔前驗證、PR 自動檢查（內容／函式／程式語法／內部連結） |
+| #25 | 穩定網址：相簿、專案、器材改用固定代稱（slug） |
+| #26 | 手機器材名稱兩行、移除舊上傳函式 |
+| #27 | 首頁結構化資料（WebSite＋LocalBusiness） |
 
 ---
 
@@ -305,14 +323,16 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 ### 優先
 - [x] **綁定自有網域**：phosofisle.com（2026-09-20）
 - [x] **sitemap.xml 與 robots.txt**
-- [ ] **Google Search Console**：驗證網域、提交 sitemap
+- [x] **Google Search Console**：驗證網域、提交 sitemap（7 頁已探索）
 - [ ] **首頁主視覺封面**：替換帶有影片字幕的封面
 
+- [ ] **每個作品、器材各自產生 HTML 頁面**（部署時由腳本從 JSON 產生，讓分享預覽與 Google 讀得到單一作品的標題、描述、圖片）——會新增 netlify.toml 建置指令，需先討論
+
 ### 一般
-- [ ] 自訂 404 頁面（目前為 Netlify 預設英文頁）
+- [x] 自訂 404 頁面
 - [ ] 後台補齊各器材「可租數量」（目前 9 項中 3 項有填）
-- [ ] 手機器材卡名稱改為最多 2 行（兩支 Canon 鏡頭目前分不出來）
-- [ ] 移除不再使用的 `netlify/functions/upload-image.js`
+- [x] 手機器材卡名稱改為最多 2 行
+- [x] 移除不再使用的 `upload-image.js`
 
 ### 之後
 - [ ] 後台：影片分類改名／刪除；只有專案的相簿分類可選封面
