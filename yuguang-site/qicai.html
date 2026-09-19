@@ -237,6 +237,19 @@
   body.hasbar{padding-bottom:96px}
   @media (max-width:520px){.cartbar{padding:13px 16px;font-size:13px}.cartbar #cartBarP{display:none}}
   .add.added{background:var(--ink);color:var(--paper)}
+  .soldout{font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted)}
+  .qty{display:inline-flex;align-items:center;border:1px solid var(--ink);height:46px}
+  .qty button{width:42px;height:100%;background:none;border:0;cursor:pointer;font-size:17px;color:var(--ink)}
+  .qty button:disabled{color:var(--line);cursor:default}
+  .qty span{min-width:30px;text-align:center;font-family:var(--serif);font-size:15px}
+  .qty.sm{height:30px;border-color:var(--line);flex:none}
+  .cartpanel .ci .cline{display:flex;align-items:center;gap:12px;margin-top:6px}
+  .cartpanel .ci .cline .cp{margin-top:0}
+  .qty.sm button{width:28px;font-size:14px}.qty.sm span{min-width:20px;font-size:13px}
+  .cartpanel .ci .csub{font-family:var(--serif);font-size:14px;letter-spacing:.5px;min-width:70px;text-align:right;white-space:nowrap}
+  .detail .dstock{width:100%;color:var(--muted);font-size:12px;letter-spacing:1px;font-family:var(--serif)}
+  .detail .dstock:empty{display:none}
+  .detail .dactions .btn.off{background:var(--muted);pointer-events:none}
 
   .fade{animation:fade .5s cubic-bezier(.19,1,.22,1)}
   @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
@@ -303,7 +316,9 @@
       <div class="dsec"><h4>規格重點</h4><ul class="dspecs" id="dSpecs"></ul></div>
       <div class="dsec" id="dNoteSec"><h4>租借說明</h4><p class="dnote" id="dNote"></p></div>
       <div class="dactions">
+        <div class="qty" id="dQty"><button type="button" data-q="-1" aria-label="減少">−</button><span id="dQtyN">1</span><button type="button" data-q="1" aria-label="增加">＋</button></div>
         <button class="btn primary" id="dAdd">加入租借</button>
+        <div class="dstock" id="dStock"></div>
       </div>
     </div>
   </div>
@@ -372,6 +387,8 @@ function gearIcon(cat){return 'assets/gear-icons/'+(GEARICON[cat]||'other')+'.sv
 /* 尚未定價的器材顯示「價格另計」,不再因 price 空白而整頁出錯 */
 function hasP(g){return typeof g.price==='number'&&g.price>0;}
 function fmtP(g){return hasP(g)?'NT$ '+g.price.toLocaleString():'價格另計';}
+/* 可租數量:未填視為 1;0 = 暫停出租 */
+function maxQ(g){const q=g.qty;return q===undefined||q===null||q===''?1:Math.max(0,Math.floor(+q)||0);}
 function gbg(g,w){w=w||800;
   /* 沒有照片時:紙色底 + 分類線稿圖示,不再是空灰色塊 */
   return g.image ? `background-image:url('${opt(g.image,w)}');background-size:cover;background-position:center`
@@ -414,7 +431,7 @@ function render(){
       <div class="pspecwrap"><div class="pspec">${g.spec}</div></div>
       <div class="prow">
         <span class="price"><b>${fmtP(g)}</b>${hasP(g)?'<span>/ 日</span>':''}</span>
-        <button class="add" data-add="${g.id}">加入租借</button>
+        ${maxQ(g)?`<button class="add" data-add="${g.id}">加入租借</button>`:'<span class="soldout">暫停出租</span>'}
       </div>`;
     grid.appendChild(el);
   });
@@ -442,7 +459,9 @@ function openDetail(id){
   document.getElementById('dNote').textContent=g.note||'';
   document.getElementById('dNoteSec').style.display=g.note&&g.note.trim()?'':'none';
   const dAdd=document.getElementById('dAdd');dAdd.dataset.id=id;
-  dAdd.onclick=()=>cart.includes(id)?openCart():addToCart(id);bar();
+  dQ=cnt[id]||1;
+  dAdd.onclick=()=>{if(!maxQ(g))return;if(cart.includes(id)&&cnt[id]===dQ)return openCart();addToCart(id,dQ);};
+  bar();
   catalogView.style.display='none';detailView.style.display='block';
   detailView.classList.remove('fade');void detailView.offsetWidth;detailView.classList.add('fade');
   window.scrollTo({top:0});
@@ -452,26 +471,42 @@ document.getElementById('detailBack').addEventListener('click',()=>{
 });
 
 /* ====== 租借清單 ====== */
-let cart=[];
+let cart=[],cnt={},dQ=1;
 const cartN=document.getElementById('cartN');
 const panel=document.getElementById('cartPanel');
-function addToCart(id){
+function addToCart(id,n){
+  const m=maxQ(gear[id]);if(!m)return;
   if(!cart.includes(id))cart.push(id);
+  cnt[id]=Math.min(m,Math.max(1,n||cnt[id]||1));
   renderCart();bar(true);
 }
-function removeFromCart(id){cart=cart.filter(x=>x!==id);renderCart();bar();}
+function removeFromCart(id){cart=cart.filter(x=>x!==id);delete cnt[id];renderCart();bar();}
+function setQty(id,n){if(n<1)return removeFromCart(id);cnt[id]=Math.min(maxQ(gear[id]),n);renderCart();bar();}
+const units=()=>cart.reduce((s,id)=>s+cnt[id],0);
+const dailyOf=list=>list.reduce((s,id)=>s+(hasP(gear[id])?gear[id].price*cnt[id]:0),0);
+/* 介紹頁數量選擇 */
+document.getElementById('dQty').addEventListener('click',e=>{
+  const b=e.target.closest('[data-q]');if(!b)return;
+  const id=+document.getElementById('dAdd').dataset.id;
+  dQ=Math.min(maxQ(gear[id]),Math.max(1,dQ+(+b.dataset.q)));bar();
+});
 /* 底部浮動列:顯示件數與日租合計;卡片按鈕同步顯示「已加入」 */
 function bar(added){
-  const b=document.getElementById('cartBtn'),n=cart.length;
+  const b=document.getElementById('cartBtn'),n=units();
   cartN.textContent=n;
-  const daily=cart.reduce((s,id)=>s+(hasP(gear[id])?gear[id].price:0),0);
+  const daily=dailyOf(cart);
   document.getElementById('cartBarT').textContent=added?'已加入租借清單':'租借清單';
   document.getElementById('cartBarP').textContent=daily?`NT$ ${daily.toLocaleString()} / 日`:'';
   b.classList.toggle('on',n>0);document.body.classList.toggle('hasbar',n>0);
   if(added){b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');
     clearTimeout(bar.t);bar.t=setTimeout(()=>{document.getElementById('cartBarT').textContent='租借清單';},1600);}
   document.querySelectorAll('[data-add]').forEach(x=>{const on=cart.includes(+x.dataset.add);x.classList.toggle('added',on);x.textContent=on?'已加入 ✓':'加入租借';});
-  const d=document.getElementById('dAdd');if(d&&d.dataset.id!=null){const on=cart.includes(+d.dataset.id);d.textContent=on?'已加入 ✓ 查看清單':'加入租借';}
+  const d=document.getElementById('dAdd');if(d&&d.dataset.id!=null){const id=+d.dataset.id,m=maxQ(gear[id]),on=cart.includes(id);
+    d.textContent=!m?'暫停出租':on?(cnt[id]===dQ?'已加入 ✓ 查看清單':'更新數量'):'加入租借';d.classList.toggle('off',!m);
+    document.getElementById('dQtyN').textContent=dQ;
+    const q=document.getElementById('dQty');q.style.display=m>1?'':'none';
+    q.querySelector('[data-q="-1"]').disabled=dQ<=1;q.querySelector('[data-q="1"]').disabled=dQ>=m;
+    document.getElementById('dStock').textContent=m>1?`共 ${m} 組可租`:'';}
 }
 /* 租期天數:含取件日與歸還日;未選或順序錯誤回傳 0 / -1 */
 function rentDays(){
@@ -482,7 +517,7 @@ function rentDays(){
 }
 function updateSum(){
   const priced=cart.filter(id=>hasP(gear[id])),ask=cart.length>priced.length;
-  const daily=priced.reduce((s,id)=>s+gear[id].price,0),n=rentDays();
+  const daily=dailyOf(priced),n=rentDays();
   const dEl=document.getElementById('cartDays'),aEl=document.getElementById('cartAmount');
   dEl.classList.toggle('warn',n<0);
   dEl.textContent=n<0?'迄租日要在起租日之後':n===0?'請先選擇日期':`${n} 天`;
@@ -508,10 +543,13 @@ function renderCart(){
   }
   let total=0;
   let ask=false;
-  box.innerHTML=cart.map(id=>{const g=gear[id];if(hasP(g))total+=g.price;else ask=true;
-    return `<div class="ci"><div><div class="cn">${g.name}</div><div class="cp">${g.cat}</div></div>
-      <div style="text-align:right"><div class="cn">${fmtP(g)}${hasP(g)?'<span style="color:var(--muted);font-size:11px"> /日</span>':''}</div></div>
-      <span class="rm" data-rm="${id}">×</span></div>`;}).join('');
+  box.innerHTML=cart.map(id=>{const g=gear[id],q=cnt[id],m=maxQ(g);if(hasP(g))total+=g.price*q;else ask=true;
+    return `<div class="ci"><div><div class="cn">${g.name}</div><div class="cline">
+      ${m>1?`<div class="qty sm"><button type="button" data-cq="${id}" data-d="-1" aria-label="減少">−</button><span>${q}</span><button type="button" data-cq="${id}" data-d="1" aria-label="增加"${q>=m?' disabled':''}>＋</button></div>`:''}
+      <div class="cp">${fmtP(g)}${hasP(g)?' / 日':''}</div></div></div>
+      <div class="csub">${hasP(g)?'NT$ '+(g.price*q).toLocaleString():'另計'}</div>
+      <span class="rm" data-rm="${id}" aria-label="移除">×</span></div>`;}).join('');
+  box.querySelectorAll('[data-cq]').forEach(n=>n.addEventListener('click',()=>{const id=+n.dataset.cq;setQty(id,cnt[id]+(+n.dataset.d));}));
   document.getElementById('cartTotal').innerHTML=total>0?'NT$ '+total.toLocaleString()+(ask?'<small>＋ 未定價品項另計</small>':''):'價格另計';
   updateSum();
   box.querySelectorAll('[data-rm]').forEach(n=>n.addEventListener('click',()=>removeFromCart(+n.dataset.rm)));
@@ -545,9 +583,9 @@ document.getElementById('cartSend').addEventListener('click',()=>{
   if(!line)return fieldErr($('cLine'),'請填寫 LINE ID，方便我們聯絡你');
   $('cartErr').textContent='';
   const days=rentDays();
-  const dailyTotal=cart.reduce((s,id)=>s+(hasP(gear[id])?gear[id].price:0),0);
+  const dailyTotal=dailyOf(cart);
   const amount=dailyTotal*days;
-  const items=cart.map(id=>`${gear[id].name}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格另計'}）`).join('、');
+  const items=cart.map(id=>`${gear[id].name} ×${cnt[id]}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格另計'}）`).join('、');
   const contact=`LINE ${line}`;
   const order={name,contact,line,start,end,days,items,dailyTotal,amount};
   send.textContent='送出中…';send.classList.add('disabled');
@@ -559,7 +597,7 @@ document.getElementById('cartSend').addEventListener('click',()=>{
   ]).then(()=>{
     $('cartForm').style.display='none';
     $('cartSent').style.display='block';
-    cart=[];renderCart();bar();
+    cart=[];cnt={};renderCart();bar();
   }).catch(()=>{
     fieldErr(null,'送出失敗，請檢查網路後再試一次，或直接用 LINE 聯絡我們');
     send.classList.remove('disabled');
