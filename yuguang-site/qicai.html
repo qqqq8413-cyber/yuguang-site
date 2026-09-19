@@ -143,6 +143,11 @@
   @media(max-width:820px){.detail{grid-template-columns:1fr;gap:28px}}
   .detail .big{position:relative;overflow:hidden;aspect-ratio:4/3;background:#e7e4dd}
   .detail .big .bg{position:absolute;inset:0}
+  .detail .big .dimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:8%;box-sizing:border-box;display:none}
+  .detail .big.photo .dimg{display:block}
+  .detail .big.photo .grain,.prod .thumb.photo .grain{display:none}
+  /* 去背照片直接浮在頁面底色上,不加白底與框 */
+  .detail .big.photo,.prod .thumb.photo{background:transparent}
   .detail .big .grain{position:absolute;inset:0;opacity:.4;mix-blend-mode:multiply;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E")}
   .detail .dtag{font-family:var(--serif);font-size:12px;letter-spacing:4px;color:var(--muted);text-transform:uppercase}
@@ -306,7 +311,7 @@
 <div id="detailView" class="wrap">
   <div class="detail-back" id="detailBack">← 返回列表</div>
   <div class="detail">
-    <div class="big"><div class="bg" id="dBg"></div><div class="grain"></div></div>
+    <div class="big"><div class="bg" id="dBg"></div><img class="dimg" id="dImg" alt=""><div class="grain"></div></div>
     <div class="dinfo">
       <div class="dtag" id="dTag"></div>
       <h2 id="dName"></h2>
@@ -390,9 +395,22 @@ function hasP(g){return typeof g.price==='number'&&g.price>0;}
 function fmtP(g){return hasP(g)?'NT$ '+g.price.toLocaleString():'價格另計';}
 /* 可租數量:未填視為 1;0 = 暫停出租 */
 function maxQ(g){const q=g.qty;return q===undefined||q===null||q===''?1:Math.max(0,Math.floor(+q)||0);}
+/* 器材照片(去背 PNG):先裁掉四周透明邊(e_trim),再完整顯示在頁面底色上,不再被裁切;
+   大小不一的原圖因此在卡片裡看起來一樣大 */
+function gimg(u,w,up){
+  if(u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){
+    /* AI 放大會把透明背景變成白底:放大後再用原圖的去背形狀(fl_cutter)剪一次,保留去背 */
+    const id=up&&cldId(u);
+    const pre=id?`c_limit,w_1000,h_1000/e_upscale/l_${id}/fl_relative,w_1.0,h_1.0,c_scale/fl_cutter,fl_layer_apply/`:'';
+    return u.replace('/upload/',`/upload/${pre}e_trim:10/c_limit,w_${w},h_${w}/f_auto,q_auto/`);
+  }
+  return opt(u,w);
+}
+/* 從 Cloudinary 網址取出 public_id(疊圖用,資料夾的 / 要換成 :) */
+function cldId(u){const m=u.match(/\/upload\/(?:v\d+\/)?(.+?)\.[a-z0-9]+$/i);return m?m[1].replace(/\//g,':'):'';}
 function gbg(g,w){w=w||800;
   /* 沒有照片時:紙色底 + 分類線稿圖示,不再是空灰色塊 */
-  return g.image ? `background-image:url('${opt(g.image,w)}');background-size:cover;background-position:center`
+  return g.image ? `background:url('${gimg(g.image,w)}') center/contain no-repeat;background-origin:content-box;padding:9%;box-sizing:border-box`
                  : `background:#e9e6df url('${gearIcon(g.cat)}') center/34% no-repeat`;
 }
 function buildCats(container,cls){
@@ -423,7 +441,7 @@ function render(){
     const el=document.createElement('div');
     el.className='prod fade';el.style.animationDelay=(i*0.04)+'s';
     el.innerHTML=`
-      <div class="thumb" data-open="${g.id}">
+      <div class="thumb${g.image?' photo':''}" data-open="${g.id}">
         <div class="bg" style="${gbg(g)}"></div>
         <div class="grain"></div><span class="tag">${g.cat}</span>
         <div class="view">查看介紹 →</div>
@@ -449,7 +467,13 @@ const catalogView=document.getElementById('catalogView');
 const detailView=document.getElementById('detailView');
 function openDetail(id){
   const g=gear[id];
-  document.getElementById('dBg').style.cssText=gbg(g,1200);
+  /* 介紹頁大圖:低解析的原圖用 AI 放大(e_upscale)讓細節清楚;
+     第一次請求時 Cloudinary 可能還在處理,失敗就改用一般版本 */
+  const big=document.querySelector('.detail .big'),dImg=document.getElementById('dImg');
+  big.classList.toggle('photo',!!g.image);
+  document.getElementById('dBg').style.cssText=g.image?'background:none':gbg(g,1200);
+  dImg.onerror=null;dImg.removeAttribute('src');
+  if(g.image){dImg.alt=g.name;dImg.onerror=()=>{dImg.onerror=null;dImg.src=gimg(g.image,1200);};dImg.src=gimg(g.image,1200,true);}
   document.getElementById('dTag').textContent=g.cat;
   document.getElementById('dName').textContent=g.name;
   document.getElementById('dPrice').textContent=fmtP(g);document.getElementById('dPrice').nextElementSibling.style.display=hasP(g)?'':'none';

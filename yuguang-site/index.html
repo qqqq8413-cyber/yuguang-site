@@ -135,6 +135,13 @@
                      font-family:var(--serif);font-size:16px;letter-spacing:2px;line-height:1.35;
                      background:linear-gradient(to top,rgba(20,18,15,.62),rgba(20,18,15,0))}
       .tile .cap small{display:block;font-size:11.5px;letter-spacing:1px;opacity:.85;margin-top:3px}
+      /* 器材卡:去背照片直接浮在頁面底色上,名稱改深色字放在下方,不再壓在照片上 */
+      .tile.prod{background:transparent;aspect-ratio:1/1}
+      .tile.prod .grain{display:none}
+      .tile.prod .bg{padding:9% 12% calc(64px + 5%);box-sizing:border-box}
+      .tile.prod .cap{background:none;color:var(--ink);padding:10px 4px 12px;
+                     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+      .tile.prod .cap small{color:var(--muted);opacity:1}
 
       .empty{color:var(--muted);font-family:var(--serif);letter-spacing:2px;padding:30px clamp(20px,5vw,64px)}
       footer{text-align:center;padding:28px 20px;border-top:1px solid var(--hair);
@@ -203,9 +210,9 @@
     function tile(it){
         const imgs = (it.imgs&&it.imgs.length) ? it.imgs : (it.img?[it.img]:[]);
         const first = imgs[0];
-        const bg = first ? `background-image:url('${first}')` : it.icon ? `background:#e9e6df url('${it.icon}') center 38%/26% no-repeat` : 'background:linear-gradient(150deg,#c9c3b6,#8f897d)';
+        const bg = first&&it.product ? `background:url('${first}') center/contain no-repeat;background-origin:content-box` : first ? `background-image:url('${first}')` : it.icon ? `background:#e9e6df url('${it.icon}') center 38%/26% no-repeat` : 'background:linear-gradient(150deg,#c9c3b6,#8f897d)';
         const s = it.sub ? `<small>${esc(it.sub)}</small>` : '';
-        return `<a class="tile" href="${it.href}" data-imgs="${imgs.join('|')}"><div class="bg" style="${bg}"></div><div class="grain"></div><div class="cap">${esc(it.cap)}${s}</div></a>`;
+        return `<a class="tile${it.product?' prod':''}" href="${it.href}" data-imgs="${imgs.join('|')}"><div class="bg" style="${bg}"></div><div class="grain"></div><div class="cap">${esc(it.cap)}${s}</div></a>`;
     }
     function enableHover(){
         if(!window.matchMedia||!window.matchMedia('(hover:hover)').matches)return;
@@ -236,6 +243,8 @@
     }
 
     const GEARICON={'攝影機':'camera','相機機身':'camera','相機':'camera','燈光配件':'light','燈架':'tripod','鏡頭':'lens','燈光':'light','收音':'audio','穩定器':'gimbal','空拍機':'drone','腳架':'tripod'};
+    /* 器材照片(去背):裁掉四周透明邊後完整顯示,不裁切 */
+    function gimg(u,w){if(u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1)return u.replace('/upload/',`/upload/e_trim:10/c_limit,w_${w},h_${w}/f_auto,q_auto/`);return opt(u,w);}
     function gearIcon(cat){return 'assets/gear-icons/'+(GEARICON[cat]||'other')+'.svg';}
     function ytid(s){s=String(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
 
@@ -299,7 +308,7 @@
                 const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover?heroImg(x.cover,1200):`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids,'lg');
 
-                const gear=(g.gear||[]).map((x,i)=>({href:'qicai.html?item='+i,img:opt(x.image,800),icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
+                const gear=(g.gear||[]).map((x,i)=>({href:'qicai.html?item='+i,img:gimg(x.image,700),product:!!x.image,icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
         addRow('器材租賃','Rental','qicai.html',gear);
         buildHero(v,a);
         restoreY();

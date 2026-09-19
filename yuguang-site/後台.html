@@ -287,6 +287,10 @@
         SNAP[path]=JSON.stringify(dataObj);
         return true;
     }
+    /* 器材介紹頁用 AI 放大版照片,第一次產生要幾秒:上傳後先在背景請求一次,客人打開時就是現成的 */
+    function warmGearImg(u){if(!u||u.indexOf('/upload/')<0)return;const m=u.match(/\/upload\/(?:v\d+\/)?(.+?)\.[a-z0-9]+$/i);if(!m)return;const id=m[1].replace(/\//g,':');
+        const v=u.replace('/upload/',`/upload/c_limit,w_1000,h_1000/e_upscale/l_${id}/fl_relative,w_1.0,h_1.0,c_scale/fl_cutter,fl_layer_apply/e_trim:10/c_limit,w_1200,h_1200/f_auto,q_auto/`);
+        let n=0;const hit=()=>{const im=new Image();im.onerror=()=>{if(++n<8)setTimeout(hit,4000);};im.src=v+(n?'?r='+n:'');};hit();}
     function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
     function move(arr,i,d){const j=i+d;if(j<0||j>=arr.length)return;const t=arr[i];arr[i]=arr[j];arr[j]=t;}
     function sortArr(arr,o,n){const [it]=arr.splice(o,1);arr.splice(n,0,it);}
@@ -570,7 +574,7 @@
         (function(){const el=document.getElementById('gearList');if(!el||typeof Sortable==='undefined')return;new Sortable(el,{handle:'.drag',animation:150,onEnd:e=>{if(e.oldIndex===e.newIndex)return;const idxs=DATA.gear.map((g,i)=>i).filter(i=>(DATA.gear[i].cat||'')===CG);sortArr(DATA.gear,idxs[e.oldIndex],idxs[e.newIndex]);renderGearCat();}});})();
         $('gearFile').onchange=async e=>{
               const f=e.target.files[0];if(!f)return;const msg=$('gmsg');msg.textContent='上傳中…';
-              try{const path=await uploadImage(f);DATA.gear[gearImgIdx].image=path;msg.textContent='照片已上傳，記得按「儲存器材」';renderGear();}
+              try{const path=await uploadImage(f);DATA.gear[gearImgIdx].image=path;warmGearImg(path);msg.textContent='照片已上傳，記得按「儲存器材」';renderGear();}
               catch(err){alert('上傳失敗：\n'+err.message);}
         };
     }
