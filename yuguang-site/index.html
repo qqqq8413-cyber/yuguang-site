@@ -299,7 +299,7 @@
                 const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover?heroImg(x.cover,1200):`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids,'lg');
 
-                const gear=(g.gear||[]).map(x=>({href:'qicai.html',img:opt(x.image,800),icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
+                const gear=(g.gear||[]).map((x,i)=>({href:'qicai.html?item='+i,img:opt(x.image,800),icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
         addRow('器材租賃','Rental','qicai.html',gear);
         buildHero(v,a);
     }).catch(()=>{rows.innerHTML='<div class="empty">作品載入中,請稍後重新整理。</div>';});

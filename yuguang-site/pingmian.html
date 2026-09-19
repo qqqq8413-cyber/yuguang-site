@@ -332,7 +332,13 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
           indexView.classList.remove('fade');void indexView.offsetWidth;indexView.classList.add('fade');document.title=BASE_TITLE;}
       requestAnimationFrame(()=>{window.scrollTo(0,y||0);if(albumView.style.display==='block')primeShots();});
   }
-  window.addEventListener('popstate',e=>{if(lb.classList.contains('open'))lb.classList.remove('open');route(e.state&&e.state.y);});
+  window.addEventListener('popstate',e=>{
+      const st=e.state||{};
+      if(st.lb){openLB(lbIndex,true);return;}
+      /* 只是關閉放大圖:留在相簿、不重新排版 */
+      if(lb.classList.contains('open')){closeLB(true);return;}
+      route(st.y);
+  });
 
   function shade(hex,amt){
       let c=hex.replace('#','');
@@ -345,20 +351,22 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
   const lbImg=document.getElementById('lbImg');
   const lbCap=document.getElementById('lbCap');
   let lbIndex=0;
-  function openLB(n){lbIndex=n;renderLB();lb.classList.add('open')}
+  /* 放大檢視也佔一筆歷史:手機返回手勢先關閉放大圖,不會直接跳出相簿 */
+  function openLB(n,fromPop){lbIndex=n;renderLB();if(!lb.classList.contains('open')&&fromPop!==true)history.pushState(Object.assign({},history.state,{lb:1}),'');lb.classList.add('open')}
+  function closeLB(fromPop){if(!lb.classList.contains('open'))return;if(fromPop!==true&&history.state&&history.state.lb)return history.back();lb.classList.remove('open')}
   function renderLB(){
       const s=current.shots[lbIndex];
       lbImg.style.background = s.image ? `url('${opt(s.image,1600)}') center/contain no-repeat` : s.grad;
       lbCap.textContent=s.cap;
   }
   function move(d){lbIndex=(lbIndex+d+current.shots.length)%current.shots.length;renderLB()}
-  document.getElementById('lbClose').addEventListener('click',()=>lb.classList.remove('open'));
+  document.getElementById('lbClose').addEventListener('click',()=>closeLB());
   document.getElementById('lbPrev').addEventListener('click',e=>{e.stopPropagation();move(-1)});
   document.getElementById('lbNext').addEventListener('click',e=>{e.stopPropagation();move(1)});
-  lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open')});
+  lb.addEventListener('click',e=>{if(e.target===lb)closeLB()});
   document.addEventListener('keydown',e=>{
       if(!lb.classList.contains('open'))return;
-      if(e.key==='Escape')lb.classList.remove('open');
+      if(e.key==='Escape')closeLB();
       if(e.key==='ArrowLeft')move(-1);
       if(e.key==='ArrowRight')move(1);
   });

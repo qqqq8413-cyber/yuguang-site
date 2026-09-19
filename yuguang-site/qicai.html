@@ -379,6 +379,7 @@ fetch('content/gear.json').then(r=>r.json()).then(data=>{
   gear=(data.gear||[]).map((g,i)=>Object.assign({grad:GEARGRADS[i%GEARGRADS.length]},g,{id:i}));
   cats=["全部器材",...[...new Set(gear.map(g=>g.cat))]];
   buildCats(catBox,'cat');buildCats(mbCats,'mb-cat');render();
+  const it=qItem();if(it!=null)openDetail(it);
 }).catch(()=>{document.getElementById('grid').innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無器材資料</p>';});
 
 function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}if(/^https?:/.test(u))return u;const p=u.startsWith('/')?u:'/'+u;return `/.netlify/images?url=${encodeURIComponent(p)}&w=${w}&q=75`;}
@@ -435,7 +436,7 @@ function render(){
       </div>`;
     grid.appendChild(el);
   });
-  grid.querySelectorAll('[data-open]').forEach(n=>n.addEventListener('click',()=>openDetail(+n.dataset.open)));
+  grid.querySelectorAll('[data-open]').forEach(n=>n.addEventListener('click',()=>goDetail(+n.dataset.open)));
   grid.querySelectorAll('[data-add]').forEach(n=>n.addEventListener('click',()=>cart.includes(+n.dataset.add)?openCart():addToCart(+n.dataset.add)));
   if(typeof bar==='function'&&cart.length)bar();
 }
@@ -464,10 +465,37 @@ function openDetail(id){
   bar();
   catalogView.style.display='none';detailView.style.display='block';
   detailView.classList.remove('fade');void detailView.offsetWidth;detailView.classList.add('fade');
+  document.title=g.name+' · '+BASE_TITLE;
   window.scrollTo({top:0});
 }
-document.getElementById('detailBack').addEventListener('click',()=>{
-  detailView.style.display='none';catalogView.style.display='block';window.scrollTo({top:0});
+document.getElementById('detailBack').addEventListener('click',upDetail);
+
+/* ====== 瀏覽歷史 ======
+   器材介紹頁寫入網址(?item=),上一頁回到列表並還原捲動位置;
+   租借清單視窗也佔一筆歷史,手機返回手勢會先關閉視窗而不是離開頁面 */
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+const BASE_TITLE=document.title;
+function qItem(){const v=new URLSearchParams(location.search).get('item');return v!==null&&gear[+v]?+v:null;}
+function urlItem(i){return location.pathname+(i==null?'':'?item='+i);}
+function goDetail(id){
+  history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
+  history.pushState({d:((history.state&&history.state.d)||0)+1},'',urlItem(id));openDetail(id);
+}
+function showCatalog(y){
+  detailView.style.display='none';catalogView.style.display='block';document.title=BASE_TITLE;
+  requestAnimationFrame(()=>window.scrollTo(0,y||0));
+}
+function upDetail(){
+  if(history.state&&history.state.d>0)return history.back();
+  history.replaceState({d:0},'',urlItem(null));showCatalog(0);
+}
+window.addEventListener('popstate',e=>{
+  const st=e.state||{};
+  if(st.cart){openCart(true);return;}
+  if(panel.classList.contains('open'))closeCart(true);
+  const it=qItem(),inDetail=detailView.style.display==='block';
+  if(it!=null){if(!inDetail||+document.getElementById('dAdd').dataset.id!==it)openDetail(it);}
+  else if(inDetail)showCatalog(st.y);
 });
 
 /* ====== 租借清單 ====== */
@@ -555,13 +583,19 @@ function renderCart(){
   box.querySelectorAll('[data-rm]').forEach(n=>n.addEventListener('click',()=>removeFromCart(+n.dataset.rm)));
   send.classList.remove('disabled');
 }
-function openCart(){
+function openCart(fromPop){
+  if(panel.classList.contains('open'))return;
+  if(fromPop!==true)history.pushState(Object.assign({},history.state,{cart:1}),'');
   document.getElementById('cartSent').style.display='none';
   document.getElementById('cartForm').style.display='';
   renderCart();panel.classList.add('open');document.body.style.overflow='hidden';
 }
-function closeCart(){panel.classList.remove('open');document.body.style.overflow='';}
-document.getElementById('cartBtn').addEventListener('click',openCart);
+function closeCart(fromPop){
+  if(!panel.classList.contains('open'))return;
+  if(fromPop!==true&&history.state&&history.state.cart)return history.back();
+  panel.classList.remove('open');document.body.style.overflow='';
+}
+document.getElementById('cartBtn').addEventListener('click',()=>openCart());
 /* 送出租借需求:寫入 Netlify 表單(備援)+ Netlify 函式(進 Airtable 後端),任一成功才算送出 */
 function fieldErr(el,msg){
   document.getElementById('cartErr').textContent=msg;
