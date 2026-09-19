@@ -105,6 +105,34 @@
       .obadge{display:inline-block;font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-family:var(--serif)}
       .ob待處理{background:#f6e9d6;color:#8a5a12}.ob已報價{background:#e2ecf7;color:#1f4e79}.ob已確認{background:#e2f0e5;color:#2f6b3c}
       .ob租借中{background:#e7e2f2;color:#4a3a86}.ob已歸還{background:#eeece6;color:#6b665c}.ob已取消{background:#f7e6e6;color:#9a3535}
+      /* 訂單列表(精簡列)與單筆詳情 */
+      .orow{background:#fff;border:1px solid var(--line);padding:14px 18px;display:grid;grid-template-columns:90px 1fr 1.3fr auto 18px;gap:14px;align-items:center;cursor:pointer;transition:border-color .2s;text-align:left;font:inherit;color:inherit;width:100%}
+      .orow:hover{border-color:var(--ink)}
+      .orow .obadge{margin:0;text-align:center}
+      .orow .nm{font-family:var(--serif);font-size:1rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .orow .sm{color:var(--muted);font-size:12px;margin-top:3px}
+      .orow .dt{font-size:13px;color:#4f4a42}
+      .orow .am{font-family:var(--serif);font-size:15px;text-align:right;white-space:nowrap}
+      .orow .go{color:var(--muted);font-size:16px}
+      @media(max-width:720px){.orow{grid-template-columns:1fr auto;gap:6px 12px}.orow .obadge{grid-column:2;grid-row:1;justify-self:end}
+        .orow .who{grid-column:1;grid-row:1}.orow .dt{grid-column:1/-1}.orow .am{grid-column:1/-1;text-align:left}.orow .go{display:none}}
+      .odetail{background:#fff;border:1px solid var(--line);padding:clamp(18px,3vw,30px);margin-bottom:40px}
+      .odetail .oback{display:block;font-family:var(--serif);font-size:13px;letter-spacing:2px;color:var(--muted);cursor:pointer;background:none;border:0;padding:0;margin-bottom:18px}
+      .odetail .oback:hover{color:var(--ink)}
+      .odetail h3{font-family:var(--serif);font-weight:500;font-size:1.5rem;letter-spacing:2px;margin:6px 0 4px}
+      .odetail .sub{color:var(--muted);font-size:12.5px;letter-spacing:1px}
+      .odetail .sec{margin-top:24px}
+      .odetail .sec h4{font-family:var(--serif);font-weight:500;font-size:13px;letter-spacing:3px;color:var(--muted);margin-bottom:10px}
+      .odetail .kv{display:grid;grid-template-columns:90px 1fr;gap:10px 14px;font-size:14px;align-items:center}
+      .odetail .kv .k{color:var(--muted);font-size:13px}
+      .odetail .items{border-top:1px solid var(--line)}
+      .odetail .it{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+      .odetail .it .q{color:var(--muted);font-size:13px;white-space:nowrap}
+      .odetail .total{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;font-family:var(--serif)}
+      .odetail .total b{font-size:1.5rem;font-weight:600}
+      .odetail .acts{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+      .odetail select{font-family:var(--serif);font-size:14px;padding:9px 12px;border:1px solid var(--line);background:var(--paper)}
+      .btn.danger{border-color:#b04a3a;color:#b04a3a;background:none}.btn.danger:hover{background:#b04a3a;color:#fff}
       .hidden{display:none}
       .hint{color:var(--muted);font-size:12px;letter-spacing:.5px;margin-bottom:14px;line-height:1.7}
     </style>
@@ -276,7 +304,7 @@
     }
     document.querySelectorAll('.subtabs button').forEach(b=>b.onclick=()=>openSub(b.dataset.sub));
     /* 網址直接開指定位置:#orders 訂單(舊 /訂單 會轉來這裡)、#gear 器材、#photo 照片、#video 影片 */
-    if(/^#(orders|gear)$/.test(location.hash)){
+    if(/^#(orders|gear|order-rec[A-Za-z0-9]{14})$/.test(location.hash)){
         document.querySelector('.tabs button[data-tab="gear"]').click();
         openSub(location.hash==='#gear'?'gearlist':'orders');
     }else if(/^#(photo|video)$/.test(location.hash)){
@@ -288,7 +316,7 @@
     let ORDERS=[],oFilter='全部',oNote='';
     function setOrders(d){
         oNote=d&&d.reason==='airtable-not-configured'?'後台已就緒，但尚未接上 Airtable。<br>請先在 Netlify 設定 AIRTABLE_TOKEN 與 AIRTABLE_BASE_ID。':'';
-        ORDERS=(d&&d.orders)||[];renderOrders();
+        ORDERS=(d&&d.orders)||[];orderRoute();
     }
     $('ordRefresh').onclick=async()=>{const b=$('ordRefresh');b.textContent='更新中…';const {status,data}=await api('list-orders');b.textContent='重新整理';
         if(status!==200){alert('訂單載入失敗，請稍後再試。');return;}setOrders(data);};
@@ -304,20 +332,77 @@
         const list=ORDERS.filter(o=>oFilter==='全部'||o['狀態']===oFilter)
               .sort((a,b)=>String(b['起租日']||b._created||'').localeCompare(String(a['起租日']||a._created||'')));
         if(!list.length){$('olist').innerHTML='<div class="oempty">目前沒有訂單</div>';return;}
-        $('olist').innerHTML=list.map(o=>{const st=OSTATUS.includes(o['狀態'])?o['狀態']:'待處理';
-              return `<div class="ocard">
-                    <div><div class="nm">${esc(o['客戶姓名']||'未具名')}</div><div class="ct">${esc(o['聯絡方式']||'')}</div><div class="tm">送出 ${oDate(o._created)}</div></div>
-                    <div><span class="obadge ob${st}">${st}</span><div class="gr">${esc(o['租借器材']||'')}</div>
-                          <div class="mt">租期 ${esc(oDate(o['起租日']))} → ${esc(oDate(o['迄租日']))}　共 ${esc(o['天數']||'—')} 天</div>
-                          <div class="am">預估 NT$ ${Number(o['預估金額']||0).toLocaleString()}</div></div>
-                    <div class="ac"><select data-id="${esc(o.id)}">${OSTATUS.map(k=>`<option ${k===st?'selected':''}>${k}</option>`).join('')}</select></div>
-              </div>`;}).join('');
-        $('olist').querySelectorAll('select').forEach(sel=>sel.onchange=()=>setOrderStatus(sel.dataset.id,sel.value));
+        $('olist').innerHTML=list.map(o=>{const st=ost(o);
+              return `<button type="button" class="orow" data-oid="${esc(o.id)}">
+                    <span class="obadge ob${st}">${st}</span>
+                    <div class="who"><div class="nm">${esc(o['客戶姓名']||'未具名')}</div><div class="sm">送出 ${oDate(o._created)}</div></div>
+                    <div class="dt">${esc(oDate(o['起租日']))} → ${esc(oDate(o['迄租日']))}　${o['天數']?esc(o['天數'])+' 天':''}<div class="sm">${esc(itemCount(o))}</div></div>
+                    <div class="am">NT$ ${Number(o['預估金額']||0).toLocaleString()}</div>
+                    <span class="go">›</span>
+              </button>`;}).join('');
+        $('olist').querySelectorAll('[data-oid]').forEach(b=>b.onclick=()=>{oScroll=scrollY;location.hash='order-'+b.dataset.oid;});
     }
+    /* ====== 單筆訂單詳情(網址 #order-<id>,瀏覽器上一頁回列表) ====== */
+    let oScroll=0;
+    function oTime(v){if(!v)return '—';const d=new Date(v);if(isNaN(d))return String(v);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
+    function ost(o){return OSTATUS.includes(o['狀態'])?o['狀態']:'待處理';}
+    /* 「Canon EOS R50 ×2（NT$300/日）、…」拆成品項;舊訂單沒有數量,視為 1 */
+    function parseItems(t){return String(t||'').split('、').map(x=>x.trim()).filter(Boolean).map(x=>{
+        const m=x.match(/^(.*?)(?:\s*×(\d+))?(?:（(.*)）)?$/);return {name:m[1],qty:+(m[2]||1),price:m[3]||''};});}
+    function itemCount(o){const it=parseItems(o['租借器材']);const n=it.reduce((s,x)=>s+x.qty,0);return n?`${n} 件器材`:'';}
+    function lineId(c){const m=String(c||'').match(/LINE\s*[:：]?\s*(\S+)/i);return m?m[1].replace(/^@/,''):'';}
+    function showOrder(id){
+        const o=ORDERS.find(x=>x.id===id);
+        const box=$('olist');$('ostats').classList.add('hidden');$('ofilters').classList.add('hidden');
+        if(!o){box.innerHTML='<div class="oempty">找不到這筆訂單（可能已刪除）<br><button class="btn sm ghost" onclick="history.back()">← 返回訂單列表</button></div>';return;}
+        const st=ost(o),items=parseItems(o['租借器材']),lid=lineId(o['聯絡方式']);
+        box.innerHTML=`<div class="odetail">
+            <button class="oback" type="button" onclick="backToOrders()">← 返回訂單列表</button>
+            <span class="obadge ob${st}">${st}</span>
+            <h3>${esc(o['客戶姓名']||'未具名')}</h3>
+            <div class="sub">送出時間 ${esc(oTime(o._created))}</div>
+            <div class="sec"><h4>聯絡方式</h4><div class="kv">
+                <span class="k">聯絡</span><span>${esc(o['聯絡方式']||'—')}</span>
+                ${lid?`<span class="k"></span><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" type="button" onclick="copyText('${esc(lid)}',this)">複製 LINE ID</button><a class="btn sm ghost" href="https://line.me/R/ti/p/~${encodeURIComponent(lid)}" target="_blank" rel="noopener">用 LINE 加好友</a></span>`:''}
+            </div></div>
+            <div class="sec"><h4>租期</h4><div class="kv">
+                <span class="k">起租日</span><span>${esc(oDate(o['起租日']))}</span>
+                <span class="k">迄租日</span><span>${esc(oDate(o['迄租日']))}</span>
+                <span class="k">天數</span><span>${o['天數']?esc(o['天數'])+' 天（含頭尾）':'—'}</span>
+            </div></div>
+            <div class="sec"><h4>租借器材</h4><div class="items">
+                ${items.map(x=>`<div class="it"><span>${esc(x.name)}</span><span class="q">× ${x.qty}　${esc(x.price)}</span></div>`).join('')||'<div class="it">—</div>'}
+            </div>
+            <div class="total"><span>預估金額</span><b>NT$ ${Number(o['預估金額']||0).toLocaleString()}</b></div></div>
+            <div class="acts">
+                <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)">狀態
+                    <select id="odStatus">${OSTATUS.map(k=>`<option ${k===st?'selected':''}>${k}</option>`).join('')}</select></label>
+                <button class="btn sm danger" type="button" id="odDel">刪除訂單</button>
+            </div></div>`;
+        $('odStatus').onchange=()=>setOrderStatus(o.id,$('odStatus').value);
+        $('odDel').onclick=()=>deleteOrder(o);
+        window.scrollTo(0,0);
+    }
+    function backToOrders(){if(history.state&&history.state.fromList)history.back();else location.hash='orders';}
+    function copyText(t,btn){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{const o=btn.textContent;btn.textContent='已複製 ✓';setTimeout(()=>btn.textContent=o,1500);}).catch(()=>prompt('複製這段文字：',t));}
+    async function deleteOrder(o){
+        if(!confirm(`確定要刪除「${o['客戶姓名']||'未具名'}」的訂單嗎？\n刪除後無法從後台復原。\n\n（只是不租了的話，建議把狀態改成「已取消」保留紀錄）`))return;
+        const b=$('odDel');b.textContent='刪除中…';b.disabled=true;
+        const {status,data}=await api('delete-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:o.id})});
+        if(status!==200||!(data&&data.ok)){alert('刪除失敗，請稍後再試。');b.textContent='刪除訂單';b.disabled=false;return;}
+        ORDERS=ORDERS.filter(x=>x.id!==o.id);backToOrders();
+    }
+    function orderRoute(){
+        const m=location.hash.match(/^#order-(rec[A-Za-z0-9]{14})$/);
+        if(m){if(!KEY)return;showOrder(m[1]);return;}
+        $('ostats').classList.remove('hidden');$('ofilters').classList.remove('hidden');renderOrders();
+        if(location.hash==='#orders'||location.hash==='')requestAnimationFrame(()=>window.scrollTo(0,oScroll));
+    }
+    window.addEventListener('hashchange',()=>{if(/^#order-/.test(location.hash))history.replaceState(Object.assign({},history.state,{fromList:true}),'');orderRoute();});
     async function setOrderStatus(id,status){
         const {status:code,data}=await api('update-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
         if(code!==200||!(data&&data.ok)){alert('狀態更新失敗，請稍後再試。');renderOrders();return;}
-        const o=ORDERS.find(x=>x.id===id);if(o)o['狀態']=status;renderOrders();
+        const o=ORDERS.find(x=>x.id===id);if(o)o['狀態']=status;orderRoute();
     }
 
     /* 照片（分類 → 專案 → 照片） */
