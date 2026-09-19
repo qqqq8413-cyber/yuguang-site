@@ -28,6 +28,10 @@ exports.handler = async (event) => {
   // 公開端點:蜜罐欄位有值即視為機器人;文字欄位限制長度,避免被灌入大量垃圾資料
   if (o['bot-field']) return { statusCode: 200, body: JSON.stringify({ ok: true }) };
   const cut = (v, n) => String(v == null ? '' : v).slice(0, n);
+  // 前端分開送手機與 LINE;舊版只送 contact,兩種都接受
+  if (!String(o.contact || '').trim() && (o.phone || o.line)) {
+    o.contact = [o.phone && '手機 ' + cut(o.phone, 20), o.line && 'LINE ' + cut(o.line, 40)].filter(Boolean).join(' ／ ');
+  }
   if (!cut(o.contact, 200).trim() || !cut(o.items, 2000).trim()) {
     return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'missing-contact-or-items' }) };
   }
