@@ -42,10 +42,6 @@
   .topbar svg{width:20px;height:auto}
   .topbar .name{font-family:var(--serif);font-size:14px;letter-spacing:5px;text-indent:5px}
   .topbar .right{display:flex;align-items:center;gap:clamp(16px,2.5vw,30px)}
-  .topbar .cartbtn{font-family:var(--serif);font-size:13px;letter-spacing:2px;color:var(--ink);cursor:pointer;
-    display:flex;align-items:center;gap:8px;background:none;border:0;outline:none}
-  .topbar .cartbtn .n{min-width:20px;height:20px;padding:0 6px;border-radius:100px;background:var(--ink);
-    color:var(--paper);font-size:11px;display:flex;align-items:center;justify-content:center;font-family:var(--sans)}
   .topbar .back{font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted);transition:.3s}
   .topbar .back:hover{color:var(--ink)}
 
@@ -167,20 +163,23 @@
   /* 租借清單抽屜 */
   .cartpanel{position:fixed;inset:0;z-index:110;display:none}
   .cartpanel.open{display:block}
+  .cartpanel .scrim{opacity:0;transition:opacity .25s}.cartpanel.open .scrim{opacity:1}
   .cartpanel .scrim{position:absolute;inset:0;background:rgba(18,16,13,.5);backdrop-filter:blur(3px)}
-  .cartpanel .drawer{position:absolute;top:0;right:0;height:100%;width:min(420px,92vw);background:var(--paper);
-    box-shadow:-20px 0 60px rgba(0,0,0,.25);display:flex;flex-direction:column;
-    transform:translateX(100%);transition:transform .4s cubic-bezier(.19,1,.22,1)}
-  .cartpanel.open .drawer{transform:none}
+  .cartpanel .drawer{position:absolute;left:50%;top:50%;width:min(540px,calc(100vw - 32px));max-height:min(88vh,900px);
+    background:var(--paper);box-shadow:0 30px 80px rgba(0,0,0,.3);overflow-y:auto;overscroll-behavior:contain;
+    transform:translate(-50%,-47%);opacity:0;transition:transform .35s cubic-bezier(.19,1,.22,1),opacity .25s}
+  .cartpanel.open .drawer{transform:translate(-50%,-50%);opacity:1}
+  .cartpanel .dhead{position:sticky;top:0;z-index:2;background:var(--paper)}
   .cartpanel .dhead{display:flex;justify-content:space-between;align-items:center;padding:24px 26px;
     border-bottom:1px solid var(--line)}
   .cartpanel .dhead h3{font-family:var(--serif);font-weight:500;font-size:1.2rem;letter-spacing:3px}
   .cartpanel .dhead .x{font-family:var(--serif);font-size:24px;cursor:pointer;color:var(--muted);line-height:1}
   .cartpanel .dhead .x:hover{color:var(--ink)}
-  .cartpanel .items{flex:1;overflow-y:auto;padding:8px 26px}
+  .cartpanel .items{padding:8px 26px}
   .cartpanel .empty{color:var(--muted);font-family:var(--serif);letter-spacing:2px;text-align:center;padding:60px 0;font-size:14px}
   .cartpanel .ci{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 0;
     border-bottom:1px solid var(--hair)}
+  .cartpanel .ci>div:first-child{flex:1;min-width:0}
   .cartpanel .ci .cn{font-family:var(--serif);font-size:15px;letter-spacing:1px}
   .cartpanel .ci .cp{color:var(--muted);font-size:12px;margin-top:3px;font-family:var(--serif)}
   .cartpanel .ci .rm{font-size:18px;color:var(--muted);cursor:pointer;transition:.2s;line-height:1}
@@ -216,11 +215,22 @@
   .cartpanel .foot .sent{display:none;text-align:center;font-family:var(--serif);letter-spacing:2px;
     color:var(--ink);padding:16px;background:var(--paper-2)}
 
-  /* Toast */
-  .toast{position:fixed;left:50%;bottom:36px;transform:translateX(-50%) translateY(20px);z-index:120;
-    background:var(--ink);color:var(--paper);font-family:var(--serif);letter-spacing:2px;font-size:13px;
-    padding:12px 26px;border-radius:100px;opacity:0;transition:.4s;pointer-events:none}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* 底部浮動租借清單 */
+  .cartbar{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:100;width:min(560px,calc(100vw - 32px));
+    display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 20px;border:0;cursor:pointer;
+    background:var(--ink);color:var(--paper);font-family:var(--serif);letter-spacing:1.5px;font-size:14px;
+    box-shadow:0 14px 40px rgba(18,16,13,.28);transform:translate(-50%,140%);transition:transform .45s cubic-bezier(.19,1,.22,1)}
+  .cartbar.on{transform:translate(-50%,0)}
+  .cartbar.bump{animation:bump .45s}
+  @keyframes bump{40%{transform:translate(-50%,-6px)}}
+  .cartbar .cb-l,.cartbar .cb-r{display:flex;align-items:center;gap:10px;white-space:nowrap}
+  .cartbar .n{min-width:22px;height:22px;padding:0 6px;border-radius:100px;background:var(--paper);color:var(--ink);
+    font-size:12px;display:flex;align-items:center;justify-content:center;font-family:var(--sans);letter-spacing:0}
+  .cartbar .cb-r{opacity:.9}
+  .cartbar .go{border-left:1px solid rgba(243,241,236,.3);padding-left:12px}
+  body.hasbar{padding-bottom:96px}
+  @media (max-width:520px){.cartbar{padding:13px 16px;font-size:13px}.cartbar #cartBarP{display:none}}
+  .add.added{background:var(--ink);color:var(--paper)}
 
   .fade{animation:fade .5s cubic-bezier(.19,1,.22,1)}
   @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
@@ -248,7 +258,6 @@
 <div class="topbar">
   <a class="mark" href="index.html"><svg><use href="#logo"/></svg><span class="name">嶼光映像</span></a>
   <div class="right">
-    <button class="cartbtn" id="cartBtn">租借清單 <span class="n" id="cartN">0</span></button>
     <a class="back" href="index.html">← 返回首頁</a>
   </div>
 </div>
@@ -328,7 +337,11 @@
   <input type="text" name="name"><input type="text" name="contact"><input type="text" name="line"><input type="text" name="items"><input type="text" name="start"><input type="text" name="end"><input type="text" name="amount"><input type="text" name="bot-field">
 </form>
 
-<div class="toast" id="toast">已加入租借清單</div>
+<!-- 底部浮動租借清單:有器材才出現 -->
+<button class="cartbar" id="cartBtn" type="button" aria-label="查看租借清單">
+  <span class="cb-l"><span class="n" id="cartN">0</span><span class="cb-t" id="cartBarT">租借清單</span></span>
+  <span class="cb-r"><span id="cartBarP"></span><span class="go">查看清單 →</span></span>
+</button>
 
 <script>
 /* ====== 器材資料(由後台 content/gear.json 載入) ====== */
@@ -400,7 +413,8 @@ function render(){
     grid.appendChild(el);
   });
   grid.querySelectorAll('[data-open]').forEach(n=>n.addEventListener('click',()=>openDetail(+n.dataset.open)));
-  grid.querySelectorAll('[data-add]').forEach(n=>n.addEventListener('click',()=>addToCart(+n.dataset.add)));
+  grid.querySelectorAll('[data-add]').forEach(n=>n.addEventListener('click',()=>cart.includes(+n.dataset.add)?openCart():addToCart(+n.dataset.add)));
+  if(typeof bar==='function'&&cart.length)bar();
 }
 
 /* ====== 器材介紹頁 ====== */
@@ -421,7 +435,8 @@ function openDetail(id){
   document.getElementById('dUsesSec').style.display=g.uses&&g.uses.trim()?'':'none';
   document.getElementById('dNote').textContent=g.note||'';
   document.getElementById('dNoteSec').style.display=g.note&&g.note.trim()?'':'none';
-  document.getElementById('dAdd').onclick=()=>addToCart(id);
+  const dAdd=document.getElementById('dAdd');dAdd.dataset.id=id;
+  dAdd.onclick=()=>cart.includes(id)?openCart():addToCart(id);bar();
   catalogView.style.display='none';detailView.style.display='block';
   detailView.classList.remove('fade');void detailView.offsetWidth;detailView.classList.add('fade');
   window.scrollTo({top:0});
@@ -436,9 +451,22 @@ const cartN=document.getElementById('cartN');
 const panel=document.getElementById('cartPanel');
 function addToCart(id){
   if(!cart.includes(id))cart.push(id);
-  cartN.textContent=cart.length;renderCart();showToast();
+  renderCart();bar(true);
 }
-function removeFromCart(id){cart=cart.filter(x=>x!==id);cartN.textContent=cart.length;renderCart();}
+function removeFromCart(id){cart=cart.filter(x=>x!==id);renderCart();bar();}
+/* 底部浮動列:顯示件數與日租合計;卡片按鈕同步顯示「已加入」 */
+function bar(added){
+  const b=document.getElementById('cartBtn'),n=cart.length;
+  cartN.textContent=n;
+  const daily=cart.reduce((s,id)=>s+(hasP(gear[id])?gear[id].price:0),0);
+  document.getElementById('cartBarT').textContent=added?'已加入租借清單':'租借清單';
+  document.getElementById('cartBarP').textContent=daily?`NT$ ${daily.toLocaleString()} / 日`:'';
+  b.classList.toggle('on',n>0);document.body.classList.toggle('hasbar',n>0);
+  if(added){b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');
+    clearTimeout(bar.t);bar.t=setTimeout(()=>{document.getElementById('cartBarT').textContent='租借清單';},1600);}
+  document.querySelectorAll('[data-add]').forEach(x=>{const on=cart.includes(+x.dataset.add);x.classList.toggle('added',on);x.textContent=on?'已加入 ✓':'加入租借';});
+  const d=document.getElementById('dAdd');if(d&&d.dataset.id!=null){const on=cart.includes(+d.dataset.id);d.textContent=on?'已加入 ✓ 查看清單':'加入租借';}
+}
 /* 租期天數:含取件日與歸還日;未選或順序錯誤回傳 0 / -1 */
 function rentDays(){
   const a=document.getElementById('cStart').value,b=document.getElementById('cEnd').value;
@@ -483,11 +511,13 @@ function renderCart(){
   box.querySelectorAll('[data-rm]').forEach(n=>n.addEventListener('click',()=>removeFromCart(+n.dataset.rm)));
   send.classList.remove('disabled');
 }
-document.getElementById('cartBtn').addEventListener('click',()=>{
+function openCart(){
   document.getElementById('cartSent').style.display='none';
   document.getElementById('cartForm').style.display='';
-  renderCart();panel.classList.add('open');
-});
+  renderCart();panel.classList.add('open');document.body.style.overflow='hidden';
+}
+function closeCart(){panel.classList.remove('open');document.body.style.overflow='';}
+document.getElementById('cartBtn').addEventListener('click',openCart);
 /* 送出租借需求:寫入 Netlify 表單(備援)+ Netlify 函式(進 Airtable 後端),任一成功才算送出 */
 function fieldErr(el,msg){
   document.getElementById('cartErr').textContent=msg;
@@ -523,21 +553,17 @@ document.getElementById('cartSend').addEventListener('click',()=>{
   ]).then(()=>{
     $('cartForm').style.display='none';
     $('cartSent').style.display='block';
-    cart=[];cartN.textContent='0';renderCart();
+    cart=[];renderCart();bar();
   }).catch(()=>{
     fieldErr(null,'送出失敗，請檢查網路後再試一次，或直接用 LINE 聯絡我們');
     send.classList.remove('disabled');
   }).finally(()=>{send.textContent='送出租借需求';});
 });
-document.getElementById('cartClose').addEventListener('click',()=>panel.classList.remove('open'));
-document.getElementById('cartScrim').addEventListener('click',()=>panel.classList.remove('open'));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')panel.classList.remove('open')});
+document.getElementById('cartClose').addEventListener('click',closeCart);
+document.getElementById('cartScrim').addEventListener('click',closeCart);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCart()});
 renderCart();
 
-/* ====== Toast ====== */
-let toastTimer;
-function showToast(){const t=document.getElementById('toast');t.classList.add('show');
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1600);}
 </script>
 </body>
 </html>
