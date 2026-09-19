@@ -6,6 +6,7 @@ const BRANCH = process.env.GITHUB_BRANCH || 'main';
 const PW = process.env.ADMIN_PASSWORD;
 // 只允許寫入網站內容 JSON;原本可寫入 repo 任何檔案(包含這些函式本身)
 const ALLOWED = /^yuguang-site\/content\/[a-z0-9_-]+\.json$/;
+const { validateContent } = require('./lib/content-schema');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
@@ -22,6 +23,18 @@ exports.handler = async (event) => {
   }
   if (!ALLOWED.test(o.path)) {
     return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'path-not-allowed' }) };
+  }
+
+  // 寫入前檢查格式:欄位打錯、型別不對(例如價格填成文字)就拒絕,不會把壞資料送上網站
+  let parsed = o.data;
+  if (typeof parsed === 'string') {
+    try { parsed = JSON.parse(parsed); } catch (e) {
+      return { statusCode: 422, body: JSON.stringify({ ok: false, error: 'invalid-content', details: ['內容不是有效的 JSON'] }) };
+    }
+  }
+  const problems = validateContent(o.path.split('/').pop(), parsed);
+  if (problems.length) {
+    return { statusCode: 422, body: JSON.stringify({ ok: false, error: 'invalid-content', details: problems.slice(0, 20) }) };
   }
 
   const api = `https://api.github.com/repos/${REPO}/contents/${o.path}`;

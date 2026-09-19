@@ -1,0 +1,24 @@
+# PR 自動檢查:內容 JSON 格式、後端函式、網頁程式語法、網站內部連結
+name: check
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 內容 JSON 格式
+        run: node scripts/validate-content.js
+      - name: 後端函式可以載入
+        run: for f in netlify/functions/*.js; do node -e "require('./$f')" || exit 1; done
+      - name: 網頁程式語法
+        run: node scripts/check-scripts.js
+      - name: 網站內部連結
+        run: node scripts/check-links.js
