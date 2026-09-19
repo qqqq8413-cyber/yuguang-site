@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
-    <title>內容管理 · 嶼光映像</title>
+    <title>後台管理 · 嶼光映像</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -71,6 +71,39 @@
                    padding:14px 0;display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:8px}
       .savebar .msg{font-family:var(--serif);font-size:13px;letter-spacing:1px;color:var(--muted)}
       .albumcard .an{font-family:var(--serif);font-size:1.05rem;letter-spacing:1px}
+      /* 器材租賃分頁:租借訂單／器材管理 切換 */
+      .pend{display:inline-block;min-width:18px;height:18px;line-height:18px;padding:0 5px;margin-left:8px;border-radius:9px;
+                background:#b04a3a;color:#fff;font-family:var(--sans);font-size:11px;letter-spacing:0;text-align:center;vertical-align:1px}
+      .pend:empty{display:none}
+      .subtabs{display:flex;gap:0;margin:4px 0 22px;border-bottom:1px solid var(--line)}
+      .subtabs button{font-family:var(--serif);font-size:14px;letter-spacing:2px;color:var(--muted);background:none;border:0;
+                          border-bottom:2px solid transparent;padding:10px 18px;margin-bottom:-1px;cursor:pointer}
+      .subtabs button.on{color:var(--ink);border-bottom-color:var(--ink)}
+      .subpanel{display:none}.subpanel.on{display:block}
+      .ostats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+      @media(max-width:640px){.ostats{grid-template-columns:repeat(2,1fr)}}
+      .ostat{background:var(--paper2);padding:14px 16px}
+      .ostat .k{font-size:12px;letter-spacing:2px;color:var(--muted);font-family:var(--serif)}
+      .ostat .v{font-family:var(--serif);font-size:1.7rem;margin-top:2px}
+      .ofilters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+      .ofilters button{font-family:var(--serif);font-size:13px;letter-spacing:2px;color:var(--muted);background:none;
+                           border:1px solid var(--line);padding:6px 14px;cursor:pointer}
+      .ofilters button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+      .olist{display:flex;flex-direction:column;gap:12px;padding-bottom:40px}
+      .oempty{color:var(--muted);font-family:var(--serif);letter-spacing:2px;text-align:center;padding:48px 0;line-height:2}
+      .ocard{background:#fff;border:1px solid var(--line);padding:16px 18px;display:grid;grid-template-columns:1.1fr 1.4fr auto;gap:16px;align-items:start}
+      @media(max-width:720px){.ocard{grid-template-columns:1fr;gap:10px}}
+      .ocard .nm{font-family:var(--serif);font-size:1.05rem;letter-spacing:1px}
+      .ocard .ct{color:var(--muted);font-size:13px;margin-top:4px;word-break:break-all}
+      .ocard .tm{color:var(--muted);font-size:11px;margin-top:6px;letter-spacing:1px}
+      .ocard .gr{font-size:14px;line-height:1.7}
+      .ocard .mt{color:var(--muted);font-size:12.5px;margin-top:6px}
+      .ocard .am{font-family:var(--serif);margin-top:6px}
+      .ocard .ac{min-width:120px}
+      .ocard .ac select{font-family:var(--serif);font-size:13px;padding:8px 10px;border:1px solid var(--line);background:var(--paper);width:100%}
+      .obadge{display:inline-block;font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-family:var(--serif)}
+      .ob待處理{background:#f6e9d6;color:#8a5a12}.ob已報價{background:#e2ecf7;color:#1f4e79}.ob已確認{background:#e2f0e5;color:#2f6b3c}
+      .ob租借中{background:#e7e2f2;color:#4a3a86}.ob已歸還{background:#eeece6;color:#6b665c}.ob已取消{background:#f7e6e6;color:#9a3535}
       .hidden{display:none}
       .hint{color:var(--muted);font-size:12px;letter-spacing:.5px;margin-bottom:14px;line-height:1.7}
     </style>
@@ -97,19 +130,31 @@
     <div class="wrap">
         <div class="top">
               <a class="brand" href="/後台"><svg class="mk"><use href="#mk"/></svg>
-                      <span class="name">嶼光映像<small>內容管理</small></span></a>
+                      <span class="name">嶼光映像<small>後台管理</small></span></a>
               <a class="btn ghost sm" href="/後台">← 後台首頁</a>
         </div>
     
         <div class="tabs">
               <button data-tab="photo" class="on">平面作品 · 照片</button>
               <button data-tab="video">動態作品 · 影片</button>
-              <button data-tab="gear">器材租賃</button>
+              <button data-tab="gear">器材租賃 · 訂單<span class="pend" id="pendBadge"></span></button>
         </div>
     
         <div id="p-photo" class="panel on"></div>
         <div id="p-video" class="panel"></div>
-        <div id="p-gear" class="panel"></div>
+        <div id="p-gear" class="panel">
+              <div class="subtabs">
+                    <button data-sub="orders" class="on">租借訂單<span class="pend" id="pendBadge2"></span></button>
+                    <button data-sub="gearlist">器材管理</button>
+              </div>
+              <div id="p-orders" class="subpanel on">
+                    <div class="sechead"><h2>租借訂單</h2><button class="btn sm ghost" id="ordRefresh">重新整理</button></div>
+                    <div class="ostats" id="ostats"></div>
+                    <div class="ofilters" id="ofilters"></div>
+                    <div class="olist" id="olist"><div class="oempty">載入中…</div></div>
+              </div>
+              <div id="p-gearlist" class="subpanel"></div>
+        </div>
     </div>
   </div>
   
@@ -133,9 +178,10 @@
     }
     async function login(k){
         KEY=k;
-        const {status}=await api('list-orders');
+        const {status,data:od}=await api('list-orders');
         if(status===401){$('gerr').textContent='密碼錯誤';return;}
         if(status!==200){$('gerr').textContent='暫時無法連線，請稍後再試';return;}
+        setOrders(od);
         sessionStorage.setItem('yg_admin_key',k);
         $('gate').classList.add('hidden');$('app').classList.remove('hidden');
         await loadAll();
@@ -223,6 +269,53 @@
         document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
         $('p-'+b.dataset.tab).classList.add('on');
     });
+    function openSub(k){
+        document.querySelectorAll('.subtabs button').forEach(x=>x.classList.toggle('on',x.dataset.sub===k));
+        document.querySelectorAll('.subpanel').forEach(p=>p.classList.toggle('on',p.id==='p-'+k));
+    }
+    document.querySelectorAll('.subtabs button').forEach(b=>b.onclick=()=>openSub(b.dataset.sub));
+    /* 舊的 /訂單 頁會轉來 #orders;#gear 直接開器材管理 */
+    if(/^#(orders|gear)$/.test(location.hash)){
+        document.querySelector('.tabs button[data-tab="gear"]').click();
+        openSub(location.hash==='#gear'?'gearlist':'orders');
+    }
+
+    /* ====== 租借訂單(原 訂單.html,資料來自 Airtable) ====== */
+    const OSTATUS=['待處理','已報價','已確認','租借中','已歸還','已取消'];
+    let ORDERS=[],oFilter='全部',oNote='';
+    function setOrders(d){
+        oNote=d&&d.reason==='airtable-not-configured'?'後台已就緒，但尚未接上 Airtable。<br>請先在 Netlify 設定 AIRTABLE_TOKEN 與 AIRTABLE_BASE_ID。':'';
+        ORDERS=(d&&d.orders)||[];renderOrders();
+    }
+    $('ordRefresh').onclick=async()=>{const b=$('ordRefresh');b.textContent='更新中…';const {status,data}=await api('list-orders');b.textContent='重新整理';
+        if(status!==200){alert('訂單載入失敗，請稍後再試。');return;}setOrders(data);};
+    function oDate(v){return v?String(v).replace(/T.*$/,''):'—'}
+    function renderOrders(){
+        const c={};OSTATUS.forEach(k=>c[k]=0);ORDERS.forEach(o=>{if(c[o['狀態']]!=null)c[o['狀態']]++;});
+        const p=c['待處理']||'';$('pendBadge').textContent=p;$('pendBadge2').textContent=p;
+        $('ostats').innerHTML=[['全部訂單',ORDERS.length],['待處理',c['待處理']],['已確認',c['已確認']],['租借中',c['租借中']]]
+              .map(([k,v])=>`<div class="ostat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+        $('ofilters').innerHTML=['全部',...OSTATUS].map(f=>`<button class="${f===oFilter?'on':''}" data-f="${f}">${f}</button>`).join('');
+        $('ofilters').querySelectorAll('button').forEach(b=>b.onclick=()=>{oFilter=b.dataset.f;renderOrders();});
+        if(oNote){$('olist').innerHTML=`<div class="oempty">${oNote}</div>`;return;}
+        const list=ORDERS.filter(o=>oFilter==='全部'||o['狀態']===oFilter)
+              .sort((a,b)=>String(b['起租日']||b._created||'').localeCompare(String(a['起租日']||a._created||'')));
+        if(!list.length){$('olist').innerHTML='<div class="oempty">目前沒有訂單</div>';return;}
+        $('olist').innerHTML=list.map(o=>{const st=OSTATUS.includes(o['狀態'])?o['狀態']:'待處理';
+              return `<div class="ocard">
+                    <div><div class="nm">${esc(o['客戶姓名']||'未具名')}</div><div class="ct">${esc(o['聯絡方式']||'')}</div><div class="tm">送出 ${oDate(o._created)}</div></div>
+                    <div><span class="obadge ob${st}">${st}</span><div class="gr">${esc(o['租借器材']||'')}</div>
+                          <div class="mt">租期 ${esc(oDate(o['起租日']))} → ${esc(oDate(o['迄租日']))}　共 ${esc(o['天數']||'—')} 天</div>
+                          <div class="am">預估 NT$ ${Number(o['預估金額']||0).toLocaleString()}</div></div>
+                    <div class="ac"><select data-id="${esc(o.id)}">${OSTATUS.map(k=>`<option ${k===st?'selected':''}>${k}</option>`).join('')}</select></div>
+              </div>`;}).join('');
+        $('olist').querySelectorAll('select').forEach(sel=>sel.onchange=()=>setOrderStatus(sel.dataset.id,sel.value));
+    }
+    async function setOrderStatus(id,status){
+        const {status:code,data}=await api('update-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
+        if(code!==200||!(data&&data.ok)){alert('狀態更新失敗，請稍後再試。');renderOrders();return;}
+        const o=ORDERS.find(x=>x.id===id);if(o)o['狀態']=status;renderOrders();
+    }
 
     /* 照片（分類 → 專案 → 照片） */
     function albumCount(al){if(al.projects&&al.projects.length)return al.projects.length+' 專案';return (al.photos||[]).length+' 張';}
@@ -359,8 +452,8 @@
     }
 
     /* 器材 */
-    const GEAR_CATS=['相機','鏡頭','燈光','燈光配件','燈架','穩定器','收音','空拍機']; let curGearCat=null; function allGearCats(){if(!Array.isArray(DATA.gearCats)){const s=new Set(GEAR_CATS);DATA.gear.forEach(g=>{if(g.cat)s.add(g.cat);});DATA.gearCats=[...s];}const set=new Set(DATA.gearCats);DATA.gear.forEach(g=>{if(g.cat)set.add(g.cat);});return [...set];} function renameGearCat(c){const n=(prompt('分類新名稱：',c)||'').trim();if(!n||n===c)return;if(allGearCats().indexOf(n)>=0){if(!confirm('已經有「'+n+'」這個分類，要把兩個分類合併嗎？'))return;}DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat=n;});allGearCats();DATA.gearCats=DATA.gearCats.map(x=>x===c?n:x).filter((x,i,a)=>a.indexOf(x)===i);if(curGearCat===c)curGearCat=n;renderGear();} function delGearCat(c){const n=DATA.gear.filter(g=>(g.cat||'')===c).length;const msg=n?('「'+c+'」底下有 '+n+' 項器材。刪除分類會把這些器材移到「未分類」（器材不會被刪除），確定嗎？'):('確定刪除分類「'+c+'」？');if(!confirm(msg))return;DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat='';});allGearCats();DATA.gearCats=DATA.gearCats.filter(x=>x!==c);if(curGearCat===c)curGearCat=null;renderGear();} function gearCatOptions(cur){const list=allGearCats();const c0=cur||'';let o='<option value=""'+(!c0?' selected':'')+' disabled>— 請選擇分類 —</option>';o+=list.map(c=>'<option value="'+esc(c)+'"'+(c===c0?' selected':'')+'>'+esc(c)+'</option>').join('');return o+'<option value="__custom__">＋ 自訂新分類…</option>';} function gearCatChange(i,val){if(val==='__custom__'){const c=(prompt('輸入新的分類名稱：')||'').trim();if(c)DATA.gear[i].cat=c;renderGear();return;}DATA.gear[i].cat=val;renderGear();} function addGearCat(){const c=(prompt('輸入新分類名稱：')||'').trim();if(!c)return;allGearCats();if(DATA.gearCats.indexOf(c)<0)DATA.gearCats.push(c);curGearCat=c;renderGear();} function openGearCat(c){curGearCat=c;renderGear();} function addGearToCurrentCat(){DATA.gear.push({name:'',cat:curGearCat||'',price:0,image:'',spec:'',desc:''});renderGear();} function renderGear(){ if(curGearCat!==null)return renderGearCat(); const box=$('p-gear'); let h='<div class="hint">器材依分類整理。點分類進去可新增／管理該分類的器材。</div>'; h+='<div class="sechead"><h2>器材分類</h2><button class="btn" onclick="addGearCat()">+ 新增分類</button></div>'; const cats=allGearCats(); h+='<div>'; cats.forEach(c=>{const n=DATA.gear.filter(g=>g.cat===c).length;h+='<div class="card albumcard"><div class="row top"><div><span class="an">'+esc(c)+'</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+n+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\''+esc(c)+'\')">管理器材</button><button class="btn sm ghost" onclick="renameGearCat(\''+esc(c)+'\')">重新命名</button><button class="btn sm ghost" onclick="delGearCat(\''+esc(c)+'\')">刪除</button></div></div></div>';}); const un=DATA.gear.filter(g=>!g.cat).length; if(un)h+='<div class="card albumcard"><div class="row top"><div><span class="an">未分類</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+un+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\'\')">管理器材</button></div></div></div>'; h+='</div>'; box.innerHTML=h; } function renderGearCat(){
-        const box=$('p-gear');
+    const GEAR_CATS=['相機','鏡頭','燈光','燈光配件','燈架','穩定器','收音','空拍機']; let curGearCat=null; function allGearCats(){if(!Array.isArray(DATA.gearCats)){const s=new Set(GEAR_CATS);DATA.gear.forEach(g=>{if(g.cat)s.add(g.cat);});DATA.gearCats=[...s];}const set=new Set(DATA.gearCats);DATA.gear.forEach(g=>{if(g.cat)set.add(g.cat);});return [...set];} function renameGearCat(c){const n=(prompt('分類新名稱：',c)||'').trim();if(!n||n===c)return;if(allGearCats().indexOf(n)>=0){if(!confirm('已經有「'+n+'」這個分類，要把兩個分類合併嗎？'))return;}DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat=n;});allGearCats();DATA.gearCats=DATA.gearCats.map(x=>x===c?n:x).filter((x,i,a)=>a.indexOf(x)===i);if(curGearCat===c)curGearCat=n;renderGear();} function delGearCat(c){const n=DATA.gear.filter(g=>(g.cat||'')===c).length;const msg=n?('「'+c+'」底下有 '+n+' 項器材。刪除分類會把這些器材移到「未分類」（器材不會被刪除），確定嗎？'):('確定刪除分類「'+c+'」？');if(!confirm(msg))return;DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat='';});allGearCats();DATA.gearCats=DATA.gearCats.filter(x=>x!==c);if(curGearCat===c)curGearCat=null;renderGear();} function gearCatOptions(cur){const list=allGearCats();const c0=cur||'';let o='<option value=""'+(!c0?' selected':'')+' disabled>— 請選擇分類 —</option>';o+=list.map(c=>'<option value="'+esc(c)+'"'+(c===c0?' selected':'')+'>'+esc(c)+'</option>').join('');return o+'<option value="__custom__">＋ 自訂新分類…</option>';} function gearCatChange(i,val){if(val==='__custom__'){const c=(prompt('輸入新的分類名稱：')||'').trim();if(c)DATA.gear[i].cat=c;renderGear();return;}DATA.gear[i].cat=val;renderGear();} function addGearCat(){const c=(prompt('輸入新分類名稱：')||'').trim();if(!c)return;allGearCats();if(DATA.gearCats.indexOf(c)<0)DATA.gearCats.push(c);curGearCat=c;renderGear();} function openGearCat(c){curGearCat=c;renderGear();} function addGearToCurrentCat(){DATA.gear.push({name:'',cat:curGearCat||'',price:0,image:'',spec:'',desc:''});renderGear();} function renderGear(){ if(curGearCat!==null)return renderGearCat(); const box=$('p-gearlist'); let h='<div class="hint">器材依分類整理。點分類進去可新增／管理該分類的器材。</div>'; h+='<div class="sechead"><h2>器材分類</h2><button class="btn" onclick="addGearCat()">+ 新增分類</button></div>'; const cats=allGearCats(); h+='<div>'; cats.forEach(c=>{const n=DATA.gear.filter(g=>g.cat===c).length;h+='<div class="card albumcard"><div class="row top"><div><span class="an">'+esc(c)+'</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+n+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\''+esc(c)+'\')">管理器材</button><button class="btn sm ghost" onclick="renameGearCat(\''+esc(c)+'\')">重新命名</button><button class="btn sm ghost" onclick="delGearCat(\''+esc(c)+'\')">刪除</button></div></div></div>';}); const un=DATA.gear.filter(g=>!g.cat).length; if(un)h+='<div class="card albumcard"><div class="row top"><div><span class="an">未分類</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+un+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\'\')">管理器材</button></div></div></div>'; h+='</div>'; box.innerHTML=h; } function renderGearCat(){
+        const box=$('p-gearlist');
         const CG=curGearCat||''; let h='<div style="margin-bottom:12px"><button class="btn sm ghost" onclick="curGearCat=null;renderGear()">← 返回分類</button></div>'; h+='<div class="sechead"><h2>'+esc(CG||'未分類')+'</h2><button class="btn" onclick="addGearToCurrentCat()">+ 新增器材</button></div>';
         h+='<div id="gearList">';
         DATA.gear.forEach((g,i)=>{ if((g.cat||'')!==CG)return;
