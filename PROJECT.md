@@ -134,7 +134,6 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | `get-content.js` | 後台 | 從 GitHub 讀取內容 JSON 與版本（sha） |
 | `save-content.js` | 後台 | 寫回內容 JSON 到 GitHub；只允許 `yuguang-site/content/*.json`；版本不符回 409 |
 | `sign-upload.js` | 後台 | 產生 Cloudinary 簽名上傳參數 |
-| `upload-image.js` | （已不使用） | 舊版：把圖片上傳到 GitHub repo。可移除 |
 
 **內容格式檢查**：`netlify/functions/lib/content-schema.js` 定義每份內容 JSON 允許的欄位與型別（欄位打錯字、價格填成文字、網址格式錯、代稱重複都會被抓到）。後台存檔時 `save-content` 先檢查，不通過回 422 並列出問題，後台會把位置翻成器材／相簿名稱顯示。
 
@@ -318,10 +317,10 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - [ ] **首頁主視覺封面**：替換帶有影片字幕的封面
 
 ### 一般
-- [ ] 自訂 404 頁面（目前為 Netlify 預設英文頁）
+- [x] 自訂 404 頁面
 - [ ] 後台補齊各器材「可租數量」（目前 9 項中 3 項有填）
-- [ ] 手機器材卡名稱改為最多 2 行（兩支 Canon 鏡頭目前分不出來）
-- [ ] 移除不再使用的 `netlify/functions/upload-image.js`
+- [x] 手機器材卡名稱改為最多 2 行
+- [x] 移除不再使用的 `upload-image.js`
 
 ### 之後
 - [ ] 後台：影片分類改名／刪除；只有專案的相簿分類可選封面

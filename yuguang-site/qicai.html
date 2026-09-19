@@ -123,7 +123,8 @@
   .prod .pspec{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;align-self:stretch;max-height:calc(1.6em * 3)}
   .prod .pspecwrap{flex:1}
   .cartpanel .ci .cn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  @media(max-width:600px){.prod .pspecwrap{display:none}.prod .pname{display:block;white-space:nowrap;-webkit-line-clamp:unset}}
+  /* 手機:名稱最多兩行(兩支 Canon 鏡頭才分得出來),固定保留兩行高度,價格與按鈕仍對齊 */
+  @media(max-width:600px){.prod .pspecwrap{display:none}.prod .pname{white-space:normal;-webkit-line-clamp:2;line-height:1.45;min-height:calc(1.45em * 2)}}
   .prod .prow{display:flex;justify-content:space-between;align-items:center;gap:12px;
     margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
   .prod .price{font-family:var(--serif)}
