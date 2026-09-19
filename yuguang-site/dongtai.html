@@ -279,11 +279,11 @@
     function setCat(c){activeCat=c;document.querySelectorAll('.filter').forEach(f=>f.classList.toggle('active',f.textContent===c));}
     function nav(p){
         history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
-        history.pushState({d:((history.state&&history.state.d)||0)+1,y:0},'',urlFor(p));route(0);
+        history.pushState({sub:1,y:0},'',urlFor(p));route(0);
     }
     function up(){
-        if(history.state&&history.state.d>0)return history.back();
-        history.replaceState({d:0,y:0},'',urlFor({cat:activeCat}));route(0);
+        if(history.state&&history.state.sub)return history.back();
+        history.pushState({y:0},'',urlFor({cat:activeCat}));route(0);
     }
     function route(y){
         const c=qs(),cats=[...document.querySelectorAll('.filter')].map(f=>f.textContent);

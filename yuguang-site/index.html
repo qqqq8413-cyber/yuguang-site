@@ -302,7 +302,25 @@
                 const gear=(g.gear||[]).map((x,i)=>({href:'qicai.html?item='+i,img:opt(x.image,800),icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
         addRow('器材租賃','Rental','qicai.html',gear);
         buildHero(v,a);
+        restoreY();
     }).catch(()=>{rows.innerHTML='<div class="empty">作品載入中,請稍後重新整理。</div>';});
+
+    /* 首頁內容是載入後才產生的,瀏覽器自動還原捲動位置常常失敗;
+       離開前記下位置,按上一頁回來、內容產生後再捲回去 */
+    function restoreY(){
+        try{
+            const nav=performance.getEntriesByType('navigation')[0];
+            const y=+sessionStorage.getItem('homeY');
+            if(!(nav&&nav.type==='back_forward'&&y>0))return;
+            /* 字型、圖片陸續載入會改變頁面高度:穩定前多捲幾次,使用者一滑動就停止 */
+            let stop=false;const halt=()=>{stop=true;};
+            ['wheel','touchstart','keydown'].forEach(t=>window.addEventListener(t,halt,{once:true,passive:true}));
+            const go=()=>{if(!stop)window.scrollTo(0,y);};
+            requestAnimationFrame(go);[150,400,800,1500].forEach(ms=>setTimeout(go,ms));
+            if(document.fonts)document.fonts.ready.then(go);
+        }catch(e){}
+    }
+    window.addEventListener('pagehide',()=>{try{sessionStorage.setItem('homeY',String(window.scrollY));}catch(e){}});
 </script>
   </body>
 </html>

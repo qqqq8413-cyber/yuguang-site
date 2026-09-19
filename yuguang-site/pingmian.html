@@ -317,11 +317,11 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
   function urlFor(p){const q=new URLSearchParams();if(p.cat!=null)q.set('cat',p.cat);if(p.proj!=null)q.set('proj',p.proj);const t=q.toString();return location.pathname+(t?'?'+t:'');}
   function nav(p){
       history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
-      history.pushState({d:((history.state&&history.state.d)||0)+1,y:0},'',urlFor(p));route(0);
+      history.pushState({sub:1,y:0},'',urlFor(p));route(0);
   }
   function up(){
-      if(history.state&&history.state.d>0)return history.back();
-      const c=qs();history.replaceState({d:0,y:0},'',urlFor(c.proj!=null&&albums[c.cat]&&albums[c.cat].projects.length?{cat:c.cat}:{}));route(0);
+      if(history.state&&history.state.sub)return history.back();
+      const c=qs();history.pushState({y:0},'',urlFor(c.proj!=null&&albums[c.cat]&&albums[c.cat].projects.length?{cat:c.cat}:{}));route(0);
   }
   function route(y){
       const c=qs(),a=c.cat!=null?albums[c.cat]:null;

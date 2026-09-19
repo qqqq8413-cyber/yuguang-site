@@ -479,15 +479,15 @@ function qItem(){const v=new URLSearchParams(location.search).get('item');return
 function urlItem(i){return location.pathname+(i==null?'':'?item='+i);}
 function goDetail(id){
   history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
-  history.pushState({d:((history.state&&history.state.d)||0)+1},'',urlItem(id));openDetail(id);
+  history.pushState({sub:1},'',urlItem(id));openDetail(id);
 }
 function showCatalog(y){
   detailView.style.display='none';catalogView.style.display='block';document.title=BASE_TITLE;
   requestAnimationFrame(()=>window.scrollTo(0,y||0));
 }
 function upDetail(){
-  if(history.state&&history.state.d>0)return history.back();
-  history.replaceState({d:0},'',urlItem(null));showCatalog(0);
+  if(history.state&&history.state.sub)return history.back();
+  history.pushState({y:0},'',urlItem(null));showCatalog(0);
 }
 window.addEventListener('popstate',e=>{
   const st=e.state||{};
