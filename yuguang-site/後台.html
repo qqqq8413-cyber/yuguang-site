@@ -1,63 +1,503 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex">
-<title>嶼光後台</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{--paper:#f3f1ec;--paper2:#eeece6;--ink:#171613;--muted:#a19a8d;--line:rgba(23,22,19,.14);
-    --serif:"Noto Serif TC","Songti TC",Georgia,serif;--sans:"PingFang TC","Noto Sans TC",system-ui,sans-serif;}
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--paper);color:var(--ink);font-family:var(--sans);min-height:100vh;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;-webkit-font-smoothing:antialiased}
-  .logo{width:44px;height:auto;margin-bottom:22px}
-  h1{font-family:var(--serif);font-weight:500;font-size:clamp(1.4rem,4vw,1.8rem);letter-spacing:8px;text-indent:8px}
-  .sub{font-family:var(--serif);color:var(--muted);font-size:13px;letter-spacing:3px;margin-top:10px;margin-bottom:40px}
-  .cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%;max-width:640px}
-  @media(max-width:560px){.cards{grid-template-columns:1fr}}
-  .card{display:block;background:#fff;border:1px solid var(--line);padding:34px 28px;text-align:center;
-    transition:.25s;text-decoration:none;color:inherit}
-  .card:hover{transform:translateY(-3px);border-color:var(--ink)}
-  .card .ic{width:40px;height:40px;margin:0 auto 16px;color:var(--ink)}
-  .card .t{font-family:var(--serif);font-size:1.25rem;letter-spacing:3px;margin-bottom:8px}
-  .card .d{color:var(--muted);font-size:13px;letter-spacing:1px;line-height:1.7}
-  .foot{margin-top:36px;font-family:var(--serif);color:var(--muted);font-size:12px;letter-spacing:2px}
-  .foot a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
-  .foot a:hover{color:var(--ink)}
-</style>
-</head>
-<body>
-  <svg class="logo" viewBox="0 0 192 208" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="butt">
-    <line x1="97" y1="8" x2="97" y2="200"/><line x1="127" y1="70" x2="165" y2="23"/>
-    <line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
-    <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>
-    <line x1="184" y1="200" x2="184" y2="172"/>
-  </svg>
-  <h1>嶼光後台</h1>
-  <div class="sub">請選擇要管理的項目</div>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>嶼光後台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <style>
+      :root{--paper:#f3f1ec;--paper2:#eeece6;--ink:#171613;--muted:#a19a8d;--line:rgba(23,22,19,.14);
+                --serif:"Noto Serif TC","Songti TC",Georgia,serif;--sans:"PingFang TC","Noto Sans TC",system-ui,sans-serif;}
+      *{margin:0;padding:0;box-sizing:border-box}
+      body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+      .wrap{max-width:1000px;margin:0 auto;padding:0 clamp(16px,4vw,36px)}
+      a{color:inherit}
+      .top{display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--line)}
+      .top .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+      .top svg.mk{width:22px}
+      .top .name{font-family:var(--serif);font-size:15px;letter-spacing:5px}
+      .top .name small{display:block;font-size:11px;letter-spacing:2px;color:var(--muted)}
 
-  <div class="cards">
-    <a class="card" href="/內容#orders">
-      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-        <rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/>
-        <line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/>
-      </svg>
-      <div class="t">租借訂單</div>
-      <div class="d">訂單、狀態與檔期，和器材管理在同一頁<br>（用管理密碼登入）</div>
-    </a>
-    <a class="card" href="/內容">
-      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-        <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/>
-        <path d="M4 16l4-4 3 3 4-4 5 5"/>
-      </svg>
-      <div class="t">內容管理</div>
-      <div class="d">照片、影片、器材與價格<br>（用管理密碼登入）</div>
-    </a>
+      .gate{max-width:360px;margin:14vh auto;text-align:center}
+      .gate svg{width:40px;margin-bottom:20px}
+      .gate h1{font-family:var(--serif);font-weight:500;font-size:1.4rem;letter-spacing:6px;margin-bottom:8px}
+      .gate p{color:var(--muted);font-size:13px;letter-spacing:1px;margin-bottom:24px}
+      .gate input{width:100%;border:1px solid var(--line);background:none;padding:13px 14px;font-size:1rem;
+                      outline:none;text-align:center;letter-spacing:2px}
+      .gate input:focus{border-color:var(--ink)}
+      .gate button{width:100%;margin-top:12px;background:var(--ink);color:var(--paper);border:0;padding:14px;
+                       font-family:var(--serif);letter-spacing:4px;font-size:14px;cursor:pointer}
+      .gate .err{color:#b04a3a;font-size:12px;margin-top:14px;min-height:16px}
+
+      .tabs{display:flex;gap:8px;margin:24px 0 20px}
+      .tabs button{font-family:var(--serif);font-size:14px;letter-spacing:2px;color:var(--muted);background:none;
+                       border:1px solid var(--line);padding:9px 20px;cursor:pointer;transition:.2s}
+      .tabs button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+      .panel{display:none}.panel.on{display:block}
+      .sechead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+      .sechead h2{font-family:var(--serif);font-weight:500;font-size:1.15rem;letter-spacing:3px}
+      .btn{font-family:var(--serif);font-size:13px;letter-spacing:2px;padding:9px 16px;border:1px solid var(--ink);
+               background:none;color:var(--ink);cursor:pointer;transition:.2s}
+      .btn:hover{background:var(--ink);color:var(--paper)}
+      .btn.dark{background:var(--ink);color:var(--paper)}
+      .btn.dark:hover{opacity:.85}
+      .btn.sm{font-size:12px;padding:6px 12px;letter-spacing:1px}
+      .btn.ghost{border-color:var(--line);color:var(--muted)}
+      .btn.ghost:hover{border-color:var(--ink);color:var(--ink);background:none}
+
+      .card{background:#fff;border:1px solid var(--line);padding:16px 18px;margin-bottom:12px}
+      .card .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+      .card .row.top{justify-content:space-between}
+      .lbl{font-family:var(--serif);font-size:11px;letter-spacing:2px;color:var(--muted);display:block;margin-bottom:4px}
+      input.f,textarea.f,select.f{width:100%;border:1px solid var(--line);background:var(--paper);padding:9px 10px;
+                                      font-family:var(--sans);font-size:14px;color:var(--ink);outline:none}
+      input.f:focus,textarea.f:focus,select.f:focus{border-color:var(--ink)}
+      textarea.f{resize:vertical;min-height:64px;line-height:1.7}
+      .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+      .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+      @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+
+      .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:12px}
+      .thumb{border:1px solid var(--line);background:var(--paper2);position:relative}
+      .thumb img{width:100%;height:100px;object-fit:cover;display:block}
+      .thumb input{width:100%;border:0;border-top:1px solid var(--line);padding:6px 8px;font-size:12px;background:#fff;outline:none}
+      .thumb .del{position:absolute;top:4px;right:4px;background:rgba(23,22,19,.7);color:#fff;border:0;
+                      width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1} .thumb .covbtn{display:block;width:100%;border:0;border-top:1px solid var(--line);background:#fff;color:var(--muted);font-size:11px;letter-spacing:1px;padding:5px 4px;cursor:pointer} .thumb .covbtn:hover{color:var(--ink)} .thumb .covbtn.on{background:var(--ink);color:#fff}
+
+      .savebar{position:sticky;bottom:0;background:var(--paper);border-top:1px solid var(--line);
+                   padding:14px 0;display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:8px}
+      .savebar .msg{font-family:var(--serif);font-size:13px;letter-spacing:1px;color:var(--muted)}
+      .albumcard .an{font-family:var(--serif);font-size:1.05rem;letter-spacing:1px}
+      /* 器材租賃分頁:租借訂單／器材管理 切換 */
+      .pend{display:inline-block;min-width:18px;height:18px;line-height:18px;padding:0 5px;margin-left:8px;border-radius:9px;
+                background:#b04a3a;color:#fff;font-family:var(--sans);font-size:11px;letter-spacing:0;text-align:center;vertical-align:1px}
+      .pend:empty{display:none}
+      .subtabs{display:flex;gap:0;margin:4px 0 22px;border-bottom:1px solid var(--line)}
+      .subtabs button{font-family:var(--serif);font-size:14px;letter-spacing:2px;color:var(--muted);background:none;border:0;
+                          border-bottom:2px solid transparent;padding:10px 18px;margin-bottom:-1px;cursor:pointer}
+      .subtabs button.on{color:var(--ink);border-bottom-color:var(--ink)}
+      .subpanel{display:none}.subpanel.on{display:block}
+      .ostats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+      @media(max-width:640px){.ostats{grid-template-columns:repeat(2,1fr)}}
+      .ostat{background:var(--paper2);padding:14px 16px}
+      .ostat .k{font-size:12px;letter-spacing:2px;color:var(--muted);font-family:var(--serif)}
+      .ostat .v{font-family:var(--serif);font-size:1.7rem;margin-top:2px}
+      .ofilters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+      .ofilters button{font-family:var(--serif);font-size:13px;letter-spacing:2px;color:var(--muted);background:none;
+                           border:1px solid var(--line);padding:6px 14px;cursor:pointer}
+      .ofilters button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+      .olist{display:flex;flex-direction:column;gap:12px;padding-bottom:40px}
+      .oempty{color:var(--muted);font-family:var(--serif);letter-spacing:2px;text-align:center;padding:48px 0;line-height:2}
+      .ocard{background:#fff;border:1px solid var(--line);padding:16px 18px;display:grid;grid-template-columns:1.1fr 1.4fr auto;gap:16px;align-items:start}
+      @media(max-width:720px){.ocard{grid-template-columns:1fr;gap:10px}}
+      .ocard .nm{font-family:var(--serif);font-size:1.05rem;letter-spacing:1px}
+      .ocard .ct{color:var(--muted);font-size:13px;margin-top:4px;word-break:break-all}
+      .ocard .tm{color:var(--muted);font-size:11px;margin-top:6px;letter-spacing:1px}
+      .ocard .gr{font-size:14px;line-height:1.7}
+      .ocard .mt{color:var(--muted);font-size:12.5px;margin-top:6px}
+      .ocard .am{font-family:var(--serif);margin-top:6px}
+      .ocard .ac{min-width:120px}
+      .ocard .ac select{font-family:var(--serif);font-size:13px;padding:8px 10px;border:1px solid var(--line);background:var(--paper);width:100%}
+      .obadge{display:inline-block;font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-family:var(--serif)}
+      .ob待處理{background:#f6e9d6;color:#8a5a12}.ob已報價{background:#e2ecf7;color:#1f4e79}.ob已確認{background:#e2f0e5;color:#2f6b3c}
+      .ob租借中{background:#e7e2f2;color:#4a3a86}.ob已歸還{background:#eeece6;color:#6b665c}.ob已取消{background:#f7e6e6;color:#9a3535}
+      .hidden{display:none}
+      .hint{color:var(--muted);font-size:12px;letter-spacing:.5px;margin-bottom:14px;line-height:1.7}
+    </style>
+  </head>
+  <body>
+
+    <svg width="0" height="0" style="position:absolute"><symbol id="mk" viewBox="0 0 192 208">
+        <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="butt">
+              <line x1="97" y1="8" x2="97" y2="200"/><line x1="127" y1="70" x2="165" y2="23"/>
+              <line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
+              <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>
+              <line x1="184" y1="200" x2="184" y2="172"/></g></symbol></svg>
+
+    <div id="gate" class="gate">
+        <svg><use href="#mk"/></svg>
+      <h1>嶼光後台</h1>
+      <p>租借訂單、器材、照片與影片</p>
+      <input id="pw" type="password" placeholder="輸入管理密碼" autocomplete="current-password">
+      <button id="enter">進入</button>
+      <div class="err" id="gerr"></div>
+    </div>
+  
+  <div id="app" class="hidden">
+    <div class="wrap">
+        <div class="top">
+              <a class="brand" href="/後台"><svg class="mk"><use href="#mk"/></svg>
+                      <span class="name">嶼光映像<small>後台</small></span></a>
+              <a class="btn ghost sm" href="/">← 回到網站</a>
+        </div>
+    
+        <div class="tabs">
+              <button data-tab="gear" class="on">器材租賃 · 訂單<span class="pend" id="pendBadge"></span></button>
+              <button data-tab="photo">平面作品 · 照片</button>
+              <button data-tab="video">動態作品 · 影片</button>
+        </div>
+    
+        <div id="p-photo" class="panel"></div>
+        <div id="p-video" class="panel"></div>
+        <div id="p-gear" class="panel on">
+              <div class="subtabs">
+                    <button data-sub="orders" class="on">租借訂單<span class="pend" id="pendBadge2"></span></button>
+                    <button data-sub="gearlist">器材管理</button>
+              </div>
+              <div id="p-orders" class="subpanel on">
+                    <div class="sechead"><h2>租借訂單</h2><button class="btn sm ghost" id="ordRefresh">重新整理</button></div>
+                    <div class="ostats" id="ostats"></div>
+                    <div class="ofilters" id="ofilters"></div>
+                    <div class="olist" id="olist"><div class="oempty">載入中…</div></div>
+              </div>
+              <div id="p-gearlist" class="subpanel"></div>
+        </div>
+    </div>
   </div>
+  
+  <script>
+    const $=id=>document.getElementById(id);
+    let KEY='', DATA={albums:[],videos:[],gear:[]}, curAlbum=-1, curProject=-1;
+    const P_ALBUMS='yuguang-site/content/albums.json',P_VIDEOS='yuguang-site/content/videos.json',P_GEAR='yuguang-site/content/gear.json';
+    /* SHA:載入時的版本,存檔時帶回做衝突檢查;SNAP:最後一次存檔/載入的內容,用來判斷有沒有未儲存的修改 */
+    const SHA={},SNAP={};
+    const bodyOf=p=>p===P_ALBUMS?{albums:DATA.albums}:p===P_VIDEOS?{videos:DATA.videos}:{gear:DATA.gear,cats:allGearCats()};
+    function snapAll(){[P_ALBUMS,P_VIDEOS,P_GEAR].forEach(p=>SNAP[p]=JSON.stringify(bodyOf(p)));}
+    function dirtyList(){return [[P_ALBUMS,'相簿'],[P_VIDEOS,'影片'],[P_GEAR,'器材']].filter(([p])=>SNAP[p]!==undefined&&SNAP[p]!==JSON.stringify(bodyOf(p))).map(x=>x[1]);}
+    window.addEventListener('beforeunload',e=>{if(KEY&&dirtyList().length){e.preventDefault();e.returnValue='';}});
 
-  <div class="foot"><a href="/">← 回到網站首頁</a></div>
-</body>
+    /* 登入 */
+    async function api(fn,opts={}){
+        opts.headers=Object.assign({'x-admin-key':KEY},opts.headers||{});
+        const r=await fetch('/.netlify/functions/'+fn,opts);
+        let d={};try{d=await r.json()}catch(e){}
+        return {status:r.status,data:d};
+    }
+    async function login(k){
+        KEY=k;
+        const {status,data:od}=await api('list-orders');
+        if(status===401){$('gerr').textContent='密碼錯誤';return;}
+        if(status!==200){$('gerr').textContent='暫時無法連線，請稍後再試';return;}
+        setOrders(od);
+        sessionStorage.setItem('yg_admin_key',k);
+        $('gate').classList.add('hidden');$('app').classList.remove('hidden');
+        await loadAll();
+    }
+    $('enter').onclick=()=>login($('pw').value.trim());
+    $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')login($('pw').value.trim())});
+
+    /* 載入內容 */
+    async function loadAll(){
+        /* 直接從 GitHub 讀最新版本(網站上的 /content 在每次儲存後約 1 分鐘才更新,
+           期間讀到舊資料再存檔,會蓋掉剛才的修改);GitHub 未設定時才退回讀網站上的檔案 */
+        const load=async(path,fallback,empty)=>{
+              const {status,data}=await api('get-content?path='+encodeURIComponent(path));
+              if(status===200&&data&&data.ok&&data.data){SHA[path]=data.sha;return data.data;}
+              SHA[path]=null;
+              return fetch(fallback+'?t='+Date.now()).then(r=>r.json()).catch(()=>empty);
+        };
+        const [a,v,g]=await Promise.all([
+              load(P_ALBUMS,'/content/albums.json',{albums:[]}),
+              load(P_VIDEOS,'/content/videos.json',{videos:[]}),
+              load(P_GEAR,'/content/gear.json',{gear:[]})
+            ]);
+        DATA.albums=a.albums||[];DATA.videos=v.videos||[];DATA.gear=g.gear||[];DATA.gearCats=(Array.isArray(g.cats)&&g.cats.length)?g.cats.slice():null;
+        snapAll();
+        renderPhoto();renderVideo();renderGear();
+    }
+
+    /* Cloudinary 上傳 */
+    const CLOUDINARY_CLOUD='wy6xqh42';
+    const CLOUDINARY_PRESET='yuguang';
+    async function shrink(file){try{if(!/^image\//.test(file.type)||/gif/.test(file.type))return file;const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file);});let w=img.naturalWidth,h=img.naturalHeight;const MAX=2400;if(w<=MAX&&h<=MAX&&file.size<=8388608){URL.revokeObjectURL(img.src);return file;}if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85));URL.revokeObjectURL(img.src);return b&&b.size<file.size?b:file;}catch(e){return file;}}
+    /* 上傳後記下照片長寬,前台相簿用來預先排好版面 */
+    const UPLOAD_DIMS={};
+    async function uploadImage(file){
+        const fd=new FormData();
+        fd.append('file',await shrink(file));
+        /* 優先用簽名上傳(只有登入後台才拿得到簽名);Netlify 尚未設定 Cloudinary 金鑰時,暫時沿用未簽名設定 */
+        let cloud=CLOUDINARY_CLOUD,signed=false;
+        const sg=await api('sign-upload',{method:'POST'});
+        if(sg.status===401)throw new Error('登入已失效，請重新整理頁面、再輸入一次後台密碼。');
+        if(sg.status===200&&sg.data&&sg.data.ok){
+              signed=true;cloud=sg.data.cloud;fd.append('api_key',sg.data.api_key);fd.append('timestamp',sg.data.timestamp);fd.append('signature',sg.data.signature);
+        }else{
+              fd.append('upload_preset',CLOUDINARY_PRESET);
+        }
+        let res,data={};
+        try{res=await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`,{method:'POST',body:fd});data=await res.json().catch(()=>({}));}
+        catch(e){throw new Error('連不上 Cloudinary，請檢查網路後再試一次。');}
+        if(!res.ok||!data.secure_url){
+              /* 把 Cloudinary 的錯誤翻成看得懂、知道該去哪裡修的說明 */
+              const m=String((data.error&&data.error.message)||res.status);
+              let why;
+              if(!signed&&sg.data&&sg.data.reason==='cloudinary-not-configured')
+                    why='Netlify 還讀不到 CLOUDINARY_API_KEY／CLOUDINARY_API_SECRET：可能加完變數後還沒重新部署（Deploys → Trigger deploy），或變數名稱打錯。';
+              else if(/invalid signature/i.test(m))why='API Secret 不正確：Netlify 裡的 CLOUDINARY_API_SECRET 跟 API Key 不是同一組，或是重新產生 Secret 之後，Netlify 裡還是舊的。';
+              else if(/api.?key/i.test(m))why='API Key 不正確：請確認 Netlify 裡的 CLOUDINARY_API_KEY 是 Cloudinary 上那串純數字的 API Key。';
+              else if(/whitelisted|unsigned/i.test(m))why='未簽名的上傳設定已關閉，簽名上傳卻沒有生效。請先到 Cloudinary 把 yuguang 改回 Unsigned。';
+              else if(/file size|too large/i.test(m))why='檔案太大，請換一張較小的照片。';
+              else why='Cloudinary 回覆：'+m;
+              throw new Error(why+'\n\n（技術訊息：'+(signed?'簽名上傳':'未簽名上傳')+'／'+m+'）');
+        }
+        if(data.width&&data.height)UPLOAD_DIMS[data.secure_url]={w:data.width,h:data.height};
+        return data.secure_url;
+    }
+    async function saveContent(path,dataObj,msg,btn){
+        const old=btn?btn.textContent:'';if(btn){btn.textContent='儲存中…';btn.disabled=true;}
+        const {status,data}=await api('save-content',{method:'POST',headers:{'Content-Type':'application/json'},
+                                                          body:JSON.stringify({path,data:dataObj,message:msg,sha:SHA[path]||undefined})});
+        if(btn){btn.textContent=old;btn.disabled=false;}
+        if(data&&data.reason==='github-not-configured'){alert('尚未設定 GITHUB_TOKEN，請先在 Netlify 加上此環境變數。');return false;}
+        if(status===409){alert('這份內容在你開啟後台之後，已經在別處（其他分頁或裝置）被修改過。\n為了不蓋掉那邊的修改，這次沒有儲存。\n\n請先記下你剛才改了什麼，重新整理頁面後再改一次。');return false;}
+        if(status!==200||!(data&&data.ok)){alert('儲存失敗，請稍後再試。');return false;}
+        if(data.sha)SHA[path]=data.sha;
+        SNAP[path]=JSON.stringify(dataObj);
+        return true;
+    }
+    function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+    function move(arr,i,d){const j=i+d;if(j<0||j>=arr.length)return;const t=arr[i];arr[i]=arr[j];arr[j]=t;}
+    function sortArr(arr,o,n){const [it]=arr.splice(o,1);arr.splice(n,0,it);}
+    function initSort(id,arr,after){const el=document.getElementById(id);if(!el||typeof Sortable==='undefined')return;new Sortable(el,{handle:'.drag',animation:150,ghostClass:'dragghost',onEnd:e=>{if(e.oldIndex===e.newIndex)return;sortArr(arr,e.oldIndex,e.newIndex);after&&after();}});}
+
+    /* 分頁切換 */
+    document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+        document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+        document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+        $('p-'+b.dataset.tab).classList.add('on');
+    });
+    function openSub(k){
+        document.querySelectorAll('.subtabs button').forEach(x=>x.classList.toggle('on',x.dataset.sub===k));
+        document.querySelectorAll('.subpanel').forEach(p=>p.classList.toggle('on',p.id==='p-'+k));
+    }
+    document.querySelectorAll('.subtabs button').forEach(b=>b.onclick=()=>openSub(b.dataset.sub));
+    /* 網址直接開指定位置:#orders 訂單(舊 /訂單 會轉來這裡)、#gear 器材、#photo 照片、#video 影片 */
+    if(/^#(orders|gear)$/.test(location.hash)){
+        document.querySelector('.tabs button[data-tab="gear"]').click();
+        openSub(location.hash==='#gear'?'gearlist':'orders');
+    }else if(/^#(photo|video)$/.test(location.hash)){
+        document.querySelector('.tabs button[data-tab="'+location.hash.slice(1)+'"]').click();
+    }
+
+    /* ====== 租借訂單(原 訂單.html,資料來自 Airtable) ====== */
+    const OSTATUS=['待處理','已報價','已確認','租借中','已歸還','已取消'];
+    let ORDERS=[],oFilter='全部',oNote='';
+    function setOrders(d){
+        oNote=d&&d.reason==='airtable-not-configured'?'後台已就緒，但尚未接上 Airtable。<br>請先在 Netlify 設定 AIRTABLE_TOKEN 與 AIRTABLE_BASE_ID。':'';
+        ORDERS=(d&&d.orders)||[];renderOrders();
+    }
+    $('ordRefresh').onclick=async()=>{const b=$('ordRefresh');b.textContent='更新中…';const {status,data}=await api('list-orders');b.textContent='重新整理';
+        if(status!==200){alert('訂單載入失敗，請稍後再試。');return;}setOrders(data);};
+    function oDate(v){return v?String(v).replace(/T.*$/,''):'—'}
+    function renderOrders(){
+        const c={};OSTATUS.forEach(k=>c[k]=0);ORDERS.forEach(o=>{if(c[o['狀態']]!=null)c[o['狀態']]++;});
+        const p=c['待處理']||'';$('pendBadge').textContent=p;$('pendBadge2').textContent=p;
+        $('ostats').innerHTML=[['全部訂單',ORDERS.length],['待處理',c['待處理']],['已確認',c['已確認']],['租借中',c['租借中']]]
+              .map(([k,v])=>`<div class="ostat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+        $('ofilters').innerHTML=['全部',...OSTATUS].map(f=>`<button class="${f===oFilter?'on':''}" data-f="${f}">${f}</button>`).join('');
+        $('ofilters').querySelectorAll('button').forEach(b=>b.onclick=()=>{oFilter=b.dataset.f;renderOrders();});
+        if(oNote){$('olist').innerHTML=`<div class="oempty">${oNote}</div>`;return;}
+        const list=ORDERS.filter(o=>oFilter==='全部'||o['狀態']===oFilter)
+              .sort((a,b)=>String(b['起租日']||b._created||'').localeCompare(String(a['起租日']||a._created||'')));
+        if(!list.length){$('olist').innerHTML='<div class="oempty">目前沒有訂單</div>';return;}
+        $('olist').innerHTML=list.map(o=>{const st=OSTATUS.includes(o['狀態'])?o['狀態']:'待處理';
+              return `<div class="ocard">
+                    <div><div class="nm">${esc(o['客戶姓名']||'未具名')}</div><div class="ct">${esc(o['聯絡方式']||'')}</div><div class="tm">送出 ${oDate(o._created)}</div></div>
+                    <div><span class="obadge ob${st}">${st}</span><div class="gr">${esc(o['租借器材']||'')}</div>
+                          <div class="mt">租期 ${esc(oDate(o['起租日']))} → ${esc(oDate(o['迄租日']))}　共 ${esc(o['天數']||'—')} 天</div>
+                          <div class="am">預估 NT$ ${Number(o['預估金額']||0).toLocaleString()}</div></div>
+                    <div class="ac"><select data-id="${esc(o.id)}">${OSTATUS.map(k=>`<option ${k===st?'selected':''}>${k}</option>`).join('')}</select></div>
+              </div>`;}).join('');
+        $('olist').querySelectorAll('select').forEach(sel=>sel.onchange=()=>setOrderStatus(sel.dataset.id,sel.value));
+    }
+    async function setOrderStatus(id,status){
+        const {status:code,data}=await api('update-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
+        if(code!==200||!(data&&data.ok)){alert('狀態更新失敗，請稍後再試。');renderOrders();return;}
+        const o=ORDERS.find(x=>x.id===id);if(o)o['狀態']=status;renderOrders();
+    }
+
+    /* 照片（分類 → 專案 → 照片） */
+    function albumCount(al){if(al.projects&&al.projects.length)return al.projects.length+' 專案';return (al.photos||[]).length+' 張';}
+    function renderPhoto(){
+        const box=$('p-photo');
+        if(curAlbum>=0 && DATA.albums[curAlbum]){return renderAlbumDetail();}
+        let h='<div class="hint">分類是最上層（例如「人像寫真」）。點進去可建立「專案子相簿」依案子分類，或直接放照片。用滑鼠拖曳左側 ⣿ 調整分類順序（放開後自動儲存）。</div>';
+        h+='<div class="sechead"><h2>分類列表</h2><button class="btn" onclick="addAlbum()">+ 新增分類</button></div>';
+        h+='<div id="albumList">';
+        DATA.albums.forEach((al,i)=>{
+              h+=`<div class="card albumcard"><div class="row top">
+                    <div class="row" style="align-items:center;gap:8px"><span class="drag" title="拖曳排序" style="cursor:grab;color:var(--muted);font-size:18px;line-height:1;user-select:none">⣿</span><span class="an">${esc(al.zh||'未命名分類')}</span>
+                          <span style="color:var(--muted);font-size:13px;margin-left:8px">${albumCount(al)}</span></div>
+                                <div class="row">
+                                        <button class="btn sm" onclick="openAlbum(${i})">管理</button>
+                                                <button class="btn sm ghost" onclick="delAlbum(${i})">刪除</button>
+                                                      </div></div></div>`;
+        });
+        h+='</div>';
+        if(!DATA.albums.length)h+='<div class="hint">目前沒有分類，點「新增分類」開始。</div>';
+        box.innerHTML=h;
+        initSort('albumList',DATA.albums,()=>{renderPhoto();saveContent('yuguang-site/content/albums.json',{albums:DATA.albums},'調整分類順序');});
+    }
+    function addAlbum(){
+        const zh=prompt('分類名稱（中文）：');if(!zh)return;
+        const en=prompt('英文名稱（可留空）：')||'';
+        DATA.albums.push({zh,en,projects:[],photos:[]});renderPhoto();
+    }
+    function delAlbum(i){if(!confirm('確定刪除整個分類？'))return;DATA.albums.splice(i,1);renderPhoto();}
+    function openAlbum(i){curAlbum=i;curProject=-1;renderAlbumDetail();}
+
+    function photoTarget(mode){
+        if(mode==='pj'){const pj=DATA.albums[curAlbum].projects[curProject];if(!Array.isArray(pj.photos))pj.photos=[];
+                            return {photos:pj.photos, path:`DATA.albums[${curAlbum}].projects[${curProject}].photos`, rerender:renderProjectDetail};}
+        const al=DATA.albums[curAlbum];if(!Array.isArray(al.photos))al.photos=[];
+        return {photos:al.photos, path:`DATA.albums[${curAlbum}].photos`, rerender:renderAlbumDetail};
+    }
+    function coverOwner(mode){return mode==='pj'?DATA.albums[curAlbum].projects[curProject]:DATA.albums[curAlbum];} function coverMsg(s){const m=document.getElementById('pmsg');if(m)m.textContent=s;} function setCover(mode,j){const t=photoTarget(mode);coverOwner(mode).cover=t.photos[j].image;t.rerender();coverMsg('封面已設定，記得按「儲存」');} function clearCover(mode){coverOwner(mode).cover='';const t=photoTarget(mode);t.rerender();coverMsg('已改回自動使用第一張，記得按「儲存」');} function covBtn(mode,j){const t=photoTarget(mode);const on=(coverOwner(mode).cover||'')===t.photos[j].image;return '<button class="covbtn'+(on?' on':'')+'" onclick="'+(on?"clearCover('"+mode+"')":"setCover('"+mode+"',"+j+")")+'">'+(on?'★ 封面':'設為封面')+'</button>';} function photoUploaderHTML(mode){
+        const t=photoTarget(mode);const rr=mode==='pj'?'renderProjectDetail':'renderAlbumDetail';
+        let h=`<button class="btn dark" onclick="$('photoFile').click()">+ 上傳照片（可多選）</button>
+              <input type="file" id="photoFile" accept="image/*" multiple class="hidden">`;
+        h+='<div class="thumbs" id="thumbs">';
+        t.photos.forEach((p,j)=>{
+              h+=`<div class="thumb">
+                    <span class="drag" title="拖曳排序" style="position:absolute;top:4px;left:4px;z-index:2;cursor:grab;color:#fff;background:rgba(0,0,0,.45);border-radius:3px;padding:1px 5px;font-size:14px;line-height:1.3;user-select:none">⣿</span>
+                          <button class="del" onclick="${t.path}.splice(${j},1);${rr}()">×</button>
+                                <img src="${esc(p.image)}" loading="lazy">${covBtn(mode,j)}
+                                      <input value="${esc(p.caption||'')}" placeholder="說明（可留空）" oninput="${t.path}[${j}].caption=this.value">
+                                            </div>`;
+        });
+        h+='</div>';
+        return h;
+    }
+    function bindPhotoUploader(mode){
+        const t=photoTarget(mode);
+        initSort('thumbs',t.photos,()=>{t.rerender();const m=$('pmsg');if(m)m.textContent='順序已調整，記得按「儲存」';});
+        $('photoFile').onchange=async e=>{
+              const files=[...e.target.files];if(!files.length)return;const msg=$('pmsg');
+              for(let k=0;k<files.length;k++){
+                      msg.textContent=`上傳中 ${k+1}/${files.length}…`;
+                      try{const path=await uploadImage(files[k]);t.photos.push(Object.assign({image:path,caption:''},UPLOAD_DIMS[path]||{}));}
+                      catch(err){alert('有一張照片上傳失敗：\n'+err.message);break;}
+              }
+              msg.textContent='照片已上傳，記得按「儲存」';t.rerender();
+        };
+    }
+
+    function renderAlbumDetail(){
+        const al=DATA.albums[curAlbum];const box=$('p-photo');
+        if(!Array.isArray(al.projects))al.projects=[];if(!Array.isArray(al.photos))al.photos=[];
+        let h=`<div class="sechead"><h2>${esc(al.zh)}</h2>
+            <button class="btn ghost sm" onclick="curAlbum=-1;renderPhoto()">← 返回分類列表</button></div>`;
+        h+=`<div class="grid2" style="margin-bottom:20px">
+              <input class="f" value="${esc(al.zh)}" oninput="DATA.albums[${curAlbum}].zh=this.value" placeholder="分類中文名稱">
+                    <input class="f" value="${esc(al.en||'')}" oninput="DATA.albums[${curAlbum}].en=this.value" placeholder="英文名稱（可留空）">
+                          </div>`;
+        h+='<div class="sechead" style="margin-top:6px"><h2 style="font-size:1.02rem">專案子相簿</h2><button class="btn sm" onclick="addProject()">+ 新增專案</button></div>';
+        h+='<div class="hint">建立專案後，網站點進此分類會先看到各專案封面；沒有專案時，則直接顯示下方「未分專案照片」。用 ⣿ 可拖曳排序。</div>';
+        h+='<div id="projList">';
+        al.projects.forEach((pj,j)=>{
+              h+=`<div class="card"><div class="row top">
+                    <div class="row" style="align-items:center;gap:8px"><span class="drag" title="拖曳排序" style="cursor:grab;color:var(--muted);font-size:18px;line-height:1;user-select:none">⣿</span><span class="an">${esc(pj.zh||'未命名專案')}</span>
+                          <span style="color:var(--muted);font-size:13px;margin-left:8px">${(pj.photos||[]).length} 張</span></div>
+                                <div class="row">
+                                        <button class="btn sm" onclick="openProject(${j})">管理照片</button>
+                                                <button class="btn sm ghost" onclick="delProject(${j})">刪除</button>
+                                                      </div></div></div>`;
+        });
+        h+='</div>';
+        if(!al.projects.length)h+='<div class="hint">尚無專案。若不需要分專案，可直接在下方上傳照片。</div>';
+        h+='<div class="sechead" style="margin-top:24px"><h2 style="font-size:1.02rem">未分專案照片</h2></div>';
+        h+='<div class="hint">此區照片只有在「沒有建立任何專案」時，才會顯示在網站上。</div>';
+        h+=photoUploaderHTML('al');
+        h+=`<div class="savebar"><span class="msg" id="pmsg"></span>
+            <button class="btn dark" onclick="savePhoto(this)">儲存</button></div>`;
+        box.innerHTML=h;
+        initSort('projList',al.projects,()=>{renderAlbumDetail();const m=$('pmsg');if(m)m.textContent='順序已調整，記得按「儲存」';});
+        bindPhotoUploader('al');
+    }
+    function addProject(){
+        const zh=prompt('專案名稱（中文）：');if(!zh)return;
+        const en=prompt('英文名稱（可留空）：')||'';
+        if(!Array.isArray(DATA.albums[curAlbum].projects))DATA.albums[curAlbum].projects=[];
+        DATA.albums[curAlbum].projects.push({zh,en,photos:[]});renderAlbumDetail();
+    }
+    function delProject(j){if(!confirm('確定刪除這個專案（含裡面照片）？'))return;DATA.albums[curAlbum].projects.splice(j,1);renderAlbumDetail();}
+    function openProject(j){curProject=j;renderProjectDetail();}
+
+    function renderProjectDetail(){
+        const al=DATA.albums[curAlbum];const pj=al.projects[curProject];const box=$('p-photo');
+        if(!Array.isArray(pj.photos))pj.photos=[];
+        let h=`<div class="sechead"><h2>${esc(al.zh)} · ${esc(pj.zh)}</h2>
+            <button class="btn ghost sm" onclick="curProject=-1;renderAlbumDetail()">← 返回 ${esc(al.zh)}</button></div>`;
+        h+=`<div class="grid2" style="margin-bottom:14px">
+              <input class="f" value="${esc(pj.zh)}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].zh=this.value" placeholder="專案中文名稱">
+                    <input class="f" value="${esc(pj.en||'')}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].en=this.value" placeholder="英文名稱（可留空）">
+                          </div>`;
+        h+=photoUploaderHTML('pj');
+        h+=`<div class="savebar"><span class="msg" id="pmsg"></span>
+            <button class="btn dark" onclick="savePhoto(this)">儲存</button></div>`;
+        box.innerHTML=h;
+        bindPhotoUploader('pj');
+    }
+    async function savePhoto(btn){
+        const ok=await saveContent('yuguang-site/content/albums.json',{albums:DATA.albums},'更新相簿',btn);
+        if(ok){const m=$('pmsg');if(m)m.textContent='已儲存 ✓ 網站約 1 分鐘後更新';}
+    }
+
+    /* 影片 */
+    const CREDIT_TEMPLATE=['導演 Director','企劃 Producer','攝影 Cinematographer','燈光 Lighting','收音 Sound','剪輯 Editor','調色 Colorist','配樂 Music'].map(r=>r+'：').join(String.fromCharCode(10));function fillCredits(i){if(DATA.videos[i].credits&&!confirm('這部影片的 credit 已有內容，要用職稱範本覆蓋嗎?'))return;DATA.videos[i].credits=CREDIT_TEMPLATE;renderVideo();}const VIDEO_CATS=['企業形象','品牌形象','公部門合作','商業廣告','活動紀錄','微電影','音樂錄影帶 MV','短影音','人物專訪'];function catOptions(cur){const list=VIDEO_CATS.slice();if(cur&&cur!=='精選作品'&&list.indexOf(cur)<0)list.push(cur);const c0=(cur&&cur!=='精選作品')?cur:'';let o=`<option value=""${!c0?' selected':''} disabled>— 請選擇分類 —</option>`;o+=list.map(c=>`<option value="${esc(c)}"${c===c0?' selected':''}>${esc(c)}</option>`).join('');return o+'<option value="__custom__">＋ 自訂新分類…</option>';}function videoCatChange(i,val){if(val==='__custom__'){const c=(prompt('輸入新的分類名稱：')||'').trim();if(c)DATA.videos[i].cat=c;renderVideo();return;}DATA.videos[i].cat=val;}let curVideoCat=null;let videoImgIdx=-1; function allVideoCats(){const set=new Set(VIDEO_CATS);DATA.videos.forEach(v=>{if(v.cat)set.add(v.cat);});return [...set];} function addVideoCat(){const c=(prompt('輸入新分類名稱：')||'').trim();if(!c)return;curVideoCat=c;renderVideo();} function openVideoCat(c){curVideoCat=c;renderVideo();} function addVideoToCurrentCat(){DATA.videos.push({title:'',cat:curVideoCat||'',yt:'',client:'',year:'',featured:false,credits:CREDIT_TEMPLATE});renderVideo();} function isFeat(v){return v.featured===true;} function renderVideo(){ const box=$('p-video'); DATA.videos.forEach(v=>{if(v.featured===undefined)v.featured=(v.cat==='精選作品');if(v.cat==='精選作品')v.cat='';}); if(curVideoCat!==null)return renderVideoCat(); let h='<div class="hint">影片依分類整理。點分類進去可新增／管理該分類的影片。勾選「★ 精選影片」的作品，會出現在首頁與動態作品頁的「精選作品」區。</div>'; h+='<div class="sechead"><h2>影片分類</h2><button class="btn" onclick="addVideoCat()">+ 新增分類</button></div>'; const cats=allVideoCats(); h+='<div>'; const featN=DATA.videos.filter(isFeat).length; if(featN)h+=`<div class="card" style="background:#171613;color:#f3f1ec;border-color:#171613"><div class="row top"><div><span class="an">★ 精選影片</span><span style="opacity:.72;font-size:13px;margin-left:10px">${featN} 部 · 決定首頁與精選區的排列順序</span></div><div class="row"><button class="btn sm" style="border-color:#f3f1ec;color:#f3f1ec" onclick="openVideoCat('__featured__')">排序／管理</button></div></div></div>`; cats.forEach(c=>{const n=DATA.videos.filter(v=>v.cat===c).length;const f=DATA.videos.filter(v=>v.cat===c&&v.featured).length;h+=`<div class="card albumcard"><div class="row top"><div><span class="an">${esc(c)}</span><span style="color:var(--muted);font-size:13px;margin-left:10px">${n} 部影片${f?' · ★'+f:''}</span></div><div class="row"><button class="btn sm" onclick="openVideoCat('${esc(c)}')">管理影片</button></div></div></div>`;}); const un=DATA.videos.filter(v=>!v.cat).length; if(un)h+=`<div class="card albumcard"><div class="row top"><div><span class="an">未分類</span><span style="color:var(--muted);font-size:13px;margin-left:10px">${un} 部影片</span></div><div class="row"><button class="btn sm" onclick="openVideoCat('')">管理影片</button></div></div></div>`; h+='</div>'; if(!cats.length&&!un)h+='<div class="hint">目前沒有影片，點「新增分類」開始。</div>'; box.innerHTML=h; } function renderVideoCat(){ const box=$('p-video'); const feat=curVideoCat==='__featured__'; const label=feat?'★ 精選影片　拖曳可調整首頁與精選區的順序':(curVideoCat||'未分類'); let h=`<div class="sechead"><h2>${esc(label)}</h2><button class="btn ghost sm" onclick="curVideoCat=null;renderVideo()">← 返回分類列表</button></div>`; if(feat)h+='<div class="hint">這裡列出所有已勾選為精選的影片（跨分類）。用左側 ⠿ 拖曳排序，順序會直接套用到首頁與動態作品頁的「精選作品」區。取消勾選就會從精選移除。</div>'; if(!feat)h+=`<div style="margin-bottom:14px"><button class="btn" onclick="addVideoToCurrentCat()">+ 新增影片</button></div>`; h+='<div id="videoCatList">'; DATA.videos.forEach((v,i)=>{ if(feat?!isFeat(v):((v.cat||'')!==(curVideoCat||'')))return; h+=`<div class="card"><div class="row" style="align-items:center;gap:8px;margin-bottom:10px"><span class="drag" title="拖曳排序" style="cursor:grab;color:var(--muted);font-size:18px;line-height:1;user-select:none">⠿</span><span style="color:var(--muted);font-size:12px">拖曳可調整順序</span></div><div class="grid2"> <div><label class="lbl">影片標題</label><input class="f" value="${esc(v.title)}" oninput="DATA.videos[${i}].title=this.value"></div> <div><label class="lbl">分類（改這裡可移到其他分類）</label><select class="f" onchange="videoCatChange(${i},this.value)">${catOptions(v.cat)}</select></div> </div><div class="grid3" style="margin-top:12px"> <div><label class="lbl">YouTube 影片 ID</label><input class="f" value="${esc(v.yt||'')}" oninput="DATA.videos[${i}].yt=this.value" placeholder="例:abc123XYZ"></div> <div><label class="lbl">客戶(可留空)</label><input class="f" value="${esc(v.client||'')}" oninput="DATA.videos[${i}].client=this.value"></div> <div><label class="lbl">年份(可留空)</label><input class="f" value="${esc(v.year||'')}" oninput="DATA.videos[${i}].year=this.value"></div> </div> <label style="margin-top:12px;display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:${v.featured?'#171613':'var(--paper2)'};border:1px solid ${v.featured?'#171613':'var(--line)'};color:${v.featured?'#f3f1ec':'var(--ink)'};transition:.2s"><input type="checkbox" style="width:16px;height:16px;cursor:pointer" ${v.featured?'checked':''} onchange="DATA.videos[${i}].featured=this.checked;renderVideoCat()"><span style="font-size:14px;letter-spacing:1px">★ 設為精選影片<span style="opacity:.7;font-size:12px;margin-left:8px">勾選後會出現在首頁與動態作品頁的「精選作品」區</span></span></label> <div style="margin-top:12px"><label class="lbl">封面圖片(留空則用 YouTube 縮圖)</label><div class="row" style="gap:10px;align-items:center">${v.cover?`<img src="${esc(v.cover)}" style="width:132px;height:74px;object-fit:cover;border:1px solid var(--line)">`:'<span style="color:var(--muted);font-size:12px">目前使用 YouTube 縮圖</span>'}<button class="btn sm" type="button" onclick="videoImgIdx=${i};$('videoFile').click()">上傳自訂封面</button>${v.cover?`<button class="btn sm ghost" type="button" onclick="DATA.videos[${i}].cover='';renderVideoCat()">清除</button>`:''}</div></div><div style="margin-top:12px"><label class="lbl">副標題／概念(可留空)</label><input class="f" value="${esc(v.sub||'')}" oninput="DATA.videos[${i}].sub=this.value" placeholder="例:【島嶼的一天】"></div> <div style="margin-top:12px"><label class="lbl">簡介(可留空)</label><textarea class="f" oninput="DATA.videos[${i}].desc=this.value">${esc(v.desc||'')}</textarea></div> <div style="margin-top:12px"><div class="row" style="justify-content:space-between;align-items:center"><label class="lbl" style="margin:0">製作團隊 credit(每行一個,格式「職稱：姓名」,職稱已幫你填好,補上姓名即可)</label><button class="btn sm ghost" type="button" onclick="fillCredits(${i})">帶入職稱範本</button></div><textarea class="f" style="min-height:150px;margin-top:6px" oninput="DATA.videos[${i}].credits=this.value" placeholder="導演：王小明&#10;攝影：李大華">${esc(v.credits||'')}</textarea></div> <div class="row" style="justify-content:flex-end;margin-top:12px"> <button class="btn sm ghost" onclick="if(confirm('刪除這部影片?')){DATA.videos.splice(${i},1);renderVideoCat()}">刪除</button></div> </div>`; }); h+='</div>'; const cnt=DATA.videos.filter(v=>feat?isFeat(v):((v.cat||'')===(curVideoCat||''))).length; if(!cnt)h+='<div class="hint">'+(feat?'目前沒有精選影片。到各分類把想放上首頁的影片勾「★ 設為精選影片」。':'這個分類還沒有影片，點上面「+ 新增影片」加入。')+'</div>'; h+='<input type="file" id="videoFile" accept="image/*" class="hidden">'; h+=`<div class="savebar"><span class="msg" id="vmsg"></span><button class="btn dark" onclick="saveVideo(this)">儲存影片</button></div>`; box.innerHTML=h; const vf=$('videoFile');if(vf)vf.onchange=async e=>{const f=e.target.files[0];if(!f)return;const msg=$('vmsg');if(msg)msg.textContent='封面上傳中…';try{const path=await uploadImage(f);DATA.videos[videoImgIdx].cover=path;renderVideoCat();const m=$('vmsg');if(m)m.textContent='封面已更新，記得按「儲存影片」';}catch(err){alert('封面上傳失敗，請確認圖片小於 10MB。');}}; initSortCat(); } function initSortCat(){const el=document.getElementById('videoCatList');if(!el||typeof Sortable==='undefined')return;const feat=curVideoCat==='__featured__';new Sortable(el,{handle:'.drag',animation:150,onEnd:e=>{if(e.oldIndex===e.newIndex)return;const idxs=DATA.videos.map((v,i)=>i).filter(i=>feat?isFeat(DATA.videos[i]):((DATA.videos[i].cat||'')===(curVideoCat||'')));sortArr(DATA.videos,idxs[e.oldIndex],idxs[e.newIndex]);renderVideoCat();}});}
+    async function saveVideo(btn){
+        const ok=await saveContent('yuguang-site/content/videos.json',{videos:DATA.videos},'更新影片',btn);
+        if(ok)$('vmsg').textContent='已儲存 ✓ 網站約 1 分鐘後更新';
+    }
+
+    /* 器材 */
+    const GEAR_CATS=['相機','鏡頭','燈光','燈光配件','燈架','穩定器','收音','空拍機']; let curGearCat=null; function allGearCats(){if(!Array.isArray(DATA.gearCats)){const s=new Set(GEAR_CATS);DATA.gear.forEach(g=>{if(g.cat)s.add(g.cat);});DATA.gearCats=[...s];}const set=new Set(DATA.gearCats);DATA.gear.forEach(g=>{if(g.cat)set.add(g.cat);});return [...set];} function renameGearCat(c){const n=(prompt('分類新名稱：',c)||'').trim();if(!n||n===c)return;if(allGearCats().indexOf(n)>=0){if(!confirm('已經有「'+n+'」這個分類，要把兩個分類合併嗎？'))return;}DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat=n;});allGearCats();DATA.gearCats=DATA.gearCats.map(x=>x===c?n:x).filter((x,i,a)=>a.indexOf(x)===i);if(curGearCat===c)curGearCat=n;renderGear();} function delGearCat(c){const n=DATA.gear.filter(g=>(g.cat||'')===c).length;const msg=n?('「'+c+'」底下有 '+n+' 項器材。刪除分類會把這些器材移到「未分類」（器材不會被刪除），確定嗎？'):('確定刪除分類「'+c+'」？');if(!confirm(msg))return;DATA.gear.forEach(g=>{if((g.cat||'')===c)g.cat='';});allGearCats();DATA.gearCats=DATA.gearCats.filter(x=>x!==c);if(curGearCat===c)curGearCat=null;renderGear();} function gearCatOptions(cur){const list=allGearCats();const c0=cur||'';let o='<option value=""'+(!c0?' selected':'')+' disabled>— 請選擇分類 —</option>';o+=list.map(c=>'<option value="'+esc(c)+'"'+(c===c0?' selected':'')+'>'+esc(c)+'</option>').join('');return o+'<option value="__custom__">＋ 自訂新分類…</option>';} function gearCatChange(i,val){if(val==='__custom__'){const c=(prompt('輸入新的分類名稱：')||'').trim();if(c)DATA.gear[i].cat=c;renderGear();return;}DATA.gear[i].cat=val;renderGear();} function addGearCat(){const c=(prompt('輸入新分類名稱：')||'').trim();if(!c)return;allGearCats();if(DATA.gearCats.indexOf(c)<0)DATA.gearCats.push(c);curGearCat=c;renderGear();} function openGearCat(c){curGearCat=c;renderGear();} function addGearToCurrentCat(){DATA.gear.push({name:'',cat:curGearCat||'',price:0,image:'',spec:'',desc:''});renderGear();} function renderGear(){ if(curGearCat!==null)return renderGearCat(); const box=$('p-gearlist'); let h='<div class="hint">器材依分類整理。點分類進去可新增／管理該分類的器材。</div>'; h+='<div class="sechead"><h2>器材分類</h2><button class="btn" onclick="addGearCat()">+ 新增分類</button></div>'; const cats=allGearCats(); h+='<div>'; cats.forEach(c=>{const n=DATA.gear.filter(g=>g.cat===c).length;h+='<div class="card albumcard"><div class="row top"><div><span class="an">'+esc(c)+'</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+n+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\''+esc(c)+'\')">管理器材</button><button class="btn sm ghost" onclick="renameGearCat(\''+esc(c)+'\')">重新命名</button><button class="btn sm ghost" onclick="delGearCat(\''+esc(c)+'\')">刪除</button></div></div></div>';}); const un=DATA.gear.filter(g=>!g.cat).length; if(un)h+='<div class="card albumcard"><div class="row top"><div><span class="an">未分類</span><span style="color:var(--muted);font-size:13px;margin-left:10px">'+un+' 項器材</span></div><div class="row"><button class="btn sm" onclick="openGearCat(\'\')">管理器材</button></div></div></div>'; h+='</div>'; box.innerHTML=h; } function renderGearCat(){
+        const box=$('p-gearlist');
+        const CG=curGearCat||''; let h='<div style="margin-bottom:12px"><button class="btn sm ghost" onclick="curGearCat=null;renderGear()">← 返回分類</button></div>'; h+='<div class="sechead"><h2>'+esc(CG||'未分類')+'</h2><button class="btn" onclick="addGearToCurrentCat()">+ 新增器材</button></div>';
+        h+='<div id="gearList">';
+        DATA.gear.forEach((g,i)=>{ if((g.cat||'')!==CG)return;
+              h+=`<div class="card"><div class="row" style="align-items:center;gap:8px;margin-bottom:10px"><span class="drag" title="拖曳排序" style="cursor:grab;color:var(--muted);font-size:18px;line-height:1;user-select:none">⣿</span><span style="color:var(--muted);font-size:12px">拖曳可調整順序</span></div><div class="grid3">
+                    <div><label class="lbl">器材名稱</label><input class="f" value="${esc(g.name)}" oninput="DATA.gear[${i}].name=this.value"></div>
+                          <div><label class="lbl">分類（改這裡可移到其他分類）</label><select class="f" onchange="gearCatChange(${i},this.value)">${gearCatOptions(g.cat)}</select></div>
+                                <div><label class="lbl">日租價（數字）</label><input class="f" type="number" value="${esc(g.price)}" oninput="DATA.gear[${i}].price=Number(this.value)||0"></div>
+                                      </div>
+                                            <div style="margin-top:12px"><label class="lbl">規格（用 ・ 分隔）</label><input class="f" value="${esc(g.spec)}" oninput="DATA.gear[${i}].spec=this.value"></div>
+                                                  <div style="margin-top:12px"><label class="lbl">介紹說明</label><textarea class="f" oninput="DATA.gear[${i}].desc=this.value">${esc(g.desc)}</textarea></div>
+                                                        <div class="row" style="justify-content:space-between;margin-top:12px;align-items:center">
+                                                                <div class="row" style="gap:10px;align-items:center">
+                                                                          ${g.image?`<img src="${esc(g.image)}" style="width:56px;height:42px;object-fit:cover;border:1px solid var(--line)">`:'<span style="color:var(--muted);font-size:12px">尚無照片</span>'}
+                                                                                    <button class="btn sm" onclick="gearImgIdx=${i};$('gearFile').click()">上傳器材照片</button>
+                                                                                            </div>
+                                                                                                    <div class="row" style="gap:8px;align-items:center">
+                                                                                                              <button class="btn sm ghost" onclick="if(confirm('刪除這台器材?')){DATA.gear.splice(${i},1);renderGear()}">刪除</button>
+                                                                                                                      </div>
+                                                                                                                            </div></div>`;
+        });
+        h+='</div>';
+        if(!DATA.gear.filter(g=>(g.cat||'')===CG).length)h+='<div class="hint">這個分類還沒有器材，點「+ 新增器材」開始。</div>';
+        h+=`<input type="file" id="gearFile" accept="image/*" class="hidden">`;
+        h+=`<div class="savebar"><span class="msg" id="gmsg"></span>
+            <button class="btn dark" onclick="saveGear(this)">儲存器材</button></div>`;
+        box.innerHTML=h;
+        (function(){const el=document.getElementById('gearList');if(!el||typeof Sortable==='undefined')return;new Sortable(el,{handle:'.drag',animation:150,onEnd:e=>{if(e.oldIndex===e.newIndex)return;const idxs=DATA.gear.map((g,i)=>i).filter(i=>(DATA.gear[i].cat||'')===CG);sortArr(DATA.gear,idxs[e.oldIndex],idxs[e.newIndex]);renderGearCat();}});})();
+        $('gearFile').onchange=async e=>{
+              const f=e.target.files[0];if(!f)return;const msg=$('gmsg');msg.textContent='上傳中…';
+              try{const path=await uploadImage(f);DATA.gear[gearImgIdx].image=path;msg.textContent='照片已上傳，記得按「儲存器材」';renderGear();}
+              catch(err){alert('上傳失敗：\n'+err.message);}
+        };
+    }
+    let gearImgIdx=-1;
+    async function saveGear(btn){
+        const ok=await saveContent('yuguang-site/content/gear.json',{gear:DATA.gear,cats:allGearCats()},'更新器材',btn);
+        if(ok)$('gmsg').textContent='已儲存 ✓ 網站約 1 分鐘後更新';
+    }
+
+    /* 自動登入 */
+    const sk=sessionStorage.getItem('yg_admin_key');
+    if(sk)login(sk);
+      </script>
+  </body>
 </html>

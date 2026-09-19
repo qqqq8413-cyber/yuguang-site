@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex">
-<title>訂單管理 · 嶼光映像</title>
-<!-- 租借訂單已併入內容後台的「器材租賃 · 訂單」分頁 -->
-<meta http-equiv="refresh" content="0; url=/內容#orders">
-<script>location.replace('/內容#orders');</script>
+<title>嶼光後台</title>
+<!-- 租借訂單已併入 /後台 的「器材租賃 · 訂單」分頁 -->
+<script>location.replace('/後台#orders'+(location.hash&&'/後台#orders'.indexOf('#')<0?location.hash:''));</script>
+<noscript><meta http-equiv="refresh" content="0; url=/後台#orders"></noscript>
 </head>
-<body><p><a href="/內容#orders">租借訂單已移到後台的「器材租賃 · 訂單」分頁，點此前往</a></p></body>
+<body><p><a href="/後台#orders">後台已整合成一頁，點此前往</a></p></body>
 </html>
