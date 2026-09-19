@@ -98,11 +98,11 @@
     .grid{gap:16px 14px}
     .prod .thumb{aspect-ratio:1/1}
     .prod .pspec{display:none}
-    .prod .pname{margin-top:11px;font-size:1rem}
+    .prod .pname{margin-top:11px;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .prod .prow{flex-direction:column;align-items:flex-start;gap:9px;margin-top:10px;padding-top:10px}
     .prod .thumb .view{font-size:12px}
   }
-  .prod{display:flex;flex-direction:column}
+  .prod{display:flex;flex-direction:column;min-width:0}
   .prod .thumb{position:relative;overflow:hidden;aspect-ratio:4/3;background:#e7e4dd;cursor:pointer}
   .prod .thumb .bg{position:absolute;inset:0;transition:transform .9s cubic-bezier(.19,1,.22,1)}
   .prod .thumb:hover .bg{transform:scale(1.06)}
@@ -118,6 +118,12 @@
     margin-top:15px;cursor:pointer;display:inline-block}
   .prod .pname:hover{text-decoration:underline;text-underline-offset:4px}
   .prod .pspec{color:var(--muted);font-size:12px;letter-spacing:.5px;line-height:1.6;margin-top:6px;flex:1}
+  /* 名稱、規格過長時以「…」截斷,卡片高度一致;完整內容在介紹頁 */
+  .prod .pname{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+  .prod .pspec{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;align-self:stretch;max-height:calc(1.6em * 3)}
+  .prod .pspecwrap{flex:1}
+  .cartpanel .ci .cn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media(max-width:600px){.prod .pspecwrap{display:none}.prod .pname{display:block;white-space:nowrap;-webkit-line-clamp:unset}}
   .prod .prow{display:flex;justify-content:space-between;align-items:center;gap:12px;
     margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
   .prod .price{font-family:var(--serif)}
@@ -404,8 +410,8 @@ function render(){
         <div class="grain"></div><span class="tag">${g.cat}</span>
         <div class="view">查看介紹 →</div>
       </div>
-      <span class="pname" data-open="${g.id}">${g.name}</span>
-      <div class="pspec">${g.spec}</div>
+      <span class="pname" data-open="${g.id}" title="${g.name}">${g.name}</span>
+      <div class="pspecwrap"><div class="pspec">${g.spec}</div></div>
       <div class="prow">
         <span class="price"><b>${fmtP(g)}</b>${hasP(g)?'<span>/ 日</span>':''}</span>
         <button class="add" data-add="${g.id}">加入租借</button>
