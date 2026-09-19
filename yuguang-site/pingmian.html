@@ -203,7 +203,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
 
   fetch('content/albums.json').then(r=>r.json()).then(data=>{
       albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[],projects:[]},a));
-      buildIndex();deepLink();if(albumView.style.display!=='block')window.loadSiteFont();function deepLink(){const q=new URLSearchParams(location.search);if(!q.has('cat'))return;const ci=+q.get('cat'),a=albums[ci];if(!a)return;if(q.has('proj')&&a.projects&&a.projects[+q.get('proj')]){const pj=a.projects[+q.get('proj')];renderProjects(ci);openPhotos(pj.photos||[],pj.zh,pj.en,'projects');}else{openCategory(ci);}}
+      buildIndex();route(0);if(albumView.style.display!=='block')window.loadSiteFont();
   }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
   const projectView=document.getElementById('projectView');
@@ -240,7 +240,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
       albums.forEach((a,i)=>{
             const el=document.createElement('div');el.className='album';
             el.innerHTML=coverCard(a,a.grad);
-            el.addEventListener('click',()=>openCategory(i));
+            el.addEventListener('click',()=>nav({cat:i}));
             grid.appendChild(el);
       });
   }
@@ -255,10 +255,10 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
       document.getElementById('projTitle').textContent=a.zh;
       document.getElementById('projEn').textContent=a.en||'';
       projectGrid.innerHTML='';
-      a.projects.forEach((pj)=>{
+      a.projects.forEach((pj,k)=>{
             const el=document.createElement('div');el.className='album';
             el.innerHTML=coverCard(pj,a.grad);
-            el.addEventListener('click',()=>openPhotos(pj.photos||[], pj.zh, pj.en, 'projects'));
+            el.addEventListener('click',()=>nav({cat:i,proj:k}));
             projectGrid.appendChild(el);
       });
       indexView.style.display='none';albumView.style.display='none';projectView.style.display='block';
@@ -307,17 +307,32 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
       let left=first.length;if(!left)window.loadSiteFont();
       first.forEach(i=>{const d=()=>{if(--left===0)window.loadSiteFont();};i.addEventListener('load',d,{once:true});i.addEventListener('error',d,{once:true});});
   }
-  document.getElementById('backToIndex').addEventListener('click',()=>{
-      albumView.style.display='none';
-      if(backTarget==='projects'){projectView.style.display='block';}
-      else{indexView.style.display='block';indexView.classList.remove('fade');void indexView.offsetWidth;indexView.classList.add('fade');}
-      window.scrollTo({top:0});
-  });
-  document.getElementById('backToIndex2').addEventListener('click',()=>{
-      projectView.style.display='none';indexView.style.display='block';
-      indexView.classList.remove('fade');void indexView.offsetWidth;indexView.classList.add('fade');
-      window.scrollTo({top:0});
-  });
+  document.getElementById('backToIndex').addEventListener('click',up);
+  document.getElementById('backToIndex2').addEventListener('click',up);
+
+  /* 網址同步:相簿／專案寫進網址(?cat=&proj=),瀏覽器上一頁回到上一層並還原捲動位置,也方便分享單一相簿 */
+  const BASE_TITLE=document.title;
+  if('scrollRestoration' in history)history.scrollRestoration='manual';
+  function qs(){const q=new URLSearchParams(location.search);return {cat:q.has('cat')?+q.get('cat'):null,proj:q.has('proj')?+q.get('proj'):null};}
+  function urlFor(p){const q=new URLSearchParams();if(p.cat!=null)q.set('cat',p.cat);if(p.proj!=null)q.set('proj',p.proj);const t=q.toString();return location.pathname+(t?'?'+t:'');}
+  function nav(p){
+      history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
+      history.pushState({d:((history.state&&history.state.d)||0)+1,y:0},'',urlFor(p));route(0);
+  }
+  function up(){
+      if(history.state&&history.state.d>0)return history.back();
+      const c=qs();history.replaceState({d:0,y:0},'',urlFor(c.proj!=null&&albums[c.cat]&&albums[c.cat].projects.length?{cat:c.cat}:{}));route(0);
+  }
+  function route(y){
+      const c=qs(),a=c.cat!=null?albums[c.cat]:null;
+      const pj=a&&c.proj!=null&&a.projects?a.projects[c.proj]:null;
+      if(pj){openPhotos(pj.photos||[],pj.zh,pj.en,'projects');document.title=pj.zh+' · '+a.zh+' · '+BASE_TITLE;}
+      else if(a){openCategory(c.cat);document.title=a.zh+' · '+BASE_TITLE;}
+      else{albumView.style.display='none';projectView.style.display='none';indexView.style.display='block';
+          indexView.classList.remove('fade');void indexView.offsetWidth;indexView.classList.add('fade');document.title=BASE_TITLE;}
+      requestAnimationFrame(()=>{window.scrollTo(0,y||0);if(albumView.style.display==='block')primeShots();});
+  }
+  window.addEventListener('popstate',e=>{if(lb.classList.contains('open'))lb.classList.remove('open');route(e.state&&e.state.y);});
 
   function shade(hex,amt){
       let c=hex.replace('#','');
