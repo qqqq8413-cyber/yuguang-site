@@ -304,22 +304,21 @@
           <div class="srow"><span>日租合計</span><b id="cartTotal">NT$ 0</b></div>
           <div class="srow"><span>租期</span><b id="cartDays">請先選擇日期</b></div>
           <div class="srow big"><span>預估總額</span><b id="cartAmount">—</b></div>
-          <div class="note" id="cartNote">＊租期含取件日與歸還日；送出後我們會以手機或 LINE 跟你確認檔期與取件方式</div>
+          <div class="note" id="cartNote">＊租期含取件日與歸還日；送出後我們會以 LINE 跟你確認檔期與取件方式</div>
         </div>
         <input class="cf" id="cName" type="text" placeholder="姓名" autocomplete="name" maxlength="40">
-        <input class="cf" id="cPhone" type="tel" placeholder="手機（例：0912345678）" autocomplete="tel" inputmode="tel" maxlength="20">
         <input class="cf" id="cLine" type="text" placeholder="LINE ID" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="40">
         <div class="err" id="cartErr" role="alert"></div>
         <button class="send disabled" id="cartSend" type="button">送出租借需求</button>
       </div>
-      <div class="sent" id="cartSent">已收到你的租借需求 ✓<br>我們會盡快以手機或 LINE 跟你確認檔期</div>
+      <div class="sent" id="cartSent">已收到你的租借需求 ✓<br>我們會盡快以 LINE 跟你確認檔期</div>
     </div>
   </div>
 </div>
 
 <!-- Netlify 表單偵測用(隱藏) -->
 <form name="rental-inquiry" data-netlify="true" netlify-honeypot="bot-field" hidden>
-  <input type="text" name="name"><input type="text" name="contact"><input type="text" name="phone"><input type="text" name="line"><input type="text" name="items"><input type="text" name="start"><input type="text" name="end"><input type="text" name="amount"><input type="text" name="bot-field">
+  <input type="text" name="name"><input type="text" name="contact"><input type="text" name="line"><input type="text" name="items"><input type="text" name="start"><input type="text" name="end"><input type="text" name="amount"><input type="text" name="bot-field">
 </form>
 
 <div class="toast" id="toast">已加入租借清單</div>
@@ -480,31 +479,29 @@ function fieldErr(el,msg){
   document.getElementById('cartErr').textContent=msg;
   if(el){el.style.borderColor='#b04a3a';el.focus();}
 }
-['cName','cPhone','cLine'].forEach(k=>document.getElementById(k).addEventListener('input',e=>{
+['cName','cLine'].forEach(k=>document.getElementById(k).addEventListener('input',e=>{
   e.target.style.borderColor='';document.getElementById('cartErr').textContent='';}));
 document.getElementById('cartSend').addEventListener('click',()=>{
   const send=document.getElementById('cartSend');
   if(send.classList.contains('disabled')||!cart.length)return;
   const $=k=>document.getElementById(k);
   const name=$('cName').value.trim();
-  const phone=$('cPhone').value.replace(/[\s-]/g,'').replace(/^\+886/,'0');
   const line=$('cLine').value.trim();
   const start=$('cStart').value,end=$('cEnd').value;
   if(!start)return fieldErr($('cStart'),'請選擇起租日');
   if(!end)return fieldErr($('cEnd'),'請選擇迄租日');
   if(rentDays()<0)return fieldErr($('cEnd'),'迄租日要在起租日之後');
   if(!name)return fieldErr($('cName'),'請填寫姓名');
-  if(!/^09\d{8}$/.test(phone))return fieldErr($('cPhone'),'請填寫 10 碼手機號碼（09 開頭）');
   if(!line)return fieldErr($('cLine'),'請填寫 LINE ID，方便我們聯絡你');
   $('cartErr').textContent='';
   const days=rentDays();
   const dailyTotal=cart.reduce((s,id)=>s+(hasP(gear[id])?gear[id].price:0),0);
   const amount=dailyTotal*days;
   const items=cart.map(id=>`${gear[id].name}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格另計'}）`).join('、');
-  const contact=`手機 ${phone} ／ LINE ${line}`;
-  const order={name,contact,phone,line,start,end,days,items,dailyTotal,amount};
+  const contact=`LINE ${line}`;
+  const order={name,contact,line,start,end,days,items,dailyTotal,amount};
   send.textContent='送出中…';send.classList.add('disabled');
-  const formData=new URLSearchParams({'form-name':'rental-inquiry',name,contact,phone,line,items,start,end,amount:String(amount)});
+  const formData=new URLSearchParams({'form-name':'rental-inquiry',name,contact,line,items,start,end,amount:String(amount)});
   const ok=p=>p.then(r=>{if(!r.ok)throw r;return r;});
   Promise.any([
     ok(fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:formData.toString()})),
