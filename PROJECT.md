@@ -272,6 +272,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - **自動檢查（GitHub Actions，`.github/workflows/check.yml`）**：每個 PR 與 main 都會跑
   - `node scripts/validate-content.js`：內容 JSON 格式
   - 每個後端函式都能載入
+  - `node scripts/check-scripts.js`：每個頁面的內嵌程式與 assets/*.js 沒有語法錯誤
   - `node scripts/check-links.js`：網站內部連結都指到存在的檔案
 - **上一頁回歸測試**：38 個情境（首頁、動態、平面、器材、分享連結進入），桌面與手機各跑一次
 - **租借流程**：模擬送出，檢查必填、日期防呆、金額計算、兩個送出管道其中一邊失敗的情況

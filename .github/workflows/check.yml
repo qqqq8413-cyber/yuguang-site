@@ -1,4 +1,4 @@
-# PR 自動檢查:內容 JSON 格式、後端函式語法、網站內部連結
+# PR 自動檢查:內容 JSON 格式、後端函式、網頁程式語法、網站內部連結
 name: check
 on:
   pull_request:
@@ -18,5 +18,7 @@ jobs:
         run: node scripts/validate-content.js
       - name: 後端函式可以載入
         run: for f in netlify/functions/*.js; do node -e "require('./$f')" || exit 1; done
+      - name: 網頁程式語法
+        run: node scripts/check-scripts.js
       - name: 網站內部連結
         run: node scripts/check-links.js
