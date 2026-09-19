@@ -1,0 +1,3 @@
+# 舊的 Netlify 網址一律轉到正式網域(保留路徑與參數);部署預覽 deploy-preview-N--… 是不同網址,不受影響
+https://super-bombolone-186f83.netlify.app/* https://phosofisle.com/:splat 301!
+http://super-bombolone-186f83.netlify.app/* https://phosofisle.com/:splat 301!
