@@ -77,9 +77,13 @@ const relatedList = (title, items) =>
 /* ── 動態作品 ── */
 function buildVideos(videos) {
   const list = videos.filter((v) => v.yt);
+  // Netlify 的網址不分大小寫(會轉成小寫),而 YouTube 影片 ID 分大小寫:
+  // 路徑一律用小寫,萬一有兩支只差大小寫的 ID 就加序號
+  const seen = new Map();
+  const pathId = (id) => { const k = id.toLowerCase(); const n = (seen.get(k) || 0) + 1; seen.set(k, n); return n === 1 ? k : `${k}-${n}`; };
   list.forEach((v, n) => {
     const id = ytid(v.yt);
-    const url = `/video/${id}/`;
+    const url = `/video/${pathId(id)}/`;
     const cover = v.cover ? abs(cld(v.cover, 'e_trim:20/f_auto,q_auto,w_1200')) : `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
     const meta = [v.client, v.year].filter(Boolean).join(' · ');   // 分類已顯示在上方 kicker
     const desc = clip(v.desc || `${v.title}｜${[v.cat, meta].filter(Boolean).join(' · ')}。嶼光映像的動態影像作品。`, 150);
@@ -87,7 +91,7 @@ function buildVideos(videos) {
       const i = l.search(/[:：|｜]/);
       return i < 0 ? { role: '', name: l } : { role: l.slice(0, i).trim(), name: l.slice(i + 1).trim() };
     }).filter((c) => c.name);
-    const others = list.filter((x) => x !== v && x.cat === v.cat).slice(0, 5).map((x) => ({ url: `/video/${ytid(x.yt)}/`, label: x.title || '作品' }));
+    const others = list.filter((x) => x !== v && x.cat === v.cat).slice(0, 5).map((x) => ({ url: `/video/${ytid(x.yt).toLowerCase()}/`, label: x.title || '作品' }));
     const body = [
       `<header class="phead"><div class="kicker">${esc(v.cat || 'Videography')}</div><h1>${esc(v.title || '動態作品')}</h1>`,
       v.sub ? `<div class="meta">${esc(v.sub)}</div>` : '',
@@ -229,6 +233,8 @@ function buildGear(gear) {
 
 /* ── 輸出 ── */
 function write() {
+  // 先清掉上次產生的頁面,避免改了代稱之後留下舊網址
+  for (const d of ['video', 'work', 'rental']) fs.rmSync(path.join(ROOT, d), { recursive: true, force: true });
   const today = new Date().toISOString().slice(0, 10);
   for (const p of pages) {
     const dir = path.join(ROOT, p.url.replace(/^\/|\/$/g, ''));
