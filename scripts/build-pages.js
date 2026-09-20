@@ -132,7 +132,7 @@ function buildAlbums(albums) {
     const firstImg = (n) => (n.cover ? n.cover : (n.photos && n.photos[0] && n.photos[0].image) || (n.projects || []).map((p) => (p.photos || [])[0] && p.photos[0].image).find(Boolean));
     const mk = (node, url, title, parentCrumb, photos, related) => {
       const cover = abs(img(firstImg(node) || '', 1200));
-      const desc = clip(`${title}｜嶼光映像平面作品，共 ${photos.length} 張照片。${a.en || ''}`, 150);
+      const desc = clip(`${title}｜${a.zh}．嶼光映像平面攝影作品（屏東），共 ${photos.length} 張照片。`, 150);
       const body = [
         `<header class="phead"><div class="kicker">${esc(a.en || 'Photography')}</div><h1>${esc(title)}</h1>`,
         `<div class="meta">${esc(a.zh)}${photos.length ? ` · ${photos.length} 張照片` : ''}</div></header>`,
@@ -173,7 +173,7 @@ function buildAlbums(albums) {
       pages.push({
         url: albumUrl, priority: '0.7',
         html: shell({
-          url: albumUrl, title: a.zh, desc: clip(`${a.zh}｜嶼光映像平面作品，共 ${projects.length} 個專案。`, 150),
+          url: albumUrl, title: a.zh, desc: clip(`${a.zh}｜嶼光映像平面攝影作品（屏東），共 ${projects.length} 個專案。`, 150),
           image: abs(img(firstImg(a) || '', 1200)), crumb: `${baseCrumb}<span>›</span>${esc(a.zh)}`,
           jsonld: {
             '@context': 'https://schema.org', '@type': 'CollectionPage', name: a.zh, url: SITE + albumUrl,
