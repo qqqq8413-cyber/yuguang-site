@@ -73,9 +73,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | 頁面 | 檔案 | 可分享的網址參數 |
 |---|---|---|
 | 首頁 | `index.html` | — |
-| 平面作品 | `pingmian.html` | `?album=分類代稱`、`?album=portrait&project=hair-model-2`（舊的 `?cat=&proj=` 序號網址仍可開啟，會自動換成代稱） |
-| 動態作品 | `dongtai.html` | `?cat=分類名稱`、`?v=YouTube影片ID` |
-| 器材租賃 | `qicai.html` | `?item=器材代稱`，例：`?item=aputure-amaran-300c`（舊的 `?item=4` 仍可開啟） |
+| 平面作品 | `pingmian.html` | 點進作品後網址變成 `/work/<分類>/<專案>/`（＝單一作品頁的網址）；舊的 `?cat=&proj=`、`?album=&project=` 仍可開啟並自動換成新網址 |
+| 動態作品 | `dongtai.html` | `?cat=分類名稱`；點進影片後網址變成 `/video/<影片ID 小寫>/` |
+| 器材租賃 | `qicai.html` | 點進器材後網址變成 `/rental/<器材代稱>/`；舊的 `?item=` 仍可開啟 |
 | 製作流程 | `liucheng.html` | — |
 | 關於嶼光 | `guanyu.html` | — |
 | 聯絡我們 | `lianluo.html` | `?type=服務類型`（預選需求標籤） |
@@ -255,6 +255,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - 產生的檔案不進版控（見 `.gitignore`）；本機預覽先跑 `node scripts/build-pages.js`
 - 部署設定在 `netlify.toml`（build command 與 publish 資料夾）
 - 注意：Netlify 網址不分大小寫，所以影片頁路徑一律小寫
+- 站內點進作品時，網址列直接換成單一作品頁的網址（pushState），所以使用者複製到的永遠是可分享的那一個；重新整理則由伺服器送出該靜態頁
 
 ### 結構化資料（SEO）
 首頁 `<head>` 有 JSON-LD：`WebSite`（網站名稱「嶼光映像」／PHOS OF ISLE）與 `LocalBusiness`（聯絡方式、屏東地址、服務區域）。內容與 `content/site.json` 相同，**修改聯絡資料時兩邊都要改**。
