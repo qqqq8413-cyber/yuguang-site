@@ -1,0 +1,8 @@
+# Netlify 部署設定
+# build:每次部署時由 content/*.json 產生「每個作品／器材一頁」的靜態頁面與 sitemap.xml
+[build]
+  command = "node scripts/build-pages.js"
+  publish = "yuguang-site"
+
+[functions]
+  directory = "netlify/functions"

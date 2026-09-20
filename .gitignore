@@ -1,0 +1,5 @@
+# 由 scripts/build-pages.js 在部署時產生,不進版控
+yuguang-site/video/
+yuguang-site/work/
+yuguang-site/rental/
+yuguang-site/sitemap.xml
