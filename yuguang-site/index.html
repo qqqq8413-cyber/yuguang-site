@@ -256,7 +256,7 @@
         (v.videos||[]).filter(x=>x.cover&&(x.featured===true||x.cat==='精選作品')).forEach(x=>
               slides.push({img:heroImg(x.cover),kicker:'Videography · '+(x.cat||'動態作品'),title:x.title||'',href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt))}));
         if(slides.length<2)(a.albums||[]).forEach((al,i)=>{const ph=firstPhoto(al);
-              if(ph)slides.push({img:heroImg(ph),kicker:'Photography · '+(al.zh||''),title:al.zh||'',href:'pingmian.html?cat='+i});});
+              if(ph)slides.push({img:heroImg(ph),kicker:'Photography · '+(al.zh||''),title:al.zh||'',href:al.slug?'pingmian.html?album='+al.slug:'pingmian.html?cat='+i});});
         if(!slides.length){window.loadSiteFont();return;}
         {const im=new Image();im.onload=im.onerror=()=>window.loadSiteFont();im.src=slides[0].img;}
         const box=document.getElementById('slides'),dots=document.getElementById('dots'),now=document.getElementById('now');
@@ -298,9 +298,9 @@
         const plane=[];
         (a.albums||[]).forEach((al,i)=>{
               if(al.projects&&al.projects.length){
-                      al.projects.forEach((pj,j)=>plane.push({href:`pingmian.html?cat=${i}&proj=${j}`,imgs:(pj.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:pj.zh||al.zh,sub:al.zh}));
+                      al.projects.forEach((pj,j)=>plane.push({href:al.slug&&pj.slug?`pingmian.html?album=${al.slug}&project=${pj.slug}`:`pingmian.html?cat=${i}&proj=${j}`,imgs:(pj.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:pj.zh||al.zh,sub:al.zh}));
               }else{
-                      plane.push({href:`pingmian.html?cat=${i}`,imgs:(al.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:al.zh,sub:al.en});
+                      plane.push({href:al.slug?`pingmian.html?album=${al.slug}`:`pingmian.html?cat=${i}`,imgs:(al.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:al.zh,sub:al.en});
               }
         });
         addRow('平面作品','Photography','pingmian.html',plane,'lg');
@@ -308,7 +308,7 @@
                 const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover?heroImg(x.cover,1200):`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids,'lg');
 
-                const gear=(g.gear||[]).map((x,i)=>({href:'qicai.html?item='+i,img:gimg(x.image,700),product:!!x.image,icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
+                const gear=(g.gear||[]).map((x,i)=>({href:'qicai.html?item='+encodeURIComponent(x.slug||i),img:gimg(x.image,700),product:!!x.image,icon:gearIcon(x.cat),cap:x.name||'器材',sub:x.cat}));
         addRow('器材租賃','Rental','qicai.html',gear);
         buildHero(v,a);
         restoreY();

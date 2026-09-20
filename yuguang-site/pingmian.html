@@ -203,7 +203,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
 
   fetch('content/albums.json').then(r=>r.json()).then(data=>{
       albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[],projects:[]},a));
-      buildIndex();route(0);if(albumView.style.display!=='block')window.loadSiteFont();
+      buildIndex();route(0);{const u=urlFor(qs());if(u!==location.pathname+location.search&&qs().cat!=null)history.replaceState(history.state,'',u);}if(albumView.style.display!=='block')window.loadSiteFont();
   }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
   const projectView=document.getElementById('projectView');
@@ -313,8 +313,21 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
   /* 網址同步:相簿／專案寫進網址(?cat=&proj=),瀏覽器上一頁回到上一層並還原捲動位置,也方便分享單一相簿 */
   const BASE_TITLE=document.title;
   if('scrollRestoration' in history)history.scrollRestoration='manual';
-  function qs(){const q=new URLSearchParams(location.search);return {cat:q.has('cat')?+q.get('cat'):null,proj:q.has('proj')?+q.get('proj'):null};}
-  function urlFor(p){const q=new URLSearchParams();if(p.cat!=null)q.set('cat',p.cat);if(p.proj!=null)q.set('proj',p.proj);const t=q.toString();return location.pathname+(t?'?'+t:'');}
+  /* 網址用固定代稱(?album=portrait&project=hair-model-2),後台拖曳排序也不會讓分享出去的連結跑掉;
+     舊的序號網址(?cat=1&proj=2)仍可開啟,開啟後自動換成代稱網址 */
+  function qs(){const q=new URLSearchParams(location.search);
+      let cat=null,proj=null;
+      if(q.has('album')){const i=albums.findIndex(a=>a.slug===q.get('album'));cat=i<0?-1:i;}
+      else if(q.has('cat'))cat=+q.get('cat');
+      const a=cat!=null?albums[cat]:null,ps=(a&&a.projects)||[];
+      if(q.has('project')){const j=ps.findIndex(p=>p.slug===q.get('project'));proj=j<0?-1:j;}
+      else if(q.has('proj'))proj=+q.get('proj');
+      return {cat,proj};}
+  function urlFor(p){const q=new URLSearchParams();const a=p.cat!=null?albums[p.cat]:null;
+      if(a)a.slug?q.set('album',a.slug):q.set('cat',p.cat);
+      const pj=a&&p.proj!=null&&a.projects?a.projects[p.proj]:null;
+      if(pj)pj.slug?q.set('project',pj.slug):q.set('proj',p.proj);
+      const t=q.toString();return location.pathname+(t?'?'+t:'');}
   function nav(p){
       history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
       history.pushState({sub:1,y:0},'',urlFor(p));route(0);
