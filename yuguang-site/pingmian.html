@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/">
 <title>平面作品 · 嶼光映像</title>
 <meta name="description" content="嶼光映像的平面攝影作品：形象照、人像寫真、活動紀錄、空間建築、婚紗寫真、婚禮紀錄與寵物攝影。">
 <link rel="canonical" href="https://phosofisle.com/pingmian.html">
@@ -203,7 +204,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
 
   fetch('content/albums.json').then(r=>r.json()).then(data=>{
       albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[],projects:[]},a));
-      buildIndex();route(0);{const u=urlFor(qs());if(u!==location.pathname+location.search&&qs().cat!=null)history.replaceState(history.state,'',u);}if(albumView.style.display!=='block')window.loadSiteFont();
+      buildIndex();route(0);{const c=qs(),u=urlFor(c);if(u!==location.pathname+location.search)history.replaceState(history.state,'',c.cat!=null&&albums[c.cat]?u:PAGE);}if(albumView.style.display!=='block')window.loadSiteFont();
   }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});
 
   const projectView=document.getElementById('projectView');
@@ -315,19 +316,29 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
   if('scrollRestoration' in history)history.scrollRestoration='manual';
   /* 網址用固定代稱(?album=portrait&project=hair-model-2),後台拖曳排序也不會讓分享出去的連結跑掉;
      舊的序號網址(?cat=1&proj=2)仍可開啟,開啟後自動換成代稱網址 */
-  function qs(){const q=new URLSearchParams(location.search);
+  const PAGE='/pingmian.html';
+  /* 網址就是單一作品頁的網址(/work/分類/專案/):在站內點進作品時直接換成它,
+     複製網址分享到 LINE 就會顯示該作品的標題與封面;重新整理則由伺服器送出那一頁。
+     舊的 ?cat=&proj= 與 ?album=&project= 仍可開啟,開啟後自動換成新網址。 */
+  function qs(){
+      const m=location.pathname.match(/^\/work\/([^/]+)(?:\/([^/]+))?\/?$/);
       let cat=null,proj=null;
+      if(m){const i=albums.findIndex(a=>a.slug===decodeURIComponent(m[1]));cat=i<0?-1:i;
+          if(m[2]){const ps=(albums[cat]&&albums[cat].projects)||[];const j=ps.findIndex(p=>p.slug===decodeURIComponent(m[2]));proj=j<0?-1:j;}
+          return {cat,proj};}
+      const q=new URLSearchParams(location.search);
       if(q.has('album')){const i=albums.findIndex(a=>a.slug===q.get('album'));cat=i<0?-1:i;}
       else if(q.has('cat'))cat=+q.get('cat');
       const a=cat!=null?albums[cat]:null,ps=(a&&a.projects)||[];
       if(q.has('project')){const j=ps.findIndex(p=>p.slug===q.get('project'));proj=j<0?-1:j;}
       else if(q.has('proj'))proj=+q.get('proj');
       return {cat,proj};}
-  function urlFor(p){const q=new URLSearchParams();const a=p.cat!=null?albums[p.cat]:null;
-      if(a)a.slug?q.set('album',a.slug):q.set('cat',p.cat);
-      const pj=a&&p.proj!=null&&a.projects?a.projects[p.proj]:null;
-      if(pj)pj.slug?q.set('project',pj.slug):q.set('proj',p.proj);
-      const t=q.toString();return location.pathname+(t?'?'+t:'');}
+  function urlFor(p){const a=p.cat!=null?albums[p.cat]:null;
+      if(!a)return PAGE;
+      const pj=p.proj!=null&&a.projects?a.projects[p.proj]:null;
+      if(a.slug&&(!pj||pj.slug))return '/work/'+encodeURIComponent(a.slug)+(pj?'/'+encodeURIComponent(pj.slug):'')+'/';
+      const q=new URLSearchParams();q.set('cat',p.cat);if(pj)q.set('proj',p.proj);
+      return PAGE+'?'+q.toString();}
   function nav(p){
       history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
       history.pushState({sub:1,y:0},'',urlFor(p));route(0);

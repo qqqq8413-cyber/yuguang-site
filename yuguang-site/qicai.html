@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/">
 <title>器材租賃 · 嶼光映像</title>
 <meta name="description" content="屏東影像器材日租：攝影機、鏡頭、燈光、收音、穩定器、空拍機與腳架，選好器材與日期即可線上送出租借需求。">
 <link rel="canonical" href="https://phosofisle.com/qicai.html">
@@ -501,9 +502,15 @@ document.getElementById('detailBack').addEventListener('click',upDetail);
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const BASE_TITLE=document.title;
 /* 器材網址用固定代稱(?item=aputure-amaran-300c),排序改變也不影響;舊的序號網址(?item=4)仍可開啟 */
-function qItem(){const v=new URLSearchParams(location.search).get('item');if(v===null)return null;
-  const i=gear.findIndex(g=>g.slug===v);if(i>=0)return i;return /^\d+$/.test(v)&&gear[+v]?+v:null;}
-function urlItem(i){return location.pathname+(i==null?'':'?item='+encodeURIComponent((gear[i]&&gear[i].slug)||i));}
+const PAGE='/qicai.html';
+function qItem(){
+  const m=location.pathname.match(/^\/rental\/([^/]+)\/?$/);
+  const v=m?decodeURIComponent(m[1]):new URLSearchParams(location.search).get('item');
+  if(v==null)return null;
+  const i=gear.findIndex(g=>g.slug===v);if(i>=0)return i;
+  return /^\d+$/.test(v)&&gear[+v]?+v:null;}
+function urlItem(i){if(i==null)return PAGE;const g=gear[i];
+  return g&&g.slug?'/rental/'+encodeURIComponent(g.slug)+'/':PAGE+'?item='+i;}
 function goDetail(id){
   history.replaceState(Object.assign({},history.state,{y:scrollY}),'');
   history.pushState({sub:1},'',urlItem(id));openDetail(id);

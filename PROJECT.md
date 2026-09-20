@@ -73,9 +73,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | 頁面 | 檔案 | 可分享的網址參數 |
 |---|---|---|
 | 首頁 | `index.html` | — |
-| 平面作品 | `pingmian.html` | `?album=分類代稱`、`?album=portrait&project=hair-model-2`（舊的 `?cat=&proj=` 序號網址仍可開啟，會自動換成代稱） |
-| 動態作品 | `dongtai.html` | `?cat=分類名稱`、`?v=YouTube影片ID` |
-| 器材租賃 | `qicai.html` | `?item=器材代稱`，例：`?item=aputure-amaran-300c`（舊的 `?item=4` 仍可開啟） |
+| 平面作品 | `pingmian.html` | 點進作品後網址變成 `/work/<分類>/<專案>/`（＝單一作品頁的網址）；舊的 `?cat=&proj=`、`?album=&project=` 仍可開啟並自動換成新網址 |
+| 動態作品 | `dongtai.html` | `?cat=分類名稱`；點進影片後網址變成 `/video/<影片ID 小寫>/` |
+| 器材租賃 | `qicai.html` | 點進器材後網址變成 `/rental/<器材代稱>/`；舊的 `?item=` 仍可開啟 |
 | 製作流程 | `liucheng.html` | — |
 | 關於嶼光 | `guanyu.html` | — |
 | 聯絡我們 | `lianluo.html` | `?type=服務類型`（預選需求標籤） |
@@ -248,6 +248,15 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - 從分享連結直接進入作品時，頁面上的「返回列表」會新增一筆紀錄，之後按上一頁可以回到該作品
 - 後台訂單詳情同樣適用（`#order-<id>`）
 
+### 單一作品／器材頁（部署時產生）
+`scripts/build-pages.js` 在每次 Netlify 部署時，從 `content/*.json` 產生 43 個獨立頁面與 `sitemap.xml`：
+- `/video/<影片ID 小寫>/`、`/work/<分類>/<專案>/`、`/work/<分類>/`、`/rental/<器材代稱>/`
+- 每頁有自己的標題、描述、分享預覽圖與結構化資料（VideoObject／ImageGallery／CollectionPage／Product）
+- 產生的檔案不進版控（見 `.gitignore`）；本機預覽先跑 `node scripts/build-pages.js`
+- 部署設定在 `netlify.toml`（build command 與 publish 資料夾）
+- 注意：Netlify 網址不分大小寫，所以影片頁路徑一律小寫
+- 站內點進作品時，網址列直接換成單一作品頁的網址（pushState），所以使用者複製到的永遠是可分享的那一個；重新整理則由伺服器送出該靜態頁
+
 ### 結構化資料（SEO）
 首頁 `<head>` 有 JSON-LD：`WebSite`（網站名稱「嶼光映像」／PHOS OF ISLE）與 `LocalBusiness`（聯絡方式、屏東地址、服務區域）。內容與 `content/site.json` 相同，**修改聯絡資料時兩邊都要改**。
 
@@ -315,6 +324,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #25 | 穩定網址：相簿、專案、器材改用固定代稱（slug） |
 | #26 | 手機器材名稱兩行、移除舊上傳函式 |
 | #27 | 首頁結構化資料（WebSite＋LocalBusiness） |
+| #28 | 每個作品、器材各自產生獨立頁面（分享預覽＋SEO），sitemap 7 → 50 筆 |
 
 ---
 
@@ -326,7 +336,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - [x] **Google Search Console**：驗證網域、提交 sitemap（7 頁已探索）
 - [ ] **首頁主視覺封面**：替換帶有影片字幕的封面
 
-- [ ] **每個作品、器材各自產生 HTML 頁面**（部署時由腳本從 JSON 產生，讓分享預覽與 Google 讀得到單一作品的標題、描述、圖片）——會新增 netlify.toml 建置指令，需先討論
+- [x] **每個作品、器材各自產生 HTML 頁面**（PR #28）
 
 ### 一般
 - [x] 自訂 404 頁面
