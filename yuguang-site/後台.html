@@ -22,7 +22,9 @@
       .top .name{font-family:var(--serif);font-size:15px;letter-spacing:5px}
       .top .name small{display:block;font-size:11px;letter-spacing:2px;color:var(--muted)}
 
-      .gate{max-width:360px;margin:14vh auto;text-align:center}
+      .pvbar{background:#8a5a2b;color:#fff;padding:11px clamp(14px,3vw,24px);font-size:14px;line-height:1.7;letter-spacing:.5px;position:sticky;top:0;z-index:60}
+    .pvbar a{color:#fff}
+    .gate{max-width:360px;margin:14vh auto;text-align:center}
       .gate svg{width:40px;margin-bottom:20px}
       .gate h1{font-family:var(--serif);font-weight:500;font-size:1.4rem;letter-spacing:6px;margin-bottom:8px}
       .gate p{color:var(--muted);font-size:13px;letter-spacing:1px;margin-bottom:24px}
@@ -157,6 +159,8 @@
     </div>
   
   <div id="app" class="hidden">
+    <!-- 預覽版(deploy-preview-…netlify.app)只能看:存檔與上傳會被後端擋下,這裡先說明清楚 -->
+    <div id="pvbar" class="pvbar hidden">這是<b>預覽版後台</b>（測試新功能用）。看到的是正式資料，但存檔、上傳、改訂單都已停用。要修改請到 <a href="https://phosofisle.com/%E5%BE%8C%E5%8F%B0">phosofisle.com/後台</a>。</div>
     <div class="wrap">
         <div class="top">
               <a class="brand" href="/後台"><svg class="mk"><use href="#mk"/></svg>
@@ -216,7 +220,7 @@
         setOrders(od);
         $('gerr').textContent='';
         sessionStorage.setItem('yg_admin_key',k);
-        $('gate').classList.add('hidden');$('app').classList.remove('hidden');
+        $('gate').classList.add('hidden');$('app').classList.remove('hidden');markPreview();
         await loadAll();
     }
     $('enter').onclick=()=>login($('pw').value.trim());
@@ -247,6 +251,7 @@
     /* 上傳後記下照片長寬,前台相簿用來預先排好版面 */
     const UPLOAD_DIMS={};
     async function uploadImage(file){
+        if(IS_PREVIEW){previewStop();throw new Error('預覽版後台不能上傳照片，請到正式網址的後台操作。');}
         const fd=new FormData();
         fd.append('file',await shrink(file));
         /* 一律簽名上傳:簽名只有登入後台才拿得到。拿不到簽名就停止上傳,不退回未簽名的方式(fail closed) */
@@ -299,12 +304,14 @@
             return s;});
     }
     async function saveContent(path,dataObj,msg,btn){
+        if(IS_PREVIEW)return previewStop();
         ensureSlugs(path,dataObj);
         const old=btn?btn.textContent:'';if(btn){btn.textContent='儲存中…';btn.disabled=true;}
         const {status,data}=await api('save-content',{method:'POST',headers:{'Content-Type':'application/json'},
                                                           body:JSON.stringify({path,data:dataObj,message:msg,sha:SHA[path]||undefined})});
         if(btn){btn.textContent=old;btn.disabled=false;}
         if(data&&data.reason==='github-not-configured'){alert('尚未設定 GITHUB_TOKEN，請先在 Netlify 加上此環境變數。');return false;}
+        if(status===403&&data&&data.error==='preview-readonly'){alert(data.message||'這是預覽版網址，存檔已停用。');return false;}
         if(status===409){alert('這份內容在你開啟後台之後，已經在別處（其他分頁或裝置）被修改過。\n為了不蓋掉那邊的修改，這次沒有儲存。\n\n請先記下你剛才改了什麼，重新整理頁面後再改一次。');return false;}
         if(status===422&&data&&data.details){alert('內容格式有問題，這次沒有儲存：\n\n・'+data.details.map(friendlyPath).join('\n・')+'\n\n請修正上面的欄位後再存一次。');return false;}
         if(status!==200||!(data&&data.ok)){alert('儲存失敗，請稍後再試。');return false;}
@@ -414,6 +421,7 @@
     function backToOrders(){if(history.state&&history.state.fromList)history.back();else location.hash='orders';}
     function copyText(t,btn){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{const o=btn.textContent;btn.textContent='已複製 ✓';setTimeout(()=>btn.textContent=o,1500);}).catch(()=>prompt('複製這段文字：',t));}
     async function deleteOrder(o){
+        if(IS_PREVIEW)return previewStop();
         if(!confirm(`確定要刪除「${o['客戶姓名']||'未具名'}」的訂單嗎？\n刪除後無法從後台復原。\n\n（只是不租了的話，建議把狀態改成「已取消」保留紀錄）`))return;
         const b=$('odDel');b.textContent='刪除中…';b.disabled=true;
         const {status,data}=await api('delete-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:o.id})});
@@ -428,6 +436,7 @@
     }
     window.addEventListener('hashchange',()=>{if(/^#order-/.test(location.hash))history.replaceState(Object.assign({},history.state,{fromList:true}),'');orderRoute();});
     async function setOrderStatus(id,status){
+        if(IS_PREVIEW){previewStop();renderOrders();return;}
         const {status:code,data}=await api('update-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
         if(code!==200||!(data&&data.ok)){alert('狀態更新失敗，請稍後再試。');renderOrders();return;}
         const o=ORDERS.find(x=>x.id===id);if(o)o['狀態']=status;orderRoute();
@@ -631,6 +640,12 @@
         const ok=await saveContent('yuguang-site/content/gear.json',{gear:DATA.gear,cats:allGearCats()},'更新器材',btn);
         if(ok)$('gmsg').textContent='已儲存 ✓ 網站約 1 分鐘後更新';
     }
+
+    /* 預覽版後台:網址不是正式網域時顯示橫幅,並在按下去之前就擋住會寫入正式資料的動作
+       (真正的把關在後端 netlify/functions/lib/context.js,這裡只是先講清楚、避免白做工) */
+    const IS_PREVIEW=!/^(phosofisle\.com|www\.phosofisle\.com|localhost|127\.0\.0\.1)$/.test(location.hostname);
+    function markPreview(){if(IS_PREVIEW){const b=document.getElementById('pvbar');if(b)b.classList.remove('hidden');}}
+    function previewStop(){alert('這是預覽版後台，存檔與上傳已停用，以免改到正式資料。\n\n請到 https://phosofisle.com/後台 修改。');return false;}
 
     /* 自動登入 */
     const sk=sessionStorage.getItem('yg_admin_key');

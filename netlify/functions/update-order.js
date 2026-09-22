@@ -1,5 +1,6 @@
 // 更新訂單狀態(需後台密碼,驗證見 lib/auth.js)
 const { requireAdmin } = require('./lib/auth');
+const { blockIfPreview } = require('./lib/context');
 const TOKEN = process.env.AIRTABLE_TOKEN;
 const BASE = process.env.AIRTABLE_BASE_ID;
 const TABLE = process.env.AIRTABLE_TABLE_NAME || '租借訂單';
@@ -8,6 +9,8 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
   const denied = await requireAdmin(event); // 共用驗證:比對密碼、錯誤次數限制(lib/auth.js)
   if (denied) return denied;
+  const preview = blockIfPreview('修改訂單'); // 預覽版只能看,不能改正式資料(lib/context.js)
+  if (preview) return preview;
   if (!TOKEN || !BASE) {
     return { statusCode: 200, body: JSON.stringify({ ok: false, reason: 'airtable-not-configured' }) };
   }

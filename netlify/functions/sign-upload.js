@@ -3,6 +3,7 @@
 // 後台上傳照片一律用這裡產生的簽名(只有登入後台的人拿得到);拿不到簽名時後台會停止上傳,
 // 不會退回未簽名的方式。Cloudinary 上已不保留任何未簽名的上傳設定(原本的 yuguang preset 已刪除)。
 const { requireAdmin } = require('./lib/auth');
+const { blockIfPreview } = require('./lib/context');
 const crypto = require('crypto');
 const KEY = process.env.CLOUDINARY_API_KEY;
 const SECRET = process.env.CLOUDINARY_API_SECRET;
@@ -12,6 +13,8 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
   const denied = await requireAdmin(event); // 共用驗證:比對密碼、錯誤次數限制(lib/auth.js)
   if (denied) return denied;
+  const preview = blockIfPreview('上傳照片'); // 預覽版只能看,不能改正式資料(lib/context.js)
+  if (preview) return preview;
   if (!KEY || !SECRET) return { statusCode: 200, body: JSON.stringify({ ok: false, reason: 'cloudinary-not-configured' }) };
 
   const timestamp = Math.floor(Date.now() / 1000);

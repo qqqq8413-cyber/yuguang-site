@@ -1,6 +1,7 @@
 // 儲存內容 JSON 到 GitHub(需後台密碼,驗證見 lib/auth.js)
 // 需要環境變數:GITHUB_TOKEN、(可選)GITHUB_REPO、GITHUB_BRANCH、ADMIN_PASSWORD
 const { requireAdmin } = require('./lib/auth');
+const { blockIfPreview } = require('./lib/context');
 const TOKEN = process.env.GITHUB_TOKEN;
 const REPO = process.env.GITHUB_REPO || 'qqqq8413-cyber/yuguang-site';
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
@@ -12,6 +13,8 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
   const denied = await requireAdmin(event); // 共用驗證:比對密碼、錯誤次數限制(lib/auth.js)
   if (denied) return denied;
+  const preview = blockIfPreview('儲存內容'); // 預覽版只能看,不能改正式資料(lib/context.js)
+  if (preview) return preview;
   if (!TOKEN) return { statusCode: 200, body: JSON.stringify({ ok: false, reason: 'github-not-configured' }) };
 
   let o;
