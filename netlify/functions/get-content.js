@@ -1,16 +1,16 @@
-// 從 GitHub 讀取最新的內容 JSON(需 ADMIN_PASSWORD 驗證)
+// 從 GitHub 讀取最新的內容 JSON(需後台密碼,驗證見 lib/auth.js)
 // 後台改由這裡載入,而不是讀網站上的 /content/*.json:
 // 網站在每次儲存後約 1 分鐘才重新部署,期間讀到的是舊資料,再存檔就會蓋掉剛才的修改。
 // 回傳 sha,儲存時帶回去,GitHub 會拒絕以過期版本覆蓋。
+const { requireAdmin } = require('./lib/auth');
 const TOKEN = process.env.GITHUB_TOKEN;
 const REPO = process.env.GITHUB_REPO || 'qqqq8413-cyber/yuguang-site';
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
-const PW = process.env.ADMIN_PASSWORD;
 const ALLOWED = /^yuguang-site\/content\/[a-z0-9_-]+\.json$/;
 
 exports.handler = async (event) => {
-  const key = event.headers['x-admin-key'] || '';
-  if (!PW || key !== PW) return { statusCode: 401, body: JSON.stringify({ ok: false, error: 'unauthorized' }) };
+  const denied = await requireAdmin(event); // 共用驗證:比對密碼、錯誤次數限制(lib/auth.js)
+  if (denied) return denied;
   if (!TOKEN) return { statusCode: 200, body: JSON.stringify({ ok: false, reason: 'github-not-configured' }) };
   const path = (event.queryStringParameters || {}).path || '';
   if (!ALLOWED.test(path)) return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'path-not-allowed' }) };

@@ -209,9 +209,12 @@
     async function login(k){
         KEY=k;
         const {status,data:od}=await api('list-orders');
-        if(status===401){$('gerr').textContent='密碼錯誤';return;}
+        /* 連續輸錯 5 次會鎖 15 分鐘(後端 lib/auth.js);鎖定期間連正確密碼也不接受 */
+        if(status===429){sessionStorage.removeItem('yg_admin_key');$('gerr').textContent=`嘗試次數太多，請約 ${Math.max(1,Math.ceil(((od&&od.retryAfter)||900)/60))} 分鐘後再試`;return;}
+        if(status===401){sessionStorage.removeItem('yg_admin_key');$('gerr').textContent=(od&&od.remaining>0&&od.remaining<=3)?`密碼錯誤（再錯 ${od.remaining} 次會暫時鎖住 15 分鐘）`:'密碼錯誤';return;}
         if(status!==200){$('gerr').textContent='暫時無法連線，請稍後再試';return;}
         setOrders(od);
+        $('gerr').textContent='';
         sessionStorage.setItem('yg_admin_key',k);
         $('gate').classList.add('hidden');$('app').classList.remove('hidden');
         await loadAll();

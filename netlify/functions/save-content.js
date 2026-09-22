@@ -1,17 +1,17 @@
-// 儲存內容 JSON 到 GitHub(需 ADMIN_PASSWORD 驗證)
+// 儲存內容 JSON 到 GitHub(需後台密碼,驗證見 lib/auth.js)
 // 需要環境變數:GITHUB_TOKEN、(可選)GITHUB_REPO、GITHUB_BRANCH、ADMIN_PASSWORD
+const { requireAdmin } = require('./lib/auth');
 const TOKEN = process.env.GITHUB_TOKEN;
 const REPO = process.env.GITHUB_REPO || 'qqqq8413-cyber/yuguang-site';
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
-const PW = process.env.ADMIN_PASSWORD;
 // 只允許寫入網站內容 JSON;原本可寫入 repo 任何檔案(包含這些函式本身)
 const ALLOWED = /^yuguang-site\/content\/[a-z0-9_-]+\.json$/;
 const { validateContent } = require('./lib/content-schema');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-  const key = event.headers['x-admin-key'] || '';
-  if (!PW || key !== PW) return { statusCode: 401, body: JSON.stringify({ ok: false, error: 'unauthorized' }) };
+  const denied = await requireAdmin(event); // 共用驗證:比對密碼、錯誤次數限制(lib/auth.js)
+  if (denied) return denied;
   if (!TOKEN) return { statusCode: 200, body: JSON.stringify({ ok: false, reason: 'github-not-configured' }) };
 
   let o;

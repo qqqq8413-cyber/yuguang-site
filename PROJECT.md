@@ -1,7 +1,7 @@
 # 嶼光映像 PHOS OF ISLE · 官網專案說明
 
 > 本文件整理官網的專案背景、技術架構、後台與資料、UI/UX 設計系統、開發流程與待辦。
-> 最後更新：2026-09-23（對應 PR #1–#35）
+> 最後更新：2026-09-23（對應 PR #1–#36）
 
 ---
 
@@ -125,7 +125,12 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 
 ## 5. 後端函式（netlify/functions）
 
-所有後台用函式都需要 `x-admin-key` 標頭等於 `ADMIN_PASSWORD`，否則回 401。
+所有後台用函式都呼叫同一個驗證模組 **`lib/auth.js`**（`requireAdmin`），不各自比對密碼：
+- `x-admin-key` 標頭要等於 `ADMIN_PASSWORD`；先雜湊再用 `timingSafeEqual` 比對，回應時間不會洩漏密碼
+- **同一來源連續輸錯 5 次鎖 15 分鐘**（回 429 與 `Retry-After`），鎖定期間連正確密碼也不接受；每次輸錯多等 0.8 秒；輸對一次歸零；沒帶密碼的請求只回 401、不算一次嘗試
+- 後台登入畫面會顯示「再錯 N 次會暫時鎖住」與「請約 N 分鐘後再試」
+- 限制：錯誤次數記在函式執行個體的記憶體，Netlify 可能同時有多個執行個體、閒置後也會重啟，所以是「盡力而為」的減速；真正的防線仍是夠長的密碼
+- 新增後台函式時，第一行就要 `const denied = await requireAdmin(event); if (denied) return denied;`（自動測試會檢查）
 
 | 函式 | 呼叫者 | 作用 |
 |---|---|---|
@@ -312,6 +317,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - **自動檢查（GitHub Actions，`.github/workflows/check.yml`）**：每個 PR 與 main 都會跑
   - `node scripts/validate-content.js`：內容 JSON 格式
   - 每個後端函式都能載入
+  - `node scripts/test-admin-auth.js`：後台驗證（28 項：6 支函式對錯密碼、錯 5 次鎖定、鎖定中正確密碼也拒絕、15 分鐘解鎖、不同來源互不影響、每支函式都用共用驗證）
   - `node scripts/test-create-order.js`：租借報價與下單函式（36 項：金額天數由後端算、偽造金額被忽略、數量／日期／品項各種錯誤、Airtable 失敗與未設定）
   - `node scripts/build-pages.js`：與 Netlify 部署相同的建置；失敗代表合併後會部署失敗
   - `node scripts/check-build.js`：產生的頁面 canonical／og:url 正確、標題與 h1、網址格式；sitemap 網址都存在、無重複、沒漏頁；**把順序反過來並改掉所有中文名稱後，網址必須完全相同**；產生的檔案沒被 commit；器材標明出租與按日計價、sitemap 沒有 lastmod 與停用欄位；影片缺上傳日期只提醒（△）不擋
@@ -364,6 +370,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #33 | PR 檢查跑正式建置並檢查產生的頁面與 sitemap；代稱改為必填，建置不再產生依順序編號的網址 |
 | #34 | SEO 語意：影片補 YouTube 上傳日期（後台可填）、器材標明出租與按日計價、sitemap 移除假日期與停用欄位 |
 | #35 | 安全清理：Cloudinary 上傳 fail closed（移除未簽名備援）、Sortable 改自家主機、全站安全標頭與 CSP Report-Only |
+| #36 | 後台驗證：6 支函式共用 `lib/auth.js`、防計時攻擊比對、連續輸錯 5 次鎖 15 分鐘，登入畫面顯示剩餘次數 |
 
 ---
 
@@ -389,7 +396,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - [x] PR 檢查也跑 `build-pages.js`，檢查產生的頁面、連結與 sitemap；代稱（slug）改為必填（PR #33）
 - [x] SEO 語意：影片補上傳日期、器材標明「出租」、移除假的 sitemap 更新日期、圖片 sitemap 只留網址（PR #34）
 - [x] 安全清理：移除 Cloudinary 未簽名備援程式（preset `yuguang` 已刪）、Sortable 改自家主機、基本安全標頭＋CSP Report-Only（PR #35）
-- [ ] 後台驗證：6 支後台函式共用一個驗證模組、密碼比對防計時攻擊、錯誤次數限制
+- [x] 後台驗證：6 支後台函式共用一個驗證模組、密碼比對防計時攻擊、錯誤次數限制（PR #36）
 - [ ] CSP 從 Report-Only 改為正式（觀察一段時間無違規後）
 - [ ] 之後再評估：後台登入改 HttpOnly cookie
 
