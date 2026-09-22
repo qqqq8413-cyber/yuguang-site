@@ -1,15 +1,13 @@
-// 刪除訂單(需通過 ADMIN_PASSWORD 驗證)
+// 刪除訂單(需後台密碼,驗證見 lib/auth.js)
+const { requireAdmin } = require('./lib/auth');
 const TOKEN = process.env.AIRTABLE_TOKEN;
 const BASE = process.env.AIRTABLE_BASE_ID;
 const TABLE = process.env.AIRTABLE_TABLE_NAME || '租借訂單';
-const PW = process.env.ADMIN_PASSWORD;
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-  const key = event.headers['x-admin-key'] || '';
-  if (!PW || key !== PW) {
-    return { statusCode: 401, body: JSON.stringify({ ok: false, error: 'unauthorized' }) };
-  }
+  const denied = await requireAdmin(event); // 共用驗證:比對密碼、錯誤次數限制(lib/auth.js)
+  if (denied) return denied;
   if (!TOKEN || !BASE) {
     return { statusCode: 200, body: JSON.stringify({ ok: false, reason: 'airtable-not-configured' }) };
   }
