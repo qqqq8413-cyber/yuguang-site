@@ -144,7 +144,8 @@ function buildAlbums(albums) {
     const projects = a.projects || [];
     const albumUrl = `/work/${aSlug}/`;
     const firstImg = (n) => (n.cover ? n.cover : (n.photos && n.photos[0] && n.photos[0].image) || (n.projects || []).map((p) => (p.photos || [])[0] && p.photos[0].image).find(Boolean));
-    const mk = (node, url, title, parentCrumb, photos, related) => {
+    // 搜尋結果用的標題:專案頁補上「屏東＋分類」,相簿頁在呼叫處指定;都不影響畫面上的標題
+    const mk = (node, url, title, parentCrumb, photos, related, docTitle) => {
       const cover = abs(img(firstImg(node) || '', 1200));
       const desc = clip(`${title}｜${a.zh}．嶼光映像平面攝影作品（屏東），共 ${photos.length} 張照片。`, 150);
       const body = [
@@ -158,7 +159,7 @@ function buildAlbums(albums) {
         url, priority: '0.7',
         images: photos.map((ph) => abs(img(ph.image, 1600))),
         html: shell({
-          url, title, desc, image: cover, crumb: parentCrumb,
+          url, title, docTitle, desc, image: cover, crumb: parentCrumb,
           jsonld: {
             '@context': 'https://schema.org', '@type': 'ImageGallery', name: title, description: desc, url: SITE + url,
             image: photos.slice(0, 10).map((p) => abs(img(p.image, 1200))),
@@ -174,7 +175,8 @@ function buildAlbums(albums) {
       projects.forEach((p) => {
         const pSlug = p.slug;
         const others = projects.filter((x) => x !== p).map((x) => ({ url: `/work/${aSlug}/${x.slug}/`, label: x.zh || '專案' })).slice(0, 6);
-        mk(p, `/work/${aSlug}/${pSlug}/`, p.zh || a.zh, `${baseCrumb}<span>›</span><a href="${albumUrl}">${esc(a.zh)}</a><span>›</span>${esc(p.zh || '')}`, p.photos || [], others);
+        mk(p, `/work/${aSlug}/${pSlug}/`, p.zh || a.zh, `${baseCrumb}<span>›</span><a href="${albumUrl}">${esc(a.zh)}</a><span>›</span>${esc(p.zh || '')}`, p.photos || [], others,
+           `${p.zh || a.zh}｜屏東${a.zh}`);
       });
       // 分類頁:列出各專案
       const body = [
@@ -189,7 +191,7 @@ function buildAlbums(albums) {
       pages.push({
         url: albumUrl, priority: '0.7',
         html: shell({
-          url: albumUrl, title: a.zh, docTitle: `屏東${a.zh}${/攝影$/.test(a.zh) ? "" : "攝影"}作品`, desc: clip(`${a.zh}｜嶼光映像平面攝影作品（屏東），共 ${projects.length} 個專案。`, 150),
+          url: albumUrl, title: a.zh, docTitle: `屏東${a.zh}${/(攝影|寫真|照片|紀錄)$/.test(a.zh) ? '' : '攝影'}作品`, desc: clip(`${a.zh}｜嶼光映像平面攝影作品（屏東），共 ${projects.length} 個專案。`, 150),
           image: abs(img(firstImg(a) || '', 1200)), crumb: `${baseCrumb}<span>›</span>${esc(a.zh)}`,
           jsonld: {
             '@context': 'https://schema.org', '@type': 'CollectionPage', name: a.zh, url: SITE + albumUrl,
@@ -246,7 +248,7 @@ function buildGear(gear) {
       url, priority: '0.8',
       images: g.image ? [cover] : [],
       html: shell({
-        url, title: g.name, docTitle: `${g.name} 出租｜屏東器材租借`, desc, image: cover, type: 'product',
+        url, title: g.name, docTitle: `${g.name} 出租｜屏東`, desc, image: cover, type: 'product',
         crumb: `<a href="index.html">首頁</a><span>›</span><a href="qicai.html">器材租賃</a><span>›</span>${esc(g.name)}`,
         jsonld, body,
       }),
