@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 檢查網站內部連結:HTML 裡的 href/src 與 site.js 導覽列指到的檔案都要存在
+// 檢查網站內部連結:HTML 裡的 href/src 與 site.js 導覽列指到的檔案都要存在(含子資料夾裡產生的頁面)
 // 外部網址、#錨點、mailto/tel、程式組出來的網址(含 ${ })不檢查
 const fs = require('fs');
 const path = require('path');
@@ -17,7 +17,11 @@ const skip = (u) => !u || /^(https?:|\/\/|#|mailto:|tel:|data:|javascript:)/.tes
 let bad = 0, total = 0;
 const report = (file, u) => { bad++; console.log(`✗ ${file}：找不到「${u}」`); };
 
-for (const file of fs.readdirSync(root).filter((f) => f.endsWith('.html'))) {
+// 含部署時產生的 /work/、/video/、/rental/ 頁面(先跑 build-pages.js 才會有);
+// 這些頁面都有 <base href="/">,連結同樣以網站根目錄為準
+const walk = (dir, rel = '') => fs.readdirSync(path.join(dir, rel), { withFileTypes: true }).flatMap((e) =>
+  e.isDirectory() ? walk(dir, path.join(rel, e.name)) : e.name.endsWith('.html') ? [path.join(rel, e.name)] : []);
+for (const file of walk(root)) {
   const html = fs.readFileSync(path.join(root, file), 'utf8');
   for (const m of html.matchAll(/\b(?:href|src)="([^"]+)"/g)) {
     const u = m[1].trim();

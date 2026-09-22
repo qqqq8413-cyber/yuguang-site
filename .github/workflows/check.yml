@@ -1,4 +1,4 @@
-# PR 自動檢查:內容 JSON 格式、後端函式、租借下單計算、網頁程式語法、網站內部連結
+# PR 自動檢查:內容 JSON 格式、後端函式、租借下單計算、正式建置與產生的頁面、網頁程式語法、網站內部連結
 name: check
 on:
   pull_request:
@@ -20,7 +20,12 @@ jobs:
         run: for f in netlify/functions/*.js; do node -e "require('./$f')" || exit 1; done
       - name: 租借下單計算(金額、天數、數量由後端依 gear.json 計算)
         run: node scripts/test-create-order.js
-      - name: 網頁程式語法
+      # 與 Netlify 部署時相同的建置步驟;失敗就代表合併後正式站會部署失敗
+      - name: 產生作品／影片／器材單頁與 sitemap(與部署相同)
+        run: node scripts/build-pages.js
+      - name: 檢查產生的頁面(網址、canonical、sitemap、排序與改名後網址不變)
+        run: node scripts/check-build.js
+      - name: 網頁程式語法與結構化資料(含產生的頁面)
         run: node scripts/check-scripts.js
-      - name: 網站內部連結
+      - name: 網站內部連結(含產生的頁面)
         run: node scripts/check-links.js
