@@ -37,13 +37,13 @@ const lines = (t) => String(t || '').split(/・|\n/).map((x) => x.trim()).filter
 
 const pages = []; // { url, html, lastmod, priority }
 
-function shell({ url, title, desc, image, type = 'article', jsonld, crumb, body }) {
+function shell({ url, title, docTitle = title, desc, image, type = 'article', jsonld, crumb, body }) {
   const head = [
     '<!DOCTYPE html>', '<html lang="zh-Hant">', '<head>',
     '<meta charset="UTF-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
     '<base href="/">',
-    `<title>${esc(title)} · 嶼光映像</title>`,
+    `<title>${esc(docTitle)} · 嶼光映像</title>`,
     `<meta name="description" content="${attr(desc)}">`,
     `<link rel="canonical" href="${SITE}${url}">`,
     '<meta name="theme-color" content="#f3f1ec">',
@@ -54,7 +54,7 @@ function shell({ url, title, desc, image, type = 'article', jsonld, crumb, body 
     `<meta property="og:type" content="${type}">`,
     '<meta property="og:site_name" content="嶼光映像 PHOS OF ISLE">',
     '<meta property="og:locale" content="zh_TW">',
-    `<meta property="og:title" content="${attr(title)} · 嶼光映像">`,
+    `<meta property="og:title" content="${attr(docTitle)} · 嶼光映像">`,
     `<meta property="og:description" content="${attr(desc)}">`,
     `<meta property="og:url" content="${SITE}${url}">`,
     `<meta property="og:image" content="${attr(image)}">`,
@@ -189,7 +189,7 @@ function buildAlbums(albums) {
       pages.push({
         url: albumUrl, priority: '0.7',
         html: shell({
-          url: albumUrl, title: a.zh, desc: clip(`${a.zh}｜嶼光映像平面攝影作品（屏東），共 ${projects.length} 個專案。`, 150),
+          url: albumUrl, title: a.zh, docTitle: `屏東${a.zh}${/攝影$/.test(a.zh) ? "" : "攝影"}作品`, desc: clip(`${a.zh}｜嶼光映像平面攝影作品（屏東），共 ${projects.length} 個專案。`, 150),
           image: abs(img(firstImg(a) || '', 1200)), crumb: `${baseCrumb}<span>›</span>${esc(a.zh)}`,
           jsonld: {
             '@context': 'https://schema.org', '@type': 'CollectionPage', name: a.zh, url: SITE + albumUrl,
@@ -246,7 +246,7 @@ function buildGear(gear) {
       url, priority: '0.8',
       images: g.image ? [cover] : [],
       html: shell({
-        url, title: g.name, desc, image: cover, type: 'product',
+        url, title: g.name, docTitle: `${g.name} 出租｜屏東器材租借`, desc, image: cover, type: 'product',
         crumb: `<a href="index.html">首頁</a><span>›</span><a href="qicai.html">器材租賃</a><span>›</span>${esc(g.name)}`,
         jsonld, body,
       }),
