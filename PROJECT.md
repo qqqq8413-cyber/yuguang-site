@@ -1,7 +1,7 @@
 # 嶼光映像 PHOS OF ISLE · 官網專案說明
 
 > 本文件整理官網的專案背景、技術架構、後台與資料、UI/UX 設計系統、開發流程與待辦。
-> 最後更新：2026-09-23（對應 PR #1–#34）
+> 最後更新：2026-09-23（對應 PR #1–#35）
 
 ---
 
@@ -66,7 +66,8 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
    ├─ content/*.json          網站內容資料
    ├─ images/                 og.jpg（分享預覽圖）、網站圖示、logo
    ├─ favicon.svg / favicon-32.png / apple-touch-icon.png / site.webmanifest
-   └─ _headers                Netlify 標頭設定（manifest 的 Content-Type）
+   ├─ assets/vendor/          第三方程式放自己主機（Sortable 1.15.0，與 cdnjs 官方檔案 SHA-512 相同）
+   └─ _headers                Netlify 標頭設定（全站安全標頭、CSP Report-Only、manifest 的 Content-Type）
 ```
 
 ### 2.2 頁面與網址規則
@@ -118,7 +119,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 
 **防止資料被蓋掉**：後台從 GitHub 讀取最新內容並記住版本（sha）；存檔時若 GitHub 上已有更新的版本（例如另一個分頁存過），會拒絕並提示重新整理，不會默默覆蓋。未存檔就離開頁面會跳出提醒。
 
-**照片上傳**：直接從瀏覽器上傳到 Cloudinary（簽名上傳，簽名由 `sign-upload` 函式產生，只有登入後台才拿得到）。上傳器材照片後，會在背景先產生介紹頁用的 AI 放大版。
+**照片上傳**：直接從瀏覽器上傳到 Cloudinary（簽名上傳，簽名由 `sign-upload` 函式產生，只有登入後台才拿得到）。**拿不到簽名就停止上傳**（fail closed），不會退回未簽名的方式；Cloudinary 上也不保留任何未簽名的上傳設定。後台不載入外部 CDN 的程式。上傳器材照片後，會在背景先產生介紹頁用的 AI 放大版。
 
 ---
 
@@ -272,6 +273,13 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 ### 結構化資料（SEO）
 首頁 `<head>` 有 JSON-LD：`WebSite`（網站名稱「嶼光映像」／PHOS OF ISLE）與 `LocalBusiness`（聯絡方式、屏東地址、服務區域）。內容與 `content/site.json` 相同，**修改聯絡資料時兩邊都要改**。
 
+### 安全標頭（`_headers`）
+- 全站：`X-Content-Type-Options: nosniff`、`Referrer-Policy: strict-origin-when-cross-origin`（YouTube 內嵌需要來源網域，不能用 no-referrer）、`Permissions-Policy` 關閉相機／麥克風／定位／付款／USB、`X-Frame-Options: SAMEORIGIN`（防止後台被嵌進別的網站）
+- **內容安全政策目前是 Report-Only（只回報、不阻擋）**。允許的外部來源：Google Fonts、Cloudinary（圖片與上傳 API）、YouTube（縮圖與內嵌）、Cloudflare Web Analytics。上線前已逛遍全站與後台各分頁，0 違規
+- 因為內嵌 `<script>`／`<style>`／`onclick` 還很多，暫時需要 `'unsafe-inline'`
+- **新增外部服務時**（新字型、新圖片來源、新的嵌入或統計），要把網域加進 CSP 對應項目；改成正式 CSP 之後，沒加的會被瀏覽器擋掉
+- 下一步：觀察一段時間 → 改成正式的 `Content-Security-Policy`
+
 ### 流量統計
 - 使用 **Cloudflare Web Analytics**：不用 Cookie、不追蹤個人，因此不需要 Cookie 同意視窗
 - 網域是灰色雲朵（DNS only），所以採**手動 JS snippet**（Cloudflare 設定為「Enable with JS Snippet installation」），不是自動注入
@@ -355,6 +363,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #32 | 租借訂單改由後端計算金額與天數（前端只送代稱、數量、日期），附 36 項自動測試 |
 | #33 | PR 檢查跑正式建置並檢查產生的頁面與 sitemap；代稱改為必填，建置不再產生依順序編號的網址 |
 | #34 | SEO 語意：影片補 YouTube 上傳日期（後台可填）、器材標明出租與按日計價、sitemap 移除假日期與停用欄位 |
+| #35 | 安全清理：Cloudinary 上傳 fail closed（移除未簽名備援）、Sortable 改自家主機、全站安全標頭與 CSP Report-Only |
 
 ---
 
@@ -379,7 +388,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - [x] 租借訂單金額與天數由後端計算（PR #32）
 - [x] PR 檢查也跑 `build-pages.js`，檢查產生的頁面、連結與 sitemap；代稱（slug）改為必填（PR #33）
 - [x] SEO 語意：影片補上傳日期、器材標明「出租」、移除假的 sitemap 更新日期、圖片 sitemap 只留網址（PR #34）
-- [ ] 安全清理：移除 Cloudinary 未簽名備援程式（preset `yuguang` 已刪）、Sortable 改自家主機、基本安全標頭、後台密碼嘗試次數限制
+- [x] 安全清理：移除 Cloudinary 未簽名備援程式（preset `yuguang` 已刪）、Sortable 改自家主機、基本安全標頭＋CSP Report-Only（PR #35）
+- [ ] 後台驗證：6 支後台函式共用一個驗證模組、密碼比對防計時攻擊、錯誤次數限制
+- [ ] CSP 從 Report-Only 改為正式（觀察一段時間無違規後）
 - [ ] 之後再評估：後台登入改 HttpOnly cookie
 
 ### 之後

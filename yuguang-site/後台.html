@@ -7,7 +7,8 @@
     <title>嶼光後台</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <!-- 拖曳排序:Sortable 1.15.0 放在自己的主機(內容與 cdnjs 官方檔案 SHA-512 相同),後台不再載入外部 CDN 的程式 -->
+  <script src="/assets/vendor/sortable-1.15.0.min.js"></script>
   <style>
       :root{--paper:#f3f1ec;--paper2:#eeece6;--ink:#171613;--muted:#a19a8d;--line:rgba(23,22,19,.14);
                 --serif:"Noto Serif TC","Songti TC",Georgia,serif;--sans:"PingFang TC","Noto Sans TC",system-ui,sans-serif;}
@@ -239,23 +240,22 @@
     }
 
     /* Cloudinary 上傳 */
-    const CLOUDINARY_CLOUD='wy6xqh42';
-    const CLOUDINARY_PRESET='yuguang';
     async function shrink(file){try{if(!/^image\//.test(file.type)||/gif/.test(file.type))return file;const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file);});let w=img.naturalWidth,h=img.naturalHeight;const MAX=2400;if(w<=MAX&&h<=MAX&&file.size<=8388608){URL.revokeObjectURL(img.src);return file;}if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85));URL.revokeObjectURL(img.src);return b&&b.size<file.size?b:file;}catch(e){return file;}}
     /* 上傳後記下照片長寬,前台相簿用來預先排好版面 */
     const UPLOAD_DIMS={};
     async function uploadImage(file){
         const fd=new FormData();
         fd.append('file',await shrink(file));
-        /* 優先用簽名上傳(只有登入後台才拿得到簽名);Netlify 尚未設定 Cloudinary 金鑰時,暫時沿用未簽名設定 */
-        let cloud=CLOUDINARY_CLOUD,signed=false;
+        /* 一律簽名上傳:簽名只有登入後台才拿得到。拿不到簽名就停止上傳,不退回未簽名的方式(fail closed) */
         const sg=await api('sign-upload',{method:'POST'});
         if(sg.status===401)throw new Error('登入已失效，請重新整理頁面、再輸入一次後台密碼。');
-        if(sg.status===200&&sg.data&&sg.data.ok){
-              signed=true;cloud=sg.data.cloud;fd.append('api_key',sg.data.api_key);fd.append('timestamp',sg.data.timestamp);fd.append('signature',sg.data.signature);
-        }else{
-              fd.append('upload_preset',CLOUDINARY_PRESET);
+        if(!(sg.status===200&&sg.data&&sg.data.ok)){
+              if(sg.data&&sg.data.reason==='cloudinary-not-configured')
+                    throw new Error('Netlify 還讀不到 CLOUDINARY_API_KEY／CLOUDINARY_API_SECRET：可能加完變數後還沒重新部署（Deploys → Trigger deploy），或變數名稱打錯。');
+              throw new Error('暫時拿不到上傳簽名，請稍後再試一次。\n\n（技術訊息：sign-upload '+sg.status+'）');
         }
+        const cloud=sg.data.cloud;
+        fd.append('api_key',sg.data.api_key);fd.append('timestamp',sg.data.timestamp);fd.append('signature',sg.data.signature);
         let res,data={};
         try{res=await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`,{method:'POST',body:fd});data=await res.json().catch(()=>({}));}
         catch(e){throw new Error('連不上 Cloudinary，請檢查網路後再試一次。');}
@@ -263,14 +263,11 @@
               /* 把 Cloudinary 的錯誤翻成看得懂、知道該去哪裡修的說明 */
               const m=String((data.error&&data.error.message)||res.status);
               let why;
-              if(!signed&&sg.data&&sg.data.reason==='cloudinary-not-configured')
-                    why='Netlify 還讀不到 CLOUDINARY_API_KEY／CLOUDINARY_API_SECRET：可能加完變數後還沒重新部署（Deploys → Trigger deploy），或變數名稱打錯。';
-              else if(/invalid signature/i.test(m))why='API Secret 不正確：Netlify 裡的 CLOUDINARY_API_SECRET 跟 API Key 不是同一組，或是重新產生 Secret 之後，Netlify 裡還是舊的。';
+              if(/invalid signature/i.test(m))why='API Secret 不正確：Netlify 裡的 CLOUDINARY_API_SECRET 跟 API Key 不是同一組，或是重新產生 Secret 之後，Netlify 裡還是舊的。';
               else if(/api.?key/i.test(m))why='API Key 不正確：請確認 Netlify 裡的 CLOUDINARY_API_KEY 是 Cloudinary 上那串純數字的 API Key。';
-              else if(/whitelisted|unsigned/i.test(m))why='未簽名的上傳設定已關閉，簽名上傳卻沒有生效。請先到 Cloudinary 把 yuguang 改回 Unsigned。';
               else if(/file size|too large/i.test(m))why='檔案太大，請換一張較小的照片。';
               else why='Cloudinary 回覆：'+m;
-              throw new Error(why+'\n\n（技術訊息：'+(signed?'簽名上傳':'未簽名上傳')+'／'+m+'）');
+              throw new Error(why+'\n\n（技術訊息：簽名上傳／'+m+'）');
         }
         if(data.width&&data.height)UPLOAD_DIMS[data.secure_url]={w:data.width,h:data.height};
         return data.secure_url;
