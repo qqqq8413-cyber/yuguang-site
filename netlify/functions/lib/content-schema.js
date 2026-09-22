@@ -25,9 +25,10 @@ const photo = obj({ image: nonEmpty(T.url), caption: T.str, w: T.posInt, h: T.po
 // 相簿、專案、器材的代稱(slug)是網址的一部分(/work/<相簿>/<專案>/、/rental/<器材>/),必填:
 // 少了它網址就只能用排列順序產生,拖曳排序或新增項目後,已分享出去的連結會指到別的作品。
 // 後台存檔時會自動補上(ensureSlugs),只有手動改 JSON 才可能漏掉,這裡負責擋下。
-const project = obj({ zh: nonEmpty(T.str), en: T.str, cover: T.url, slug: nonEmpty(T.slug), photos: arr(photo) }, ['zh', 'slug']);
+// featured:勾選後才會出現在首頁「平面作品」那一排(都沒勾時首頁顯示全部)
+const project = obj({ zh: nonEmpty(T.str), en: T.str, cover: T.url, slug: nonEmpty(T.slug), featured: T.bool, photos: arr(photo) }, ['zh', 'slug']);
 const album = obj(
-  { zh: nonEmpty(T.str), en: T.str, cover: T.url, slug: nonEmpty(T.slug), photos: arr(photo), projects: arr(project) },
+  { zh: nonEmpty(T.str), en: T.str, cover: T.url, slug: nonEmpty(T.slug), featured: T.bool, photos: arr(photo), projects: arr(project) },
   ['zh', 'slug']
 );
 

@@ -358,12 +358,14 @@
         const plane=[];
         (a.albums||[]).forEach((al,i)=>{
               if(al.projects&&al.projects.length){
-                      al.projects.forEach((pj,j)=>plane.push({href:al.slug&&pj.slug?`pingmian.html?album=${al.slug}&project=${pj.slug}`:`pingmian.html?cat=${i}&proj=${j}`,imgs:(pj.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:pj.zh||al.zh,sub:al.zh}));
+                      al.projects.forEach((pj,j)=>plane.push({featured:pj.featured===true,href:al.slug&&pj.slug?`pingmian.html?album=${al.slug}&project=${pj.slug}`:`pingmian.html?cat=${i}&proj=${j}`,imgs:(pj.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:pj.zh||al.zh,sub:al.zh}));
               }else{
-                      plane.push({href:al.slug?`pingmian.html?album=${al.slug}`:`pingmian.html?cat=${i}`,imgs:(al.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:al.zh,sub:al.en});
+                      plane.push({featured:al.featured===true,href:al.slug?`pingmian.html?album=${al.slug}`:`pingmian.html?cat=${i}`,imgs:(al.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:al.zh,sub:al.en});
               }
         });
-        addRow('平面作品','Photography','pingmian.html',plane,'lg');
+        /* 後台勾了「★ 首頁精選」就只顯示勾選的(順序依後台的分類／專案排序);一個都沒勾時顯示全部 */
+        const planePick=plane.filter(x=>x.featured);
+        addRow('平面作品','Photography','pingmian.html',planePick.length?planePick:plane,'lg');
 
                 const vids=(v.videos||[]).filter(x=>x.yt&&(x.featured===true||x.cat==='精選作品')).map(x=>({href:'dongtai.html?v='+encodeURIComponent(ytid(x.yt)),img:x.cover?heroImg(x.cover,1200):`https://img.youtube.com/vi/${(String(x.yt).match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)||[0,x.yt])[1]}/hqdefault.jpg`,cap:x.title||'影片',sub:x.cat}));
         addRow('動態作品','Videography','dongtai.html',vids,'lg');
