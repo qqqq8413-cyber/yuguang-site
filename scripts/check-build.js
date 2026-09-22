@@ -4,13 +4,15 @@
 //   2. sitemap.xml:網址都是正式網域、沒有重複、都指到存在的頁面;產生的頁面都有列進去
 //   3. 網址穩定:把相簿/專案/器材/影片的順序反過來、中文名稱全部改掉,產生的網址必須完全相同
 //   4. 產生的檔案沒有被 commit 進 repo(它們每次部署都會重新產生)
+//   5. 結構化資料語意:器材是「出租」(LeaseOut、按日計價);影片有上傳日期(缺的只提醒,不擋)
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { generate, loadContent, SITE, ROOT } = require('./build-pages');
 
-const errs = [];
+const errs = [], warns = [];
 const bad = (m) => errs.push(m);
+const warn = (m) => warns.push(m);
 const GEN_DIRS = ['work', 'video', 'rental'];
 
 // ---------- 1. 產生的頁面 ----------
@@ -36,6 +38,19 @@ for (const url of built) {
   // Netlify 會把網址轉小寫,所以一律小寫;影片用 YouTube ID(可能有 _),其餘用代稱
   const okUrl = /^\/video\/[a-z0-9_-]+\/$/.test(url) || /^\/(work|rental)\/[a-z0-9-]+\/([a-z0-9-]+\/)?$/.test(url);
   if (!okUrl) bad(`${url}：網址格式不對（只能有小寫英數、-，影片可有 _）`);
+
+  // 5. 結構化資料語意
+  const ldm = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  let ld = null; try { ld = ldm && JSON.parse(ldm[1]); } catch (e) { bad(`${url}：結構化資料不是合法 JSON`); }
+  if (ld && ld['@type'] === 'VideoObject') {
+    if (!ld.uploadDate) warn(`${url}（${ld.name}）：沒有上傳日期，Google 不會把它當成影片結果顯示。請在後台該影片填「YouTube 上傳日期」`);
+    else if (isNaN(Date.parse(ld.uploadDate))) bad(`${url}：uploadDate「${ld.uploadDate}」不是有效日期`);
+  }
+  if (ld && ld['@type'] === 'Product' && ld.offers) {
+    const o = ld.offers, ps = o.priceSpecification || {};
+    if (o.businessFunction !== 'http://purl.org/goodrelations/v1#LeaseOut') bad(`${url}：器材的 offers 要標明出租（businessFunction LeaseOut），否則會被當成出售`);
+    if (ps.unitCode !== 'DAY') bad(`${url}：器材價格要標明「每日」（priceSpecification.unitCode = DAY）`);
+  }
 }
 
 // ---------- 2. sitemap ----------
@@ -47,6 +62,9 @@ else {
   const open = (xml.match(/<url>/g) || []).length, close = (xml.match(/<\/url>/g) || []).length;
   if (open !== close) bad(`sitemap.xml：<url> 開關標籤數量不一致（${open} / ${close}）`);
   if (/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;)/.test(xml)) bad('sitemap.xml：有未跳脫的 & 符號');
+  // 沒有真正的修改日期就不放 lastmod(每次部署都填今天,Google 會不再相信);image:title/caption 已被 Google 停用
+  if (/<lastmod>/.test(xml)) bad('sitemap.xml：不應放 lastmod（沒有真正的頁面修改日期）');
+  if (/<image:(title|caption)>/.test(xml)) bad('sitemap.xml：image:title／image:caption 已被 Google 停用，只放 image:loc');
   const locs = [...xml.matchAll(/<url><loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
   if (locs.length !== open) bad(`sitemap.xml：有 ${open} 筆 <url> 但只找到 ${locs.length} 個 <loc>`);
   const seen = new Set();
@@ -89,6 +107,7 @@ try {
   if (tracked) bad(`這些產生的檔案不應該 commit 進 repo（見 .gitignore）：\n    ${tracked.split('\n').slice(0, 5).join('\n    ')}`);
 } catch (e) { /* 沒有 git 的環境就略過 */ }
 
+warns.forEach((m) => console.log('△ ' + m));
 if (errs.length) {
   errs.forEach((m) => console.log('✗ ' + m));
   console.log(`\n${errs.length} 個問題`);

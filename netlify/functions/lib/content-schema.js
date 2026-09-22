@@ -14,6 +14,8 @@ const T = {
   posInt: { type: 'integer', min: 1 },
   nonNegInt: { type: 'integer', min: 0 },
   bool: { type: 'boolean' },
+  // 日期:2026-03-05,或含時區的完整時間 2026-03-05T19:51:13-08:00(YouTube 的上傳時間就是這種格式)
+  datetime: { type: 'string', datetime: true },
 };
 const arr = (items, extra) => Object.assign({ type: 'array', items }, extra);
 const obj = (props, required, extra) => Object.assign({ type: 'object', props, required: required || [] }, extra);
@@ -35,6 +37,9 @@ const video = obj({
   client: T.str,
   year: { type: ['string', 'integer'] },
   featured: T.bool, cover: T.url, sub: T.str, desc: T.text, credits: T.text, slug: T.slug,
+  // YouTube 上傳日期:Google 要有這個才會把影片頁當成影片結果顯示(VideoObject.uploadDate);
+  // 與畫面上顯示的「年份」不同,年份是作品年份
+  publishedAt: T.datetime,
 });
 
 const gear = obj({
@@ -80,6 +85,8 @@ function check(v, s, path, errs) {
     if (s.max && v.length > s.max) errs.push(`${path}：太長（上限 ${s.max} 字）`);
     if (s.url && v && !/^(https?:\/\/[^\s]+|\/[^\s]*)$/.test(v)) errs.push(`${path}：不是有效的網址「${v.slice(0, 60)}」`);
     if (s.slug && v && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v)) errs.push(`${path}：代稱只能用小寫英文、數字和 -（例如 amaran-300c）`);
+    if (s.datetime && v && !(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(Z|[+-]\d{2}:\d{2}))?$/.test(v) && !isNaN(Date.parse(v))))
+      errs.push(`${path}：日期格式不對「${v.slice(0, 40)}」，請填 2026-03-05 這種格式`);
     if (s.youtube && v && !/^([A-Za-z0-9_-]{11}|https?:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\/\S+)$/.test(v.trim()))
       errs.push(`${path}：不是 YouTube 影片網址或 ID「${v.slice(0, 60)}」`);
   }

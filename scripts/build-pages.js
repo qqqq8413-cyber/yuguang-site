@@ -121,6 +121,8 @@ function buildVideos(videos) {
         jsonld: {
           '@context': 'https://schema.org', '@type': 'VideoObject', name: v.title || '動態作品', description: desc,
           thumbnailUrl: cover, embedUrl: `https://www.youtube.com/embed/${id}`, url: SITE + url,
+          // Google 顯示影片結果的必要欄位;沒有日期時不填,不拿建置日期假裝上傳日期
+          uploadDate: v.publishedAt || undefined,
           creator: { '@type': 'Organization', name: '嶼光映像', url: SITE + '/' },
         },
         body,
@@ -154,7 +156,7 @@ function buildAlbums(albums) {
       ].join('\n');
       pages.push({
         url, priority: '0.7',
-        images: photos.map((ph, i) => ({ loc: abs(img(ph.image, 1600)), title: ph.caption || `${title} ${String(i + 1).padStart(2, '0')}`, caption: `${a.zh}｜${title}．嶼光映像平面攝影作品（屏東）` })),
+        images: photos.map((ph) => abs(img(ph.image, 1600))),
         html: shell({
           url, title, desc, image: cover, crumb: parentCrumb,
           jsonld: {
@@ -229,15 +231,20 @@ function buildGear(gear) {
       category: g.cat, image: g.image ? [cover] : undefined,
       brand: { '@type': 'Brand', name: String(g.name).split(' ')[0] },
     };
+    // 這是「出租」不是「出售」:businessFunction=LeaseOut,價格是「每 1 天」的租金(unitCode DAY)
     if (has) jsonld.offers = {
       '@type': 'Offer', url: SITE + url, priceCurrency: 'TWD', price: String(g.price),
+      businessFunction: 'http://purl.org/goodrelations/v1#LeaseOut',
       availability: (g.qty === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock'),
-      priceSpecification: { '@type': 'UnitPriceSpecification', price: String(g.price), priceCurrency: 'TWD', unitText: '日' },
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification', price: String(g.price), priceCurrency: 'TWD',
+        unitCode: 'DAY', unitText: '日', referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'DAY' },
+      },
       seller: { '@type': 'Organization', name: '嶼光映像' },
     };
     pages.push({
       url, priority: '0.8',
-      images: g.image ? [{ loc: cover, title: g.name, caption: `${g.name}｜嶼光映像影像器材日租（屏東）` }] : [],
+      images: g.image ? [cover] : [],
       html: shell({
         url, title: g.name, desc, image: cover, type: 'product',
         crumb: `<a href="index.html">首頁</a><span>›</span><a href="qicai.html">器材租賃</a><span>›</span>${esc(g.name)}`,
@@ -251,7 +258,6 @@ function buildGear(gear) {
 function write() {
   // 先清掉上次產生的頁面,避免改了代稱之後留下舊網址
   for (const d of ['video', 'work', 'rental']) fs.rmSync(path.join(ROOT, d), { recursive: true, force: true });
-  const today = new Date().toISOString().slice(0, 10);
   for (const p of pages) {
     const dir = path.join(ROOT, p.url.replace(/^\/|\/$/g, ''));
     fs.mkdirSync(dir, { recursive: true });
@@ -260,17 +266,17 @@ function write() {
   const statics = [['/', '1.0'], ['/pingmian.html', '0.9'], ['/dongtai.html', '0.9'], ['/qicai.html', '0.9'],
     ['/liucheng.html', '0.6'], ['/guanyu.html', '0.6'], ['/lianluo.html', '0.7']];
   const urls = statics.concat(pages.map((p) => [p.url, p.priority]));
-  // sitemap 也列出每頁的照片(image 擴充),讓 Google 圖片搜尋找得到作品照
+  // sitemap 也列出每頁的照片(image 擴充),讓 Google 圖片搜尋找得到作品照。
+  // 只放 image:loc:title/caption 已被 Google 停用;照片的描述靠頁面上的 alt 與文字。
   const imagesOf = (u) => (pages.find((p) => p.url === u) || {}).images || [];
-  const imgTags = (u) => imagesOf(u).slice(0, 100).map((im) =>
-    `\n    <image:image><image:loc>${im.loc.replace(/&/g, '&amp;')}</image:loc>` +
-    `<image:title>${esc(im.title)}</image:title>` +
-    (im.caption ? `<image:caption>${esc(im.caption)}</image:caption>` : '') + '</image:image>').join('');
+  const imgTags = (u) => imagesOf(u).slice(0, 100).map((loc) =>
+    `\n    <image:image><image:loc>${esc(loc)}</image:loc></image:image>`).join('');
   const totalImgs = pages.reduce((n, p) => n + ((p.images || []).length), 0);
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'),
     ['<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">']
-      .concat(urls.map(([u, pr]) => `  <url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod><priority>${pr}</priority>${imgTags(u)}</url>`))
+      // 不放 lastmod:我們沒有每頁真正的修改日期,每次部署都填今天只會讓 Google 不再相信這個欄位
+      .concat(urls.map(([u, pr]) => `  <url><loc>${SITE}${u}</loc><priority>${pr}</priority>${imgTags(u)}</url>`))
       .concat('</urlset>', '').join('\n'));
   console.log(`✓ 產生 ${pages.length} 個單頁、sitemap ${urls.length} 筆、照片 ${totalImgs} 張`);
 }
