@@ -661,7 +661,8 @@ function closeCart(fromPop){
   panel.classList.remove('open');document.body.style.overflow='';
 }
 document.getElementById('cartBtn').addEventListener('click',()=>openCart());
-/* 送出租借需求:寫入 Netlify 表單(備援)+ Netlify 函式(進 Airtable 後端),任一成功才算送出 */
+/* 送出租借需求:先交給後端(依 gear.json 重算金額後寫進 Airtable),再留一份 Netlify 表單備份;
+   後端判定內容有誤就顯示原因、不送出;後端連不上時改用表單備援,訂單不會遺失 */
 function fieldErr(el,msg){
   document.getElementById('cartErr').textContent=msg;
   if(el){el.style.borderColor='#b04a3a';el.focus();}
@@ -681,27 +682,52 @@ document.getElementById('cartSend').addEventListener('click',()=>{
   if(!name)return fieldErr($('cName'),'請填寫姓名');
   if(!line)return fieldErr($('cLine'),'請填寫 LINE ID，方便我們聯絡你');
   $('cartErr').textContent='';
-  const days=rentDays();
-  const dailyTotal=dailyOf(cart);
-  const amount=dailyTotal*days;
-  const items=cart.map(id=>`${gear[id].name} ×${cnt[id]}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格另計'}）`).join('、');
+  /* 只送代稱、數量、日期與聯絡方式;器材名稱、單價、天數、金額一律由後端依 gear.json 計算 */
+  const order={name,line,start,end,items:cart.map(id=>({slug:gear[id].slug,qty:cnt[id]}))};
+  /* 表單備援用的文字:後端有回報價就用後端的數字,後端連不上才用畫面上算的 */
+  const days=rentDays(),localAmount=dailyOf(cart)*days;
+  const localItems=cart.map(id=>`${gear[id].name} ×${cnt[id]}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格另計'}）`).join('、');
   const contact=`LINE ${line}`;
-  const order={name,contact,line,start,end,days,items,dailyTotal,amount};
-  send.textContent='送出中…';send.classList.add('disabled');
-  const formData=new URLSearchParams({'form-name':'rental-inquiry',name,contact,line,items,start,end,amount:String(amount)});
-  const ok=p=>p.then(r=>{if(!r.ok)throw r;return r;});
-  Promise.any([
-    ok(fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:formData.toString()})),
-    ok(fetch('/.netlify/functions/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)}))
-  ]).then(()=>{
+  const postForm=f=>fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:new URLSearchParams(Object.assign({'form-name':'rental-inquiry',name,contact,line,start,end},f)).toString()})
+    .then(r=>{if(!r.ok)throw r;});
+  const done=()=>{
     $('cartForm').style.display='none';
     $('cartSent').style.display='block';
-    clearCart();document.getElementById('cStart').value='';document.getElementById('cEnd').value='';renderCart();bar();
-  }).catch(()=>{
-    fieldErr(null,'送出失敗，請檢查網路後再試一次，或直接用 LINE 聯絡我們');
-    send.classList.remove('disabled');
-  }).finally(()=>{send.textContent='送出租借需求';});
+    clearCart();$('cStart').value='';$('cEnd').value='';renderCart();bar();
+  };
+  const fail=msg=>{fieldErr(null,msg);send.classList.remove('disabled');};
+  send.textContent='送出中…';send.classList.add('disabled');
+  (async()=>{
+    let res=null,data={};
+    try{
+      res=await fetch('/.netlify/functions/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)});
+      data=await res.json().catch(()=>({}));
+    }catch(e){res=null;}
+    /* 後端判定內容有誤(器材已下架、數量超過、日期不對…):告訴對方原因,不送出 */
+    if(res&&res.status===400)return fail(ORDER_ERR[data.error]||'資料有誤，請重新整理頁面後再試一次，或直接用 LINE 聯絡我們');
+    const q=data.quote;
+    const f=q?{items:q.items,amount:String(q.amount)}:{items:localItems,amount:String(localAmount)};
+    if(res&&res.ok&&data.ok){await postForm(f).catch(()=>{});return done();}   /* 已進 Airtable;表單再留一份備份 */
+    try{await postForm(f);done();}                                           /* 後端暫時不能用:改用表單備援 */
+    catch(e){fail('送出失敗，請檢查網路後再試一次，或直接用 LINE 聯絡我們');}
+  })().finally(()=>{send.textContent='送出租借需求';});
 });
+/* 後端檢查不通過時的說明(錯誤代碼見 netlify/functions/lib/rental.js) */
+const ORDER_ERR={
+  'missing-contact':'請填寫 LINE ID，方便我們聯絡你',
+  'no-items':'還沒有選擇器材',
+  'unknown-item':'清單裡有器材已經下架，請重新整理頁面後再送出',
+  'unavailable':'清單裡有器材目前暫停出租，請移除後再送出',
+  'qty-exceeds-stock':'有器材的數量超過可租台數，請調整後再送出',
+  'invalid-qty':'器材數量有誤，請重新整理頁面後再送出',
+  'duplicate-item':'清單裡有重複的器材，請重新整理頁面後再送出',
+  'too-many-items':'一次選的器材太多了，請分批送出或直接用 LINE 聯絡我們',
+  'invalid-date':'請重新選擇起租日與迄租日',
+  'start-in-past':'起租日已經過了，請重新選擇日期',
+  'end-before-start':'迄租日要在起租日之後',
+  'too-long':'租期超過一年，請直接用 LINE 與我們聯絡'
+};
 document.getElementById('cartClose').addEventListener('click',closeCart);
 document.getElementById('cartScrim').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCart()});
