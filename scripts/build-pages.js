@@ -7,6 +7,10 @@
  * 目的:分享到 LINE／Facebook 時顯示該作品的標題與封面;Google 也能逐件收錄。
  * 產生的檔案不進版控(見 .gitignore),每次部署時重新產生。
  * 本機預覽:node scripts/build-pages.js
+ *
+ * 網址只由代稱(slug)與影片 ID 決定,不看排列順序或中文名稱:拖曳排序、改標題都不會讓已分享的連結失效。
+ * 內容不符合格式(包括缺代稱)時直接中止、不產生任何頁面:Netlify 會保留上一版網站,不會把壞網址發布出去。
+ * 產生的頁面由 scripts/check-build.js 檢查(PR 自動檢查也會跑)。
  */
 const fs = require('fs');
 const path = require('path');
@@ -14,6 +18,12 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', 'yuguang-site');
 const SITE = 'https://phosofisle.com';
 const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'content', f), 'utf8'));
+const { validateContent } = require('../netlify/functions/lib/content-schema');
+// 代稱是網址的唯一依據;格式檢查已要求必填,這裡再擋一次,避免任何路徑產生「依順序編號」的網址
+const needSlug = (node, what) => {
+  if (!node.slug) throw new Error(`${what} 缺少代稱(slug),網址無法固定。請在後台打開後按一次儲存(會自動補上),或在 JSON 補上 slug。`);
+  return node.slug;
+};
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 const attr = (s) => esc(s).replace(/\n/g, ' ');
@@ -81,9 +91,11 @@ function buildVideos(videos) {
   // 路徑一律用小寫,萬一有兩支只差大小寫的 ID 就加序號
   const seen = new Map();
   const pathId = (id) => { const k = id.toLowerCase(); const n = (seen.get(k) || 0) + 1; seen.set(k, n); return n === 1 ? k : `${k}-${n}`; };
-  list.forEach((v, n) => {
+  // 先算好每支影片的網址,「更多作品」連結才會和影片頁本身一致(含加序號的情況)
+  const urlOf = new Map(list.map((v) => [v, `/video/${pathId(ytid(v.yt))}/`]));
+  list.forEach((v) => {
     const id = ytid(v.yt);
-    const url = `/video/${pathId(id)}/`;
+    const url = urlOf.get(v);
     const cover = v.cover ? abs(cld(v.cover, 'e_trim:20/f_auto,q_auto,w_1200')) : `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
     const meta = [v.client, v.year].filter(Boolean).join(' · ');   // 分類已顯示在上方 kicker
     const desc = clip(v.desc || `${v.title}｜${[v.cat, meta].filter(Boolean).join(' · ')}。嶼光映像的動態影像作品。`, 150);
@@ -91,7 +103,7 @@ function buildVideos(videos) {
       const i = l.search(/[:：|｜]/);
       return i < 0 ? { role: '', name: l } : { role: l.slice(0, i).trim(), name: l.slice(i + 1).trim() };
     }).filter((c) => c.name);
-    const others = list.filter((x) => x !== v && x.cat === v.cat).slice(0, 5).map((x) => ({ url: `/video/${ytid(x.yt).toLowerCase()}/`, label: x.title || '作品' }));
+    const others = list.filter((x) => x !== v && x.cat === v.cat).slice(0, 5).map((x) => ({ url: urlOf.get(x), label: x.title || '作品' }));
     const body = [
       `<header class="phead"><div class="kicker">${esc(v.cat || 'Videography')}</div><h1>${esc(v.title || '動態作品')}</h1>`,
       v.sub ? `<div class="meta">${esc(v.sub)}</div>` : '',
@@ -125,8 +137,8 @@ function photoWall(photos, alt) {
   }).join('')}</div>`;
 }
 function buildAlbums(albums) {
-  albums.forEach((a, ai) => {
-    const aSlug = a.slug || `album-${ai}`;
+  albums.forEach((a) => {
+    const aSlug = needSlug(a, `相簿「${a.zh}」`);
     const projects = a.projects || [];
     const albumUrl = `/work/${aSlug}/`;
     const firstImg = (n) => (n.cover ? n.cover : (n.photos && n.photos[0] && n.photos[0].image) || (n.projects || []).map((p) => (p.photos || [])[0] && p.photos[0].image).find(Boolean));
@@ -156,17 +168,18 @@ function buildAlbums(albums) {
     };
     const baseCrumb = `<a href="index.html">首頁</a><span>›</span><a href="pingmian.html">平面作品</a>`;
     if (projects.length) {
-      projects.forEach((p, pi) => {
-        const pSlug = p.slug || `project-${pi}`;
-        const others = projects.filter((x) => x !== p).map((x, i) => ({ url: `/work/${aSlug}/${x.slug || `project-${i}`}/`, label: x.zh || '專案' })).slice(0, 6);
+      projects.forEach((p) => needSlug(p, `相簿「${a.zh}」的專案「${p.zh}」`));
+      projects.forEach((p) => {
+        const pSlug = p.slug;
+        const others = projects.filter((x) => x !== p).map((x) => ({ url: `/work/${aSlug}/${x.slug}/`, label: x.zh || '專案' })).slice(0, 6);
         mk(p, `/work/${aSlug}/${pSlug}/`, p.zh || a.zh, `${baseCrumb}<span>›</span><a href="${albumUrl}">${esc(a.zh)}</a><span>›</span>${esc(p.zh || '')}`, p.photos || [], others);
       });
       // 分類頁:列出各專案
       const body = [
         `<header class="phead"><div class="kicker">${esc(a.en || 'Photography')}</div><h1>${esc(a.zh)}</h1>`,
         `<div class="meta">${projects.length} 個專案</div></header>`,
-        `<section class="sec"><div class="shots">${projects.map((p, pi) => {
-          const c = firstImg(p); const u = `/work/${aSlug}/${p.slug || `project-${pi}`}/`;
+        `<section class="sec"><div class="shots">${projects.map((p) => {
+          const c = firstImg(p); const u = `/work/${aSlug}/${p.slug}/`;
           return `<figure><a href="${u}">${c ? `<img src="${attr(img(c, 900))}" alt="${attr(p.zh || '')}" loading="lazy" decoding="async">` : ''}<figcaption class="meta">${esc(p.zh || '')}</figcaption></a></figure>`;
         }).join('')}</div></section>`,
         `<div class="cta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">在作品集中瀏覽</a></div>`,
@@ -178,7 +191,7 @@ function buildAlbums(albums) {
           image: abs(img(firstImg(a) || '', 1200)), crumb: `${baseCrumb}<span>›</span>${esc(a.zh)}`,
           jsonld: {
             '@context': 'https://schema.org', '@type': 'CollectionPage', name: a.zh, url: SITE + albumUrl,
-            hasPart: projects.map((p, pi) => ({ '@type': 'ImageGallery', name: p.zh || '', url: `${SITE}/work/${aSlug}/${p.slug || `project-${pi}`}/` })),
+            hasPart: projects.map((p) => ({ '@type': 'ImageGallery', name: p.zh || '', url: `${SITE}/work/${aSlug}/${p.slug}/` })),
           },
           body,
         }),
@@ -191,13 +204,14 @@ function buildAlbums(albums) {
 
 /* ── 器材 ── */
 function buildGear(gear) {
-  gear.forEach((g, gi) => {
-    const slug = g.slug || `gear-${gi}`;
+  gear.forEach((g) => needSlug(g, `器材「${g.name}」`));
+  gear.forEach((g) => {
+    const slug = g.slug;
     const url = `/rental/${slug}/`;
     const has = typeof g.price === 'number' && g.price > 0;
     const cover = g.image ? abs(gearImg(g.image, 1200)) : `${SITE}/images/og.jpg`;
     const desc = clip(g.desc || `${g.name}｜嶼光映像影像器材日租（屏東）。${has ? `日租 NT$ ${g.price}。` : ''}`, 150);
-    const others = gear.filter((x) => x !== g && x.cat === g.cat).slice(0, 5).map((x, i) => ({ url: `/rental/${x.slug || `gear-${i}`}/`, label: x.name }));
+    const others = gear.filter((x) => x !== g && x.cat === g.cat).slice(0, 5).map((x) => ({ url: `/rental/${x.slug}/`, label: x.name }));
     const body = [
       '<div class="gearhead">',
       g.image ? `<div class="shot"><img src="${attr(gearImg(g.image, 1000))}" alt="${attr(g.name)}" loading="eager" decoding="async"></div>` : '<div></div>',
@@ -261,7 +275,34 @@ function write() {
   console.log(`✓ 產生 ${pages.length} 個單頁、sitemap ${urls.length} 筆、照片 ${totalImgs} 張`);
 }
 
-buildVideos(read('videos.json').videos || []);
-buildAlbums(read('albums.json').albums || []);
-buildGear(read('gear.json').gear || []);
-write();
+/* ── 進入點 ── */
+// 讀內容並先做格式檢查(與後台存檔、PR 檢查用同一份規則);不通過就丟出錯誤
+function loadContent() {
+  const out = {};
+  for (const [f, key] of [['videos.json', 'videos'], ['albums.json', 'albums'], ['gear.json', 'gear']]) {
+    const data = read(f);
+    const errs = validateContent(f, data);
+    if (errs.length) throw new Error(`${f} 格式有誤,不產生頁面:\n  ` + errs.slice(0, 10).join('\n  '));
+    out[key] = data[key] || [];
+  }
+  return out;
+}
+// 由內容產生所有單頁(不寫檔),回傳 [{ url, html, priority, images }];供測試比對網址是否穩定
+function generate(content) {
+  pages.length = 0;
+  buildVideos(content.videos || []);
+  buildAlbums(content.albums || []);
+  buildGear(content.gear || []);
+  return pages.slice();
+}
+module.exports = { generate, loadContent, SITE, ROOT };
+
+if (require.main === module) {
+  try {
+    generate(loadContent());
+    write();
+  } catch (e) {
+    console.error('✗ ' + e.message);
+    process.exit(1);
+  }
+}
