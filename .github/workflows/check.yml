@@ -20,6 +20,8 @@ jobs:
         run: for f in netlify/functions/*.js; do node -e "require('./$f')" || exit 1; done
       - name: 後台密碼驗證(共用驗證、錯誤次數限制)
         run: node scripts/test-admin-auth.js
+      - name: 預覽版不能寫入正式資料
+        run: node scripts/test-preview-guard.js
       - name: 租借下單計算(金額、天數、數量由後端依 gear.json 計算)
         run: node scripts/test-create-order.js
       # 與 Netlify 部署時相同的建置步驟;失敗就代表合併後正式站會部署失敗
