@@ -4,7 +4,7 @@
 //   2. sitemap.xml:網址都是正式網域、沒有重複、都指到存在的頁面;產生的頁面都有列進去
 //   3. 網址穩定:把相簿/專案/器材/影片的順序反過來、中文名稱全部改掉,產生的網址必須完全相同
 //   4. 產生的檔案沒有被 commit 進 repo(它們每次部署都會重新產生)
-//   5. 結構化資料語意:器材是「出租」(LeaseOut、按日計價);影片有上傳日期(缺的只提醒,不擋)
+//   5. 標題:每頁都要有、不可重複(重複只提醒);結構化資料語意:器材是「出租」(LeaseOut、按日計價);影片有上傳日期(缺的只提醒,不擋)
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -23,6 +23,7 @@ const walk = (rel) => {
     e.isDirectory() ? walk(path.join(rel, e.name)) : e.name === 'index.html' ? [rel] : []);
 };
 const built = GEN_DIRS.flatMap((d) => walk(d)).map((rel) => '/' + rel.split(path.sep).join('/') + '/');
+const titles = new Map(); // 搜尋結果用的標題 → 用了這個標題的頁面
 if (!built.length) bad('找不到產生的頁面,請先執行 node scripts/build-pages.js');
 
 const attrOf = (html, re) => { const m = html.match(re); return m ? m[1] : null; };
@@ -32,7 +33,9 @@ for (const url of built) {
   const ogUrl = attrOf(html, /<meta property="og:url" content="([^"]*)">/);
   if (canon !== SITE + url) bad(`${url}：canonical 是「${canon}」，應為「${SITE + url}」`);
   if (ogUrl !== SITE + url) bad(`${url}：og:url 是「${ogUrl}」，應為「${SITE + url}」`);
-  if (!/<title>[^<]+ · 嶼光映像<\/title>/.test(html)) bad(`${url}：缺少頁面標題`);
+  const tm = html.match(/<title>([^<]+) · 嶼光映像<\/title>/);
+  if (!tm) bad(`${url}：缺少頁面標題`);
+  else titles.set(tm[1], (titles.get(tm[1]) || []).concat(url));
   const h1 = (html.match(/<h1[\s>]/g) || []).length;
   if (h1 !== 1) bad(`${url}：h1 應該剛好 1 個，目前 ${h1} 個`);
   // Netlify 會把網址轉小寫,所以一律小寫;影片用 YouTube ID(可能有 _),其餘用代稱
@@ -51,6 +54,12 @@ for (const url of built) {
     if (o.businessFunction !== 'http://purl.org/goodrelations/v1#LeaseOut') bad(`${url}：器材的 offers 要標明出租（businessFunction LeaseOut），否則會被當成出售`);
     if (ps.unitCode !== 'DAY') bad(`${url}：器材價格要標明「每日」（priceSpecification.unitCode = DAY）`);
   }
+}
+
+// 標題重複:Google 會分不出這幾頁的差別。多半是內容的名稱重複(例如兩個專案同名),
+// 所以只提醒、不擋,請在後台把名稱改得有區別。
+for (const [t, urls] of titles) {
+  if (urls.length > 1) warn(`有 ${urls.length} 頁的標題都是「${t}」：${urls.join('、')}　→ 建議在後台把名稱改得有區別（例如加上客戶或年份）`);
 }
 
 // ---------- 2. sitemap ----------
