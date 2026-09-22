@@ -2884,7 +2884,8 @@
               "h": 1600
             }
           ],
-          "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787891315/yc6wz7u4ky9byyayhbex.jpg"
+          "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787891315/yc6wz7u4ky9byyayhbex.jpg",
+          "featured": true
         }
       ],
       "photos": []
