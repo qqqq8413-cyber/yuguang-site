@@ -8,7 +8,8 @@
       "year": "2025",
       "featured": true,
       "credits": "導演 Director：王振旭\n企劃 Producer：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
-      "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788234404/xvce5t3hz0krjzkvsx00.jpg"
+      "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788234404/xvce5t3hz0krjzkvsx00.jpg",
+      "publishedAt": "2026-03-05T19:51:13-08:00"
     },
     {
       "title": "政風處反賄選微電影",
@@ -17,7 +18,8 @@
       "year": "2022",
       "yt": "https://youtu.be/y_LyLwdwKlk",
       "credits": "導演 Director：廖茂能\n企劃 Producer：施政昌\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
-      "featured": false
+      "featured": false,
+      "publishedAt": "2022-06-26T18:14:25-07:00"
     },
     {
       "title": "行動生活復能車",
@@ -27,7 +29,8 @@
       "year": "",
       "featured": true,
       "credits": "導演 Director：王振旭\n企劃 Producer：成宸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
-      "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788184797/j1ik5xklttshgqpddqrz.jpg"
+      "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788184797/j1ik5xklttshgqpddqrz.jpg",
+      "publishedAt": "2026-01-19T02:40:02-08:00"
     },
     {
       "title": "水月囍樓｜豬腳湯",
@@ -36,7 +39,8 @@
       "year": "2025",
       "yt": "https://youtu.be/CLFTrR3pp5w",
       "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
-      "featured": true
+      "featured": true,
+      "publishedAt": "2025-05-05T00:59:23-07:00"
     },
     {
       "title": "水月囍樓｜月子餐",
@@ -45,7 +49,8 @@
       "year": "2025",
       "yt": "https://youtu.be/fUWHHLb8W3k",
       "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
-      "featured": true
+      "featured": true,
+      "publishedAt": "2025-05-19T23:10:34-07:00"
     },
     {
       "title": "成旻企業｜開幕典禮",
@@ -54,7 +59,8 @@
       "client": "",
       "year": "",
       "featured": true,
-      "credits": "攝影 Cinematographer：吳翊綸、紀柏先\n剪輯 Editor：吳翊綸"
+      "credits": "攝影 Cinematographer：吳翊綸、紀柏先\n剪輯 Editor：吳翊綸",
+      "publishedAt": "2026-05-22T02:42:58-07:00"
     },
     {
       "title": "好屏友市集",
@@ -64,7 +70,8 @@
       "year": "",
       "featured": true,
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
-      "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788184813/cxckswzccoyupvsdkaug.jpg"
+      "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788184813/cxckswzccoyupvsdkaug.jpg",
+      "publishedAt": "2026-08-31T01:43:41-07:00"
     },
     {
       "title": "愛心育苗計畫 x 小小藝術班",
@@ -74,7 +81,8 @@
       "yt": "https://youtu.be/KwR2NwgT_28",
       "credits": "導演 Director：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸",
       "featured": false,
-      "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788185983/blarqubruzbsdzq4pubp.jpg"
+      "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788185983/blarqubruzbsdzq4pubp.jpg",
+      "publishedAt": "2025-03-29T06:33:58-07:00"
     },
     {
       "title": "衛生局記者會回顧精華",
@@ -83,7 +91,8 @@
       "year": "2025",
       "yt": "https://youtu.be/UvuE-mPdBb0",
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
-      "featured": false
+      "featured": false,
+      "publishedAt": "2025-05-09T01:53:54-07:00"
     },
     {
       "title": "小小縣長訓練營",
@@ -92,7 +101,8 @@
       "year": "2026",
       "yt": "https://youtu.be/2IfSHmM83YM",
       "featured": false,
-      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
+      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
+      "publishedAt": "2026-05-06T07:07:29-07:00"
     },
     {
       "title": "小小縣長成果發表",
@@ -101,7 +111,8 @@
       "client": "",
       "year": "",
       "featured": true,
-      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
+      "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
+      "publishedAt": "2026-05-05T04:26:47-07:00"
     },
     {
       "title": "2025｜YouthQuake校際隊呼比賽",
@@ -110,7 +121,8 @@
       "year": "2025",
       "yt": "https://youtu.be/7g4yXPQm1fM",
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
-      "featured": false
+      "featured": false,
+      "publishedAt": "2025-05-31T03:37:10-07:00"
     },
     {
       "title": "屏東縣衛生局｜年度形象影片",
@@ -119,7 +131,8 @@
       "client": "",
       "year": "",
       "featured": true,
-      "credits": "攝影 Cinematographer：紀柏先\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸"
+      "credits": "攝影 Cinematographer：紀柏先\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
+      "publishedAt": "2025-12-03T23:09:21-08:00"
     },
     {
       "title": " 種籽文化基金會",
@@ -128,7 +141,8 @@
       "client": "",
       "year": "",
       "featured": true,
-      "credits": "導演 Director：吳翊綸\n企劃 Producer：王振旭\n攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸"
+      "credits": "導演 Director：吳翊綸\n企劃 Producer：王振旭\n攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
+      "publishedAt": "2025-12-27T00:55:04-08:00"
     }
   ]
 }

@@ -1,7 +1,7 @@
 # 嶼光映像 PHOS OF ISLE · 官網專案說明
 
 > 本文件整理官網的專案背景、技術架構、後台與資料、UI/UX 設計系統、開發流程與待辦。
-> 最後更新：2026-09-23（對應 PR #1–#33）
+> 最後更新：2026-09-23（對應 PR #1–#34）
 
 ---
 
@@ -89,7 +89,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | 檔案 | 用途 | 主要欄位 |
 |---|---|---|
 | `albums.json` | 平面作品 | `albums[]`：`zh`、`en`、`slug`、`cover`、`photos[]`、`projects[]`（專案也有 `slug`）；照片 `image`、`caption`、`w`、`h` |
-| `videos.json` | 動態作品 | `videos[]`：`title`、`cat`、`yt`、`client`、`year`、`featured`、`cover`、`sub`、`desc`、`credits` |
+| `videos.json` | 動態作品 | `videos[]`：`title`、`cat`、`yt`、`client`、`year`（作品年份，顯示用）、`publishedAt`（YouTube 上傳日期，給 Google 用）、`featured`、`cover`、`sub`、`desc`、`credits` |
 | `gear.json` | 器材 | `gear[]`：`name`、`slug`、`cat`、`price`（日租）、`qty`（可租數量，0＝暫停出租）、`image`、`spec`（用「・」分隔）、`desc`、`uses`（每行一項）、`note`（租借說明）；`cats[]` 分類順序 |
 | `site.json` | 網站資訊 | 品牌名、Email、LINE、電話、地址、社群連結（頁尾讀這裡） |
 | `about.json` / `process.json` | 關於、流程頁內容 | — |
@@ -259,6 +259,9 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 `scripts/build-pages.js` 在每次 Netlify 部署時，從 `content/*.json` 產生 43 個獨立頁面與 `sitemap.xml`：
 - `/video/<影片ID 小寫>/`、`/work/<分類>/<專案>/`、`/work/<分類>/`、`/rental/<器材代稱>/`
 - 每頁有自己的標題、描述、分享預覽圖與結構化資料（VideoObject／ImageGallery／CollectionPage／Product）
+  - 影片：`uploadDate` 取自 `publishedAt`（YouTube 上傳日期；Google 要有它才會把頁面當影片結果顯示）。沒填就不放，不拿建置日期假裝
+  - 器材：`Offer` 標明 `businessFunction = LeaseOut`（出租，不是出售），價格是每 1 天的租金（`unitCode = DAY`）
+- sitemap：不放 `lastmod`（沒有每頁真正的修改日期，每次部署都填今天會讓 Google 不再相信這個欄位）；照片只放 `image:loc`（`image:title`／`image:caption` 已被 Google 停用）
 - 產生的檔案不進版控（見 `.gitignore`）；本機預覽先跑 `node scripts/build-pages.js`
 - **建置前先檢查內容格式**（與後台存檔同一份規則）；不通過就中止、不產生任何頁面，Netlify 會保留上一版網站，壞網址不會發布出去
 - 網址只由代稱與影片 ID 決定；影片 ID 只差大小寫時第二支加 `-2`，「更多作品」連結與頁面本身一致
@@ -303,7 +306,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
   - 每個後端函式都能載入
   - `node scripts/test-create-order.js`：租借報價與下單函式（36 項：金額天數由後端算、偽造金額被忽略、數量／日期／品項各種錯誤、Airtable 失敗與未設定）
   - `node scripts/build-pages.js`：與 Netlify 部署相同的建置；失敗代表合併後會部署失敗
-  - `node scripts/check-build.js`：產生的頁面 canonical／og:url 正確、標題與 h1、網址格式；sitemap 網址都存在、無重複、沒漏頁；**把順序反過來並改掉所有中文名稱後，網址必須完全相同**；產生的檔案沒被 commit
+  - `node scripts/check-build.js`：產生的頁面 canonical／og:url 正確、標題與 h1、網址格式；sitemap 網址都存在、無重複、沒漏頁；**把順序反過來並改掉所有中文名稱後，網址必須完全相同**；產生的檔案沒被 commit；器材標明出租與按日計價、sitemap 沒有 lastmod 與停用欄位；影片缺上傳日期只提醒（△）不擋
   - `node scripts/check-scripts.js`：每個頁面（含產生的頁面）的內嵌程式與 assets/*.js 沒有語法錯誤，結構化資料是合法 JSON
   - `node scripts/check-links.js`：網站內部連結（含產生的頁面，約 750 個）都指到存在的檔案
 - **上一頁回歸測試**：38 個情境（首頁、動態、平面、器材、分享連結進入），桌面與手機各跑一次
@@ -351,6 +354,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #31 | 流量統計：Cloudflare Web Analytics（僅正式網域、後台不計入） |
 | #32 | 租借訂單改由後端計算金額與天數（前端只送代稱、數量、日期），附 36 項自動測試 |
 | #33 | PR 檢查跑正式建置並檢查產生的頁面與 sitemap；代稱改為必填，建置不再產生依順序編號的網址 |
+| #34 | SEO 語意：影片補 YouTube 上傳日期（後台可填）、器材標明出租與按日計價、sitemap 移除假日期與停用欄位 |
 
 ---
 
@@ -374,7 +378,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 ### 架構審查後續（2026-09-22，每項一個 PR）
 - [x] 租借訂單金額與天數由後端計算（PR #32）
 - [x] PR 檢查也跑 `build-pages.js`，檢查產生的頁面、連結與 sitemap；代稱（slug）改為必填（PR #33）
-- [ ] SEO 語意：影片補上傳日期、器材標明「出租」、移除假的 sitemap 更新日期、圖片 sitemap 只留網址
+- [x] SEO 語意：影片補上傳日期、器材標明「出租」、移除假的 sitemap 更新日期、圖片 sitemap 只留網址（PR #34）
 - [ ] 安全清理：移除 Cloudinary 未簽名備援程式（preset `yuguang` 已刪）、Sortable 改自家主機、基本安全標頭、後台密碼嘗試次數限制
 - [ ] 之後再評估：後台登入改 HttpOnly cookie
 
