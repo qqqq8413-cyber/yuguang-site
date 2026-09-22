@@ -1,7 +1,7 @@
 // 為後台的 Cloudinary 上傳產生簽名(需 ADMIN_PASSWORD 驗證)
 // 需要環境變數:CLOUDINARY_API_KEY、CLOUDINARY_API_SECRET(在 Cloudinary 後台 Settings → API Keys 取得)
-// 原本後台用「未簽名」的上傳設定,雲端名稱與設定名寫在公開的頁面原始碼裡,任何人都能上傳到這個帳號。
-// 改成簽名上傳後,只有登入後台的人拿得到簽名;設定好金鑰並確認可上傳後,請到 Cloudinary 停用未簽名的上傳設定。
+// 後台上傳照片一律用這裡產生的簽名(只有登入後台的人拿得到);拿不到簽名時後台會停止上傳,
+// 不會退回未簽名的方式。Cloudinary 上已不保留任何未簽名的上傳設定(原本的 yuguang preset 已刪除)。
 const crypto = require('crypto');
 const PW = process.env.ADMIN_PASSWORD;
 const KEY = process.env.CLOUDINARY_API_KEY;

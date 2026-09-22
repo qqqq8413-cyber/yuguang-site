@@ -1,2 +1,19 @@
+# Netlify 回應標頭
+# 全站安全標頭:
+#   nosniff             瀏覽器不要猜檔案類型(避免把上傳的檔案當程式執行)
+#   Referrer-Policy     跨站只送網域、不送完整網址(YouTube 內嵌需要知道來源網域,所以不能設成 no-referrer)
+#   Permissions-Policy  網站用不到的相機、麥克風、定位、付款、USB 一律關閉
+#   X-Frame-Options     不允許別的網站把本站(尤其後台)嵌進框架裡,防止點擊劫持
+#   CSP Report-Only     內容安全政策「只回報、不阻擋」:先確認沒有誤擋,之後再改成正式的 Content-Security-Policy。
+#                       內嵌的 <script>/<style> 與 onclick 等還很多,所以暫時需要 'unsafe-inline'。
+#                       新增外部服務(新的字型、圖片、統計、嵌入)時要記得加進對應的項目。
+#                       frame-src 的 app.netlify.com 是 Netlify 只在「部署預覽」插入的工具列,正式站不會出現。
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://img.youtube.com https://i.ytimg.com; media-src 'self' https://res.cloudinary.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://app.netlify.com; connect-src 'self' https://cloudflareinsights.com https://api.cloudinary.com https://res.cloudinary.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+
 /site.webmanifest
   Content-Type: application/manifest+json
