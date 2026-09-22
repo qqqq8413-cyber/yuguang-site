@@ -94,3 +94,18 @@
   function init(){buildNav();buildCta();buildFooter();revealNet();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
+
+/* 流量統計:Cloudflare Web Analytics。不用 Cookie、不追蹤個人,所以不需要同意視窗。
+   放在全站共用的 site.js,所有公開頁(含自動產生的作品/影片/器材頁)都會載入,只需維護這一處;
+   後台不載入 site.js,自己的操作不會被算進去。
+   只在正式網域啟用:本機與 Netlify 部署預覽不計入,數字才乾淨。
+   token 本來就會出現在網頁原始碼裡,是公開的識別碼,不是密碼。 */
+(function(){
+  var h=location.hostname;
+  if(h!=='phosofisle.com'&&h!=='www.phosofisle.com')return;
+  var s=document.createElement('script');
+  s.defer=true;
+  s.src='https://static.cloudflareinsights.com/beacon.min.js';
+  s.setAttribute('data-cf-beacon','{"token": "4d4784e5ba924aa382bd7c0c57751ae7"}');
+  document.head.appendChild(s);
+})();

@@ -1,7 +1,7 @@
 # 嶼光映像 PHOS OF ISLE · 官網專案說明
 
 > 本文件整理官網的專案背景、技術架構、後台與資料、UI/UX 設計系統、開發流程與待辦。
-> 最後更新：2026-09-22（對應 PR #1–#30）
+> 最後更新：2026-09-22（對應 PR #1–#31）
 
 ---
 
@@ -15,6 +15,7 @@
 | 後台 | https://phosofisle.com/後台 |
 | 原始碼 | GitHub `qqqq8413-cyber/yuguang-site`（`main` 分支即正式站） |
 | 主機 | Netlify（靜態網站 + Functions + Forms + Deploy Preview） |
+| 流量統計 | Cloudflare Web Analytics（Cloudflare 控制台 → Analytics → Web analytics → phosofisle.com） |
 
 **網站的三個任務**
 1. 用作品說服客戶（平面作品、動態作品）
@@ -261,6 +262,15 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 ### 結構化資料（SEO）
 首頁 `<head>` 有 JSON-LD：`WebSite`（網站名稱「嶼光映像」／PHOS OF ISLE）與 `LocalBusiness`（聯絡方式、屏東地址、服務區域）。內容與 `content/site.json` 相同，**修改聯絡資料時兩邊都要改**。
 
+### 流量統計
+- 使用 **Cloudflare Web Analytics**：不用 Cookie、不追蹤個人，因此不需要 Cookie 同意視窗
+- 網域是灰色雲朵（DNS only），所以採**手動 JS snippet**（Cloudflare 設定為「Enable with JS Snippet installation」），不是自動注入
+- 載入點只有一處：`assets/site.js` 最後一段。所有公開頁（含部署時產生的作品／影片／器材頁）都載入 site.js；後台不載入，站長自己的操作不計入
+- 只在 `phosofisle.com`／`www.phosofisle.com` 啟用，本機與部署預覽不送資料
+- 站內切換網址（pushState 到 `/work/`、`/rental/`、`/video/`）也會記成一次瀏覽（已用測試確認）
+- 限制：只看得到瀏覽量、熱門頁面、來源、裝置與國家、載入速度；**看不到按鈕點擊**（例如「加入租借」）。實際送出的租借需求以 Airtable 為準
+- token 是公開識別碼（本來就出現在網頁原始碼），不是密碼
+
 ### 分享預覽
 7 個公開頁面都有 Open Graph／Twitter 卡片標籤、頁面描述、網站圖示與 PWA manifest；分享圖為 `images/og.jpg`。
 
@@ -328,6 +338,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #28 | 每個作品、器材各自產生獨立頁面（分享預覽＋SEO），sitemap 7 → 50 筆 |
 | #29 | sitemap 加入 462 張照片（Google 圖片搜尋） |
 | #30 | 租借清單暫存：離開頁面再回來不會被清空 |
+| #31 | 流量統計：Cloudflare Web Analytics（僅正式網域、後台不計入） |
 
 ---
 
