@@ -275,7 +275,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 
 ### 安全標頭（`_headers`）
 - 全站：`X-Content-Type-Options: nosniff`、`Referrer-Policy: strict-origin-when-cross-origin`（YouTube 內嵌需要來源網域，不能用 no-referrer）、`Permissions-Policy` 關閉相機／麥克風／定位／付款／USB、`X-Frame-Options: SAMEORIGIN`（防止後台被嵌進別的網站）
-- **內容安全政策目前是 Report-Only（只回報、不阻擋）**。允許的外部來源：Google Fonts、Cloudinary（圖片與上傳 API）、YouTube（縮圖與內嵌）、Cloudflare Web Analytics。上線前已逛遍全站與後台各分頁，0 違規
+- **內容安全政策目前是 Report-Only（只回報、不阻擋）**。允許的外部來源：Google Fonts、Cloudinary（圖片與上傳 API）、YouTube（縮圖與內嵌）、Cloudflare Web Analytics，以及 Netlify 只在部署預覽插入的工具列（`app.netlify.com`）。上線前已在本機與部署預覽逛遍全站與後台各分頁，0 違規
 - 因為內嵌 `<script>`／`<style>`／`onclick` 還很多，暫時需要 `'unsafe-inline'`
 - **新增外部服務時**（新字型、新圖片來源、新的嵌入或統計），要把網域加進 CSP 對應項目；改成正式 CSP 之後，沒加的會被瀏覽器擋掉
 - 下一步：觀察一段時間 → 改成正式的 `Content-Security-Policy`
