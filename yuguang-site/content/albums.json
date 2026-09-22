@@ -2561,7 +2561,8 @@
               "h": 1600
             }
           ],
-          "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787889775/mffmmnlnawfxjnogcao6.jpg"
+          "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787889775/mffmmnlnawfxjnogcao6.jpg",
+          "featured": true
         }
       ],
       "photos": []
