@@ -68,6 +68,10 @@ h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
   .hero .dots button::after{content:"";position:absolute;left:-6px;right:-6px;top:-11px;bottom:-11px}
 }
 
+/* 靜態清單(部署時寫進 HTML 給不執行 JS 的爬蟲看)一律整列寬:
+   萬一被放進多欄版面裡,也不會擠進某一欄、跟側欄疊在一起(器材頁曾經如此)。 */
+.sitelinks{grid-column:1/-1;width:100%}
+
 /* ---- 作品頁 / 器材頁底部預約區塊 ---- */
 .sitecta{text-align:center;padding:clamp(56px,8vw,104px) 20px;border-top:1px solid var(--line);margin-top:clamp(40px,6vw,80px)}
 .sitecta .k{font-family:var(--serif);font-size:12px;letter-spacing:6px;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
