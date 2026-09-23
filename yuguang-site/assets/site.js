@@ -2,7 +2,7 @@
 (function(){
   var LINKS=[
     ['pingmian.html','平面作品'],['dongtai.html','動態作品'],['qicai.html','器材租賃'],
-    ['liucheng.html','製作流程'],['guanyu.html','關於嶼光'],['lianluo.html','聯絡我們',true]
+    ['liucheng.html','製作流程'],['wenda.html','常見問題'],['guanyu.html','關於嶼光'],['lianluo.html','聯絡我們',true]
   ];
   var here=(location.pathname.split('/').pop()||'index.html').replace(/\.html?$/,'')+'.html';
   var root=document.documentElement;

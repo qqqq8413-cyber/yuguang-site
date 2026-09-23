@@ -57,7 +57,7 @@ const SCHEMAS = {
   'gear.json': obj({ gear: arr(gear), cats: arr(T.str) }, ['gear'], { uniqueSlugs: true }),
   'site.json': obj({
     brandZh: T.str, brandEn: T.str, email: T.str, line: T.str, phone: T.str, address: T.str,
-    instagram: T.url, facebook: T.url, youtube: T.url,
+    instagram: T.url, facebook: T.url, youtube: T.url, google: T.url,
   }),
 };
 // about.json、process.json 不在後台編輯,只檢查是合法的 JSON 物件
