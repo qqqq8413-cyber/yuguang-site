@@ -688,6 +688,8 @@ document.getElementById('cartSend').addEventListener('click',()=>{
   if(rentDays()<0)return fieldErr($('cEnd'),'迄租日要在起租日之後');
   if(!name)return fieldErr($('cName'),'請填寫姓名');
   if(!line)return fieldErr($('cLine'),'請填寫 LINE ID，方便我們聯絡你');
+  /* LINE ID 規則:英數與 . - _,4–20 字(後端 create-order.js 也會再檢查一次) */
+  if(!/^@?[A-Za-z0-9._-]{4,20}$/.test(line))return fieldErr($('cLine'),'LINE ID 只能用英文、數字與 . - _，4–20 字（要填 ID，不是顯示名稱）');
   $('cartErr').textContent='';
   /* 只送代稱、數量、日期與聯絡方式;器材名稱、單價、天數、金額一律由後端依 gear.json 計算 */
   const order={name,line,start,end,items:cart.map(id=>({slug:gear[id].slug,qty:cnt[id]}))};
@@ -713,6 +715,8 @@ document.getElementById('cartSend').addEventListener('click',()=>{
     }catch(e){res=null;}
     /* 後端判定內容有誤(器材已下架、數量超過、日期不對…):告訴對方原因,不送出 */
     if(res&&res.status===400)return fail(ORDER_ERR[data.error]||'資料有誤，請重新整理頁面後再試一次，或直接用 LINE 聯絡我們');
+    /* 同一個人短時間送太多筆:不要再走表單備援,否則節流等於沒有 */
+    if(res&&res.status===429)return fail('送出得太頻繁了，請稍後再試，或直接用 LINE 聯絡我們');
     const q=data.quote;
     const f=q?{items:q.items,amount:String(q.amount)}:{items:localItems,amount:String(localAmount)};
     if(res&&res.ok&&data.ok){await postForm(f).catch(()=>{});return done();}   /* 已進 Airtable;表單再留一份備份 */
@@ -723,6 +727,7 @@ document.getElementById('cartSend').addEventListener('click',()=>{
 /* 後端檢查不通過時的說明(錯誤代碼見 netlify/functions/lib/rental.js) */
 const ORDER_ERR={
   'missing-contact':'請填寫 LINE ID，方便我們聯絡你',
+  'invalid-line-id':'LINE ID 只能用英文、數字與 . - _，4–20 字（要填 ID，不是顯示名稱）',
   'no-items':'還沒有選擇器材',
   'unknown-item':'清單裡有器材已經下架，請重新整理頁面後再送出',
   'unavailable':'清單裡有器材目前暫停出租，請移除後再送出',

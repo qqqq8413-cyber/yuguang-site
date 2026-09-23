@@ -9,7 +9,14 @@
 // gear.json 在部署時一起打包:後台改價格 → 重新部署 → 這裡的價格同步更新,與器材頁顯示一致。
 
 const { quote } = require('./lib/rental');
+const { tooMany } = require('./lib/ratelimit');
 const { gear: GEAR } = require('../../yuguang-site/content/gear.json');
+
+// LINE ID 只允許英數與 . - _(官方帳號開頭多一個 @),長度 4–20,這是 LINE 本身的規則。
+// 這個白名單同時是資安防線:後台會把 ID 放進 HTML 的按鈕裡,含引號或角括號的值會被當成程式碼執行。
+const LINE_ID_RE = /^@?[A-Za-z0-9._-]{4,20}$/;
+const ORDER_MAX = 5;                  // 同一來源
+const ORDER_WINDOW_MS = 10 * 60 * 1000; // 10 分鐘內最多 5 筆
 
 const TOKEN = process.env.AIRTABLE_TOKEN;
 const BASE = process.env.AIRTABLE_BASE_ID;
@@ -41,10 +48,15 @@ exports.handler = async (event) => {
   const name = cut(o.name, 100);
   const line = cut(o.line, 60);
   if (!line) return json(400, { ok: false, error: 'missing-contact' });
+  if (!LINE_ID_RE.test(line)) return json(400, { ok: false, error: 'invalid-line-id' });
 
   const q = quote(GEAR, { items: o.items, start: o.start, end: o.end });
   if (!q.ok) return json(400, { ok: false, error: q.error, detail: q.detail });
   const summary = { days: q.days, amount: q.amount, dailyTotal: q.dailyTotal, unpriced: q.unpriced, items: q.items };
+
+  // 內容都合格了才計次:客人修正欄位重送不會被算進額度
+  const limited = tooMany(event, { max: ORDER_MAX, windowMs: ORDER_WINDOW_MS, bucket: 'order' });
+  if (limited) return limited;
 
   // 尚未設定 Airtable 時回報 ok:false,前端會改用 Netlify 表單備援,訂單不會遺失
   if (!TOKEN || !BASE) return json(200, { ok: false, reason: 'airtable-not-configured', quote: summary });
