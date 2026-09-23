@@ -269,7 +269,7 @@ function write() {
     fs.writeFileSync(path.join(dir, 'index.html'), p.html);
   }
   const statics = [['/', '1.0'], ['/pingmian.html', '0.9'], ['/dongtai.html', '0.9'], ['/qicai.html', '0.9'],
-    ['/liucheng.html', '0.6'], ['/guanyu.html', '0.6'], ['/lianluo.html', '0.7']];
+    ['/liucheng.html', '0.6'], ['/wenda.html', '0.8'], ['/guanyu.html', '0.6'], ['/lianluo.html', '0.7']];
   const urls = statics.concat(pages.map((p) => [p.url, p.priority]));
   // sitemap 也列出每頁的照片(image 擴充),讓 Google 圖片搜尋找得到作品照。
   // 只放 image:loc:title/caption 已被 Google 停用;照片的描述靠頁面上的 alt 與文字。

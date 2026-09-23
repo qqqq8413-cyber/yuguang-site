@@ -1,7 +1,7 @@
 # 嶼光映像 PHOS OF ISLE · 官網專案說明
 
 > 本文件整理官網的專案背景、技術架構、後台與資料、UI/UX 設計系統、開發流程與待辦。
-> 最後更新：2026-09-23（對應 PR #1–#42）
+> 最後更新：2026-09-23（對應 PR #1–#43）
 
 ---
 
@@ -79,6 +79,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | 動態作品 | `dongtai.html` | `?cat=分類名稱`；點進影片後網址變成 `/video/<影片ID 小寫>/` |
 | 器材租賃 | `qicai.html` | 點進器材後網址變成 `/rental/<器材代稱>/`；舊的 `?item=` 仍可開啟 |
 | 製作流程 | `liucheng.html` | — |
+| 常見問題 | `wenda.html` | —（價格區間、交件、修改、訂金、改期、器材租借規則；含 FAQPage 結構化資料） |
 | 關於嶼光 | `guanyu.html` | — |
 | 聯絡我們 | `lianluo.html` | `?type=服務類型`（預選需求標籤） |
 | 後台 | `後台.html` | `#orders`、`#order-<訂單ID>`、`#gear`、`#photo`、`#video` |
@@ -92,8 +93,8 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | `albums.json` | 平面作品 | `albums[]`：`zh`、`en`、`sub`（副標題）、`slug`、`cover`、`featured`（首頁精選）、`photos[]`、`projects[]`（專案也有 `sub`、`slug` 與 `featured`）；照片 `image`、`caption`、`w`、`h` |
 | `videos.json` | 動態作品 | `videos[]`：`title`、`cat`、`yt`、`client`、`year`（作品年份，顯示用）、`publishedAt`（YouTube 上傳日期，給 Google 用）、`featured`、`cover`、`sub`、`desc`、`credits` |
 | `gear.json` | 器材 | `gear[]`：`name`、`slug`、`cat`、`price`（日租）、`qty`（可租數量，0＝暫停出租）、`image`、`spec`（用「・」分隔）、`desc`、`uses`（每行一項）、`note`（租借說明）；`cats[]` 分類順序 |
-| `site.json` | 網站資訊 | 品牌名、Email、LINE、電話、地址、社群連結（頁尾讀這裡） |
-| `about.json` / `process.json` | 關於、流程頁內容 | — |
+| `site.json` | 網站資訊 | 品牌名、Email、LINE、電話、地址、社群連結 `instagram`／`facebook`／`youtube`／`google`（頁尾與聯絡頁讀這裡，也輸出到 LocalBusiness 的 sameAs） |
+| `about.json` / `process.json` | 關於、流程頁內容 | `about.json` 另有 `founded`、`facts[]`（工作室事實）、`clients[]`（合作單位），部署時寫進關於頁 |
 
 目前規模：平面 7 個分類、455 張照片；動態 14 部影片；器材 9 項。
 
@@ -292,7 +293,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - 站內點進作品時，網址列直接換成單一作品頁的網址（pushState），所以使用者複製到的永遠是可分享的那一個；重新整理則由伺服器送出該靜態頁
 
 ### 結構化資料（SEO）
-首頁 `<head>` 有 JSON-LD：`WebSite`（網站名稱「嶼光映像」／PHOS OF ISLE）與 `LocalBusiness`（聯絡方式、屏東地址、服務區域）。內容與 `content/site.json` 相同，**修改聯絡資料時兩邊都要改**。
+首頁 `<head>` 有 JSON-LD：`WebSite` 與 `LocalBusiness`＋`ProfessionalService`（聯絡方式、屏東地址、服務區域、營業時間、價格級距、成立年份、`sameAs` 社群）；`wenda.html` 有 `FAQPage`（16 題）。內容與 `content/site.json` 相同，**修改聯絡資料時兩邊都要改**。
 
 ### 安全標頭（`_headers`）
 - 全站：`X-Content-Type-Options: nosniff`、`Referrer-Policy: strict-origin-when-cross-origin`（YouTube 內嵌需要來源網域，不能用 no-referrer）、`Permissions-Policy` 關閉相機／麥克風／定位／付款／USB、`X-Frame-Options: SAMEORIGIN`（防止後台被嵌進別的網站）
@@ -395,6 +396,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #40 | 修正 #38 的標題：相簿不再出現「照片攝影」、專案頁補上「屏東＋分類」、器材頁後綴縮短；檢查程式會提醒重複標題 |
 | #41 | 相簿與專案可填「副標題」：同名作品用它區分，顯示在標題下方，也進搜尋結果標題 |
 | #42 | 主要 7 頁在部署時寫入靜態內容：導覽列、作品清單、關於／流程／聯絡（給不執行 JS 的 AI 爬蟲讀） |
+| #43 | 常見問題頁（16 題：價格、交件、修改、訂金、器材租借規則）＋關於頁工作室事實與合作單位＋LocalBusiness 補齊營業時間／價格級距／社群 |
 
 ---
 

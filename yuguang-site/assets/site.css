@@ -82,3 +82,14 @@ h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
 .sitelinks a{border-bottom:1px solid transparent;transition:border-color .25s}
 .sitelinks a:hover{border-bottom-color:currentColor}
 .sitelinks li span{color:var(--muted,#716a5d);font-size:11.5px;margin-left:7px}
+
+/* 關於頁:工作室資訊與合作單位(部署時寫入的具體事實) */
+.facts{max-width:900px;margin:0 auto;padding:clamp(24px,4vw,48px) clamp(20px,5vw,64px)}
+.facts h2{font-family:var(--serif,serif);font-weight:500;font-size:13px;letter-spacing:3px;color:var(--muted,#716a5d);margin:0 0 12px}
+.facts h2+ul+h2{margin-top:28px}
+.facts ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.facts .facts-list li{font-size:14.5px;line-height:1.95;letter-spacing:.5px;color:#4f4a42;padding-left:16px;position:relative}
+.facts .facts-list li::before{content:"";position:absolute;left:0;top:14px;width:7px;height:1px;background:var(--muted,#716a5d)}
+.facts .clients{flex-direction:row;flex-wrap:wrap;gap:8px 10px}
+.facts .clients li{font-family:var(--serif,serif);font-size:13.5px;letter-spacing:1.5px;color:#403c34;
+  border:1px solid var(--hair,rgba(23,22,19,.08));padding:7px 14px;background:var(--paper-2,#eeece6)}

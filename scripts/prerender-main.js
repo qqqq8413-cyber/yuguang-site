@@ -17,7 +17,7 @@ const { generate, loadContent, ROOT } = require('./build-pages');
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'content', f), 'utf8'));
 const NAV = [['pingmian.html', '平面作品'], ['dongtai.html', '動態作品'], ['qicai.html', '器材租賃'],
-  ['liucheng.html', '製作流程'], ['guanyu.html', '關於嶼光'], ['lianluo.html', '聯絡我們']];
+  ['liucheng.html', '製作流程'], ['wenda.html', '常見問題'], ['guanyu.html', '關於嶼光'], ['lianluo.html', '聯絡我們']];
 
 const site = read('site.json');
 const about = read('about.json');
@@ -89,6 +89,15 @@ const story = () => (about.story || []).map((t) => `<p>${esc(t)}</p>`).join('') 
 const steps = () => (process_.steps || []).map((s) =>
   `<div class="step"><div class="txt"><div class="en">${esc(s.en || '')}</div><h3>${esc(s.zh || '')}</h3><p>${esc(s.desc || '')}</p></div></div>`).join('');
 const lineId = () => String(site.line || '').replace(/^[@＠]/, '');
+const socials = () => [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['youtube', 'YouTube'], ['google', 'Google 商家']]
+  .filter(([k]) => site[k]).map(([k, label]) => `<a href="${esc(site[k])}" target="_blank" rel="noopener">${label}</a>`).join('');
+/* 關於頁的「工作室資訊」與「合作單位」:給訪客也給 AI 的具體事實 */
+const facts = () => {
+  const f = about.facts || [], c = about.clients || [];
+  if (!f.length && !c.length) return '';
+  return (f.length ? `<h2>工作室資訊</h2><ul class="facts-list">${f.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '') +
+    (c.length ? `<h2>合作單位</h2><ul class="clients">${c.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');
+};
 
 const BLOCKS = {
   'index.html': { nav: nav(''), foot: foot() },
@@ -96,10 +105,11 @@ const BLOCKS = {
   'dongtai.html': { nav: nav('dongtai.html'), foot: foot(), list: videoList() },
   'qicai.html': { nav: nav('qicai.html'), foot: foot(), list: gearList() },
   'liucheng.html': { nav: nav('liucheng.html'), foot: foot(), steps: steps() },
-  'guanyu.html': { nav: nav('guanyu.html'), foot: foot(), manifesto: esc(about.manifesto || ''), story: story(), values: values() },
+  'guanyu.html': { nav: nav('guanyu.html'), foot: foot(), manifesto: esc(about.manifesto || ''), story: story(), values: values(), facts: facts() },
+  'wenda.html': { nav: nav('wenda.html'), foot: foot() },
   'lianluo.html': {
     nav: nav('lianluo.html'), foot: foot(),
-    email: esc(site.email || ''), line: esc(lineId()), phone: esc(site.phone || ''), address: esc(site.address || ''),
+    email: esc(site.email || ''), line: esc(lineId()), phone: esc(site.phone || ''), address: esc(site.address || ''), socials: socials(),
   },
 };
 
