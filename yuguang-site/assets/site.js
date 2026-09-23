@@ -74,7 +74,11 @@
     var sec=document.createElement('section');sec.className='sitecta';
     sec.innerHTML='<p class="k">Let’s Talk</p><h2>'+c[0]+'</h2><p class="s">'+c[1]+'</p>'+
       '<a class="btn" href="lianluo.html?type='+encodeURIComponent(c[3])+'">'+c[2]+'</a>';
-    document.body.appendChild(sec);
+    /* 一定要放在頁尾之前。頁尾自 #42 起是部署時就寫進 HTML 的,
+       直接 appendChild 會排到頁尾後面,畫面上就變成「頁尾在預約區塊上面」。 */
+    var foot=document.querySelector('footer.sitefoot')||document.querySelector('body > footer');
+    if(foot&&foot.parentNode)foot.parentNode.insertBefore(sec,foot);
+    else document.body.appendChild(sec);
   }
 
   /* 全站頁尾:聯絡資訊由 content/site.json 帶入 */
