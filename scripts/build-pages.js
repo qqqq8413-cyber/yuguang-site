@@ -111,7 +111,7 @@ function buildVideos(videos) {
       v.desc ? `<p class="lead">${esc(v.desc)}</p>` : '', '</header>',
       `<div class="player"><iframe src="https://www.youtube.com/embed/${id}?rel=0" title="${attr(v.title)}" allow="encrypted-media; fullscreen" allowfullscreen loading="lazy"></iframe></div>`,
       credits.length ? `<section class="sec"><h2>製作團隊</h2><div class="credits">${credits.map((c) => `<div class="credit">${c.role ? `<div class="role">${esc(c.role)}</div>` : ''}<div class="name">${esc(c.name)}</div></div>`).join('')}</div></section>` : '',
-      `<div class="cta"><a class="solid" href="lianluo.html?type=動態影像">預約諮詢</a><a href="dongtai.html?v=${id}">看更多動態作品</a></div>`,
+      `<div class="pagecta"><a class="solid" href="lianluo.html?type=動態影像">預約諮詢</a><a href="dongtai.html?v=${id}">看更多動態作品</a></div>`,
       relatedList(`更多${v.cat || '作品'}`, others),
     ].join('\n');
     pages.push({
@@ -154,7 +154,7 @@ function buildAlbums(albums) {
         sub ? `<div class="meta">${esc(sub)}</div>` : '',
         `<div class="meta">${esc(a.zh)}${photos.length ? ` · ${photos.length} 張照片` : ''}</div></header>`,
         photos.length ? `<section class="sec">${photoWall(photos, title)}</section>` : '',
-        `<div class="cta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">看更多平面作品</a></div>`,
+        `<div class="pagecta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">看更多平面作品</a></div>`,
         relatedList('同系列', related),
       ].join('\n');
       pages.push({
@@ -188,7 +188,7 @@ function buildAlbums(albums) {
           const c = firstImg(p); const u = `/work/${aSlug}/${p.slug}/`;
           return `<figure><a href="${u}">${c ? `<img src="${attr(img(c, 900))}" alt="${attr(p.zh || '')}" loading="lazy" decoding="async">` : ''}<figcaption class="meta">${esc(p.zh || '')}${p.sub ? `<br><small>${esc(String(p.sub).trim())}</small>` : ''}</figcaption></a></figure>`;
         }).join('')}</div></section>`,
-        `<div class="cta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">在作品集中瀏覽</a></div>`,
+        `<div class="pagecta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">在作品集中瀏覽</a></div>`,
       ].join('\n');
       pages.push({
         url: albumUrl, priority: '0.7', title: a.zh, kind: 'album', cat: a.zh,
@@ -225,10 +225,12 @@ function buildGear(gear) {
       `<div><header class="phead" style="border:0;padding-bottom:0"><div class="kicker">${esc(g.cat || 'Rental')}</div><h1>${esc(g.name)}</h1>`,
       `<div class="price"><b>${has ? 'NT$ ' + g.price.toLocaleString('en-US') : '價格另計'}</b>${has ? '<span>/ 日</span>' : ''}</div>`,
       g.desc ? `<p class="lead">${esc(g.desc)}</p>` : '', '</header>',
-      `<div class="cta"><a class="solid" href="qicai.html?item=${encodeURIComponent(slug)}">加入租借</a><a href="lianluo.html?type=器材租賃">詢問搭配</a></div></div></div>`,
+      `<div class="pagecta"><a class="solid" href="qicai.html?item=${encodeURIComponent(slug)}">加入租借</a><a href="lianluo.html?type=器材租賃">詢問搭配</a></div></div></div>`,
       lines(g.uses).length ? `<section class="sec"><h2>推薦用途</h2><ul class="specs">${lines(g.uses).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>` : '',
       lines(g.spec).length ? `<section class="sec"><h2>規格重點</h2><ul class="specs">${lines(g.spec).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>` : '',
       g.note ? `<section class="sec"><h2>租借說明</h2><p class="note">${esc(g.note)}</p></section>` : '',
+      // 每個器材頁都要看得到規則,不能只在器材列表頁
+      `<section class="sec"><h2>租借規則</h2><p class="note">租期含取件日與歸還日，最短一天。取件時押一張證件（身分證或健保卡）並簽立本票，歸還點驗無誤後當場返還。取還在屏東工作室當面進行（週一至週五 11:00–20:00，請先以 LINE 約時間），不提供宅配。標示價格未稅，需開立統一編號發票另加 5%。完整條款見<a href="xuzhi.html">租借須知</a>。</p></section>`,
       relatedList(`其他${g.cat || '器材'}`, others),
     ].join('\n');
     const jsonld = {
@@ -243,7 +245,8 @@ function buildGear(gear) {
       availability: (g.qty === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock'),
       priceSpecification: {
         '@type': 'UnitPriceSpecification', price: String(g.price), priceCurrency: 'TWD',
-        unitCode: 'DAY', unitText: '日', referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'DAY' },
+        unitCode: 'DAY', unitText: '日', valueAddedTaxIncluded: false, // 標示價格未稅
+        referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'DAY' },
       },
       seller: { '@type': 'Organization', name: '嶼光映像' },
     };
@@ -269,7 +272,8 @@ function write() {
     fs.writeFileSync(path.join(dir, 'index.html'), p.html);
   }
   const statics = [['/', '1.0'], ['/pingmian.html', '0.9'], ['/dongtai.html', '0.9'], ['/qicai.html', '0.9'],
-    ['/liucheng.html', '0.6'], ['/wenda.html', '0.8'], ['/guanyu.html', '0.6'], ['/lianluo.html', '0.7']];
+    ['/liucheng.html', '0.6'], ['/wenda.html', '0.8'], ['/xuzhi.html', '0.5'],
+    ['/guanyu.html', '0.6'], ['/lianluo.html', '0.7']];
   const urls = statics.concat(pages.map((p) => [p.url, p.priority]));
   // sitemap 也列出每頁的照片(image 擴充),讓 Google 圖片搜尋找得到作品照。
   // 只放 image:loc:title/caption 已被 Google 停用;照片的描述靠頁面上的 alt 與文字。

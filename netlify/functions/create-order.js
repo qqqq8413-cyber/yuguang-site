@@ -49,6 +49,8 @@ exports.handler = async (event) => {
   const line = cut(o.line, 60);
   if (!line) return json(400, { ok: false, error: 'missing-contact' });
   if (!LINE_ID_RE.test(line)) return json(400, { ok: false, error: 'invalid-line-id' });
+  // 租借須知的勾選:前端擋一次,這裡再擋一次,才算真的有同意紀錄
+  if (o.agree !== true) return json(400, { ok: false, error: 'terms-not-agreed' });
 
   const q = quote(GEAR, { items: o.items, start: o.start, end: o.end });
   if (!q.ok) return json(400, { ok: false, error: q.error, detail: q.detail });

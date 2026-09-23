@@ -79,7 +79,7 @@ const ok = (items, start = D(3), end = D(6)) => quote(G, { items, start, end });
   const gear = require('../yuguang-site/content/gear.json').gear;
   const one = gear.find((g) => g.qty === undefined && typeof g.price === 'number');   // 未填數量(=1)的器材
   const two = gear.find((g) => g.qty === 2 && typeof g.price === 'number');           // 有 2 台的器材
-  const base = { name: '測試', line: 'test_line', start: D(3), end: D(6), items: [{ slug: one.slug, qty: 1 }, { slug: two.slug, qty: 2 }] };
+  const base = { name: '測試', line: 'test_line', agree: true, start: D(3), end: D(6), items: [{ slug: one.slug, qty: 1 }, { slug: two.slug, qty: 2 }] };
   const h = load({ AIRTABLE_TOKEN: 'tok', AIRTABLE_BASE_ID: 'appTEST' });
 
   await t('下單成功:寫入 Airtable 的金額、天數、品項由後端計算', async () => {
@@ -172,6 +172,19 @@ const ok = (items, start = D(3), end = D(6)) => quote(G, { items, start, end });
       assert.strictEqual(r.status, 200, `${v} 應該通過,卻得到 ${r.status}`);
       assert.strictEqual(r.data.ok, true);
     }
+  });
+
+  // ---------- 租借須知的勾選:前端擋一次,後端也要擋 ----------
+  await t('沒有勾同意租借須知 → 400 terms-not-agreed', async () => {
+    const o = Object.assign({}, base); delete o.agree;
+    const r = await call(h, o);
+    assert.strictEqual(r.status, 400); assert.strictEqual(r.data.error, 'terms-not-agreed');
+  });
+  await t('agree 是 false → 400', async () => {
+    assert.strictEqual((await call(h, Object.assign({}, base, { agree: false }))).data.error, 'terms-not-agreed');
+  });
+  await t("agree 是字串 'true' → 400(只認真正的 true)", async () => {
+    assert.strictEqual((await call(h, Object.assign({}, base, { agree: 'true' }))).data.error, 'terms-not-agreed');
   });
 
   // ---------- 節流:同一來源 10 分鐘內最多 5 筆 ----------

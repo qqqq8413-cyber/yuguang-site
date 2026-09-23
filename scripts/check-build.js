@@ -73,6 +73,8 @@ const MAIN = {
   'liucheng.html': { nav: true, min: 400 },
   'guanyu.html': { nav: true, min: 400 },
   'lianluo.html': { nav: true, min: 300 },
+  'wenda.html': { nav: true, min: 1200 },   // 純靜態頁:內容本來就全在 HTML 裡
+  'xuzhi.html': { nav: true, min: 1800 },
 };
 for (const [file, want] of Object.entries(MAIN)) {
   const p = path.join(ROOT, file);
@@ -80,6 +82,15 @@ for (const [file, want] of Object.entries(MAIN)) {
   const html = fs.readFileSync(p, 'utf8');
   if (/<!--pre:([a-z]+)-->\s*<!--\/pre:\1-->/.test(html)) bad(`${file}：有空的 <!--pre:…--> 區塊，請先執行 node scripts/prerender-main.js`);
   if (want.nav && !/<nav class="sitenav"/.test(html)) bad(`${file}：靜態 HTML 沒有導覽列（AI 爬蟲會找不到其他頁面）`);
+  // 頂欄只能有 logo 與導覽列:以前靠「← 返回首頁」把導覽列擠到中間,多一個少一個就會歪掉
+  if (/class="back"|返回首頁/.test(html)) bad(`${file}：頂欄還有「返回首頁」，導覽列會偏掉（site.css 用格線置中）`);
+  // 頁尾只能有一個:site.js 會補頁尾,頁面裡多留一個舊的就會變成兩個(首頁曾經如此)
+  const foots = (html.match(/<footer[\s>]/g) || []).length;
+  if (foots !== 1) bad(`${file}：有 ${foots} 個 <footer>，應該剛好 1 個（site.js 會沿用 .sitefoot）`);
+  // 頁面自己的 <style> 不可以定義沒有前綴的 .cta:導覽列的「聯絡我們」按鈕就是 a.cta,會被誤中
+  // (wenda.html 曾因此讓頂欄從 65px 變成 198px)
+  const style = (html.match(/<style>([\s\S]*?)<\/style>/) || [])[1] || '';
+  if (/(^|[}\s,])\.cta[\s{,:]/.test(style)) bad(`${file}：自己的 <style> 定義了 .cta，會撞到導覽列的「聯絡我們」按鈕，請改名（例如 .pagecta）`);
   // 去掉標籤與 script/style 後的純文字長度
   const text = html.replace(/<(script|style|svg)[^>]*>[\s\S]*?<\/\1>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   if (text.length < want.min) bad(`${file}：不執行 JS 時只有 ${text.length} 字（至少要 ${want.min}），靜態內容可能沒寫進去`);
@@ -87,6 +98,12 @@ for (const [file, want] of Object.entries(MAIN)) {
     const n = (html.match(new RegExp(`href="${want.deep}`, 'g')) || []).length;
     if (n < 5) bad(`${file}：只有 ${n} 個連到 ${want.deep} 的靜態連結，作品頁會只能靠 sitemap 被發現`);
   }
+}
+
+// page.css 是產生頁共用的樣式,同樣不可以定義沒有前綴的 .cta
+{
+  const css = fs.readFileSync(path.join(ROOT, 'assets', 'page.css'), 'utf8');
+  if (/(^|[}\s,])\.cta[\s{,:]/.test(css)) bad('assets/page.css：定義了 .cta，會撞到導覽列的「聯絡我們」按鈕（43 個產生的頁面頂欄會被撐高）');
 }
 
 // ---------- 2. sitemap ----------

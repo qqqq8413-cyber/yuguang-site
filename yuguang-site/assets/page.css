@@ -55,10 +55,10 @@ img{max-width:100%;display:block}
 .shots figure{break-inside:avoid;margin:0 0 clamp(10px,1.4vw,18px)}
 .shots img{width:100%;height:auto;background:var(--paper-2)}
 
-.cta{display:flex;flex-wrap:wrap;gap:12px;margin:clamp(28px,4vw,44px) 0}
-.cta a{font-family:var(--serif);font-size:14px;letter-spacing:3px;padding:13px 30px;border:1px solid var(--ink);transition:background .25s,color .25s}
-.cta a.solid,.cta a:hover{background:var(--ink);color:var(--paper)}
-.cta a.solid:hover{background:transparent;color:var(--ink)}
+.pagecta{display:flex;flex-wrap:wrap;gap:12px;margin:clamp(28px,4vw,44px) 0}
+.pagecta a{font-family:var(--serif);font-size:14px;letter-spacing:3px;padding:13px 30px;border:1px solid var(--ink);transition:background .25s,color .25s}
+.pagecta a.solid,.pagecta a:hover{background:var(--ink);color:var(--paper)}
+.pagecta a.solid:hover{background:transparent;color:var(--ink)}
 
 .more{border-top:1px solid var(--line);padding-top:clamp(24px,3vw,36px);margin-bottom:clamp(40px,6vw,72px)}
 .more h2{font-family:var(--serif);font-weight:500;font-size:13px;letter-spacing:3px;color:var(--muted);margin-bottom:16px}

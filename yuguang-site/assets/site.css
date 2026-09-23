@@ -18,7 +18,15 @@
 .sitenav a.cta{color:var(--paper);background:var(--ink);padding:7px 16px;letter-spacing:2px}
 .sitenav a.cta::after{display:none}
 .sitenav a.cta:hover{opacity:.85;color:var(--paper)}
-.topbar .right{display:flex;align-items:center;gap:clamp(16px,2.5vw,30px)}
+/* 頂欄排版:logo 靠左、選單靠右。
+   用格線而不是 flex 的 space-between:選單的位置不受左右有幾個元素影響
+   (以前有「返回首頁」時,選單會被擠到中間,拿掉之後又會跑到別的位置)。 */
+@media (min-width:901px){
+  .topbar{display:grid;grid-template-columns:1fr auto;align-items:center}
+  /* 不加 justify-self 的話,logo 會被拉成整欄寬,點到旁邊的空白也會回首頁 */
+  .topbar .mark{grid-column:1;justify-self:start}
+  .topbar .sitenav{grid-column:2;justify-self:end}
+}
 
 .navtoggle{display:none;pointer-events:auto;background:none;border:0;cursor:pointer;width:40px;height:40px;
   margin-right:-10px;align-items:center;justify-content:center;color:var(--ink)}
@@ -30,7 +38,7 @@
 .nav-open .navtoggle span::after{transform:translateY(-6px) rotate(-45deg)}
 
 @media (max-width:900px){
-  .navtoggle{display:flex}
+  .navtoggle{display:flex;width:44px;height:44px}
   .sitenav{position:fixed;inset:0;z-index:-1;flex-direction:column;justify-content:center;gap:26px;
     background:var(--paper);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;pointer-events:auto}
   .sitenav a{font-size:1.25rem;letter-spacing:8px;text-indent:8px}
@@ -44,6 +52,25 @@
 h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
 /* 頂欄 logo:原本 height:auto 會讓 <svg><use> 撐到預設 150px,頂欄變 180px 高 */
 .topbar .mark svg{width:20px;height:22px;display:block}
+
+/* ---- 手機的可點範圍 ---- */
+/* 一行字只有 20px 高,手指按不準。這裡只把可點範圍撐大,字級、間距與視覺都不動:
+   會影響排版的地方用等量負邊距抵銷,圓點類用 ::after 疊一層看不見的熱區。 */
+@media (max-width:900px){
+  .topbar .mark{padding:11px 0;margin:-11px 0}
+  .crumb a{display:inline-block;padding:11px 0;margin:-11px 0}
+  .sitefoot .contact a{display:inline-block;padding:9px 0}
+  .info .socials a{display:inline-block;padding:10px 0}
+  .grps .grp li a{display:block;padding:7px 0}
+  .more ul li a{display:block;padding:7px 0}
+  .rowhead .more{display:inline-block;padding:10px 0;margin:-10px 0}
+  .hero .dots button{position:relative}
+  .hero .dots button::after{content:"";position:absolute;left:-6px;right:-6px;top:-11px;bottom:-11px}
+}
+
+/* 靜態清單(部署時寫進 HTML 給不執行 JS 的爬蟲看)一律整列寬:
+   萬一被放進多欄版面裡,也不會擠進某一欄、跟側欄疊在一起(器材頁曾經如此)。 */
+.sitelinks{grid-column:1/-1;width:100%}
 
 /* ---- 作品頁 / 器材頁底部預約區塊 ---- */
 .sitecta{text-align:center;padding:clamp(56px,8vw,104px) 20px;border-top:1px solid var(--line);margin-top:clamp(40px,6vw,80px)}

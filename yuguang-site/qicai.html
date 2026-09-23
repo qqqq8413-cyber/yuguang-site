@@ -43,9 +43,6 @@
   .topbar .mark{display:flex;align-items:center;gap:11px}
   .topbar svg{width:20px;height:auto}
   .topbar .name{font-family:var(--serif);font-size:14px;letter-spacing:5px;text-indent:5px}
-  .topbar .right{display:flex;align-items:center;gap:clamp(16px,2.5vw,30px)}
-  .topbar .back{font-family:var(--serif);font-size:12px;letter-spacing:2px;color:var(--muted);transition:.3s}
-  .topbar .back:hover{color:var(--ink)}
 
   /* 頁首 */
   .pagehead{text-align:center;padding:clamp(8px,1.6vw,20px) 0 clamp(18px,2.4vw,30px)}
@@ -220,6 +217,10 @@
     padding:11px 14px;margin-bottom:10px;font-family:var(--sans);font-size:14px;color:var(--ink);
     border-radius:0;outline:none;-webkit-appearance:none}
   .cartpanel .foot .cf:focus{border-color:var(--ink)}
+  .cartpanel .foot .agree{display:flex;gap:9px;align-items:flex-start;cursor:pointer;margin:2px 0 12px;
+    color:#4f4a42;font-size:12px;line-height:1.7;letter-spacing:.5px}
+  .cartpanel .foot .agree input{width:16px;height:16px;flex:0 0 auto;margin-top:1px;cursor:pointer;accent-color:var(--ink)}
+  .cartpanel .foot .agree a{border-bottom:1px solid currentColor}
   .cartpanel .foot .err{color:#b04a3a;font-family:var(--serif);font-size:12.5px;letter-spacing:1px;min-height:0;margin:-2px 0 10px}
   .cartpanel .foot .err:empty{display:none}
   .cartpanel .foot .send{cursor:pointer;border:0;width:100%}
@@ -287,9 +288,6 @@
       <!--pre:nav-->
 <nav class="sitenav" id="sitenav" aria-label="主選單"><a href="pingmian.html">平面作品</a><a href="dongtai.html">動態作品</a><a href="qicai.html" aria-current="page">器材租賃</a><a href="liucheng.html">製作流程</a><a href="wenda.html">常見問題</a><a href="guanyu.html">關於嶼光</a><a href="lianluo.html" class="cta">聯絡我們</a></nav>
 <!--/pre:nav-->
-  <div class="right">
-    <a class="back" href="index.html">← 返回首頁</a>
-  </div>
 </div>
 
 <!-- 型錄 -->
@@ -310,10 +308,10 @@
       <div class="cats" id="cats"></div>
     </aside>
     <div class="grid" id="grid"></div>
+  </div>
     <!--pre:list-->
 <section class="sitelinks"><h2>所有可租器材</h2><p class="note">點進去可看規格、推薦用途與租借說明。</p><div class="grps"><div class="grp"><h3>相機</h3><ul><li><a href="/rental/canon-eos-r50/">Canon EOS R50</a><span>NT$ 300 / 日</span></li><li><a href="/rental/insta360-x5/">Insta360 X5 萬能套裝</a><span>NT$ 600 / 日</span></li></ul></div><div class="grp"><h3>鏡頭</h3><ul><li><a href="/rental/canon-rf-s-18-45mm/">Canon RF-S 18-45mm f/4.5-6.3 IS STM</a><span>NT$ 200 / 日</span></li><li><a href="/rental/canon-rf-s-55-210mm/">Canon RF-S 55-210mm f/5-7.1 IS STM</a><span>NT$ 200 / 日</span></li></ul></div><div class="grp"><h3>燈光</h3><ul><li><a href="/rental/aputure-amaran-300c/">Aputure amaran 300c</a><span>NT$ 700 / 日</span></li></ul></div><div class="grp"><h3>燈光配件</h3><ul><li><a href="/rental/aputure-light-dome-iii/">Aputure Light Dome III</a><span>NT$ 200 / 日</span></li></ul></div><div class="grp"><h3>燈架</h3><ul><li><a href="/rental/kupo-090/">KUPO 090 燈架</a><span>NT$ 50 / 日</span></li><li><a href="/rental/kupo-ct-40mk/">KUPO CT-40MK 魔術腿組</a><span>NT$ 100 / 日</span></li></ul></div><div class="grp"><h3>穩定器</h3><ul><li><a href="/rental/dji-rs-5/">DJI RS 5</a><span>NT$ 900 / 日</span></li></ul></div></div></section>
 <!--/pre:list-->
-  </div>
 </div>
 
 <!-- 器材介紹頁 -->
@@ -355,10 +353,12 @@
           <div class="srow"><span>日租合計</span><b id="cartTotal">NT$ 0</b></div>
           <div class="srow"><span>租期</span><b id="cartDays">請先選擇日期</b></div>
           <div class="srow big"><span>預估總額</span><b id="cartAmount">—</b></div>
-          <div class="note" id="cartNote">＊租期含取件日與歸還日；送出後我們會以 LINE 跟你確認檔期與取件方式</div>
+          <div class="note" id="cartNote">＊價格未稅，需開立統一編號發票另加 5%；租期含取件日與歸還日。送出後我們會以 LINE 跟你確認檔期與取件方式</div>
         </div>
         <input class="cf" id="cName" type="text" placeholder="姓名" autocomplete="name" maxlength="40">
         <input class="cf" id="cLine" type="text" placeholder="LINE ID" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="40">
+        <label class="agree"><input type="checkbox" id="cAgree">
+          <span>我已閱讀並同意<a href="xuzhi.html" target="_blank" rel="noopener">租借須知</a>：取件時押一張證件（身分證或健保卡）並簽立本票，歸還時返還；取還在屏東工作室當面進行。</span></label>
         <div class="err" id="cartErr" role="alert"></div>
         <button class="send disabled" id="cartSend" type="button">送出租借需求</button>
       </div>
@@ -676,6 +676,8 @@ function fieldErr(el,msg){
 }
 ['cName','cLine'].forEach(k=>document.getElementById(k).addEventListener('input',e=>{
   e.target.style.borderColor='';document.getElementById('cartErr').textContent='';}));
+document.getElementById('cAgree').addEventListener('change',e=>{
+  e.target.style.borderColor='';if(e.target.checked)document.getElementById('cartErr').textContent='';});
 document.getElementById('cartSend').addEventListener('click',()=>{
   const send=document.getElementById('cartSend');
   if(send.classList.contains('disabled')||!cart.length)return;
@@ -690,9 +692,10 @@ document.getElementById('cartSend').addEventListener('click',()=>{
   if(!line)return fieldErr($('cLine'),'請填寫 LINE ID，方便我們聯絡你');
   /* LINE ID 規則:英數與 . - _,4–20 字(後端 create-order.js 也會再檢查一次) */
   if(!/^@?[A-Za-z0-9._-]{4,20}$/.test(line))return fieldErr($('cLine'),'LINE ID 只能用英文、數字與 . - _，4–20 字（要填 ID，不是顯示名稱）');
+  if(!$('cAgree').checked)return fieldErr($('cAgree'),'請先閱讀並勾選「我已閱讀並同意租借須知」');
   $('cartErr').textContent='';
   /* 只送代稱、數量、日期與聯絡方式;器材名稱、單價、天數、金額一律由後端依 gear.json 計算 */
-  const order={name,line,start,end,items:cart.map(id=>({slug:gear[id].slug,qty:cnt[id]}))};
+  const order={name,line,start,end,agree:true,items:cart.map(id=>({slug:gear[id].slug,qty:cnt[id]}))};
   /* 表單備援用的文字:後端有回報價就用後端的數字,後端連不上才用畫面上算的 */
   const days=rentDays(),localAmount=dailyOf(cart)*days;
   const localItems=cart.map(id=>`${gear[id].name} ×${cnt[id]}（${hasP(gear[id])?'NT$'+gear[id].price+'/日':'價格另計'}）`).join('、');
@@ -727,6 +730,7 @@ document.getElementById('cartSend').addEventListener('click',()=>{
 /* 後端檢查不通過時的說明(錯誤代碼見 netlify/functions/lib/rental.js) */
 const ORDER_ERR={
   'missing-contact':'請填寫 LINE ID，方便我們聯絡你',
+  'terms-not-agreed':'請先閱讀並勾選「我已閱讀並同意租借須知」',
   'invalid-line-id':'LINE ID 只能用英文、數字與 . - _，4–20 字（要填 ID，不是顯示名稱）',
   'no-items':'還沒有選擇器材',
   'unknown-item':'清單裡有器材已經下架，請重新整理頁面後再送出',

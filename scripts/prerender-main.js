@@ -107,6 +107,7 @@ const BLOCKS = {
   'liucheng.html': { nav: nav('liucheng.html'), foot: foot(), steps: steps() },
   'guanyu.html': { nav: nav('guanyu.html'), foot: foot(), manifesto: esc(about.manifesto || ''), story: story(), values: values(), facts: facts() },
   'wenda.html': { nav: nav('wenda.html'), foot: foot() },
+  'xuzhi.html': { nav: nav('xuzhi.html'), foot: foot() },   // 租借須知:不進導覽列,從器材頁與器材單頁連進來
   'lianluo.html': {
     nav: nav('lianluo.html'), foot: foot(),
     email: esc(site.email || ''), line: esc(lineId()), phone: esc(site.phone || ''), address: esc(site.address || ''), socials: socials(),

@@ -1,4 +1,5 @@
-/* 全站共用:把各頁頂欄的「← 返回首頁」換成完整導覽,並補一層淡入保險。 */
+/* 全站共用:沒有導覽列的頁面補上導覽列與手機選單鈕,並補一層淡入保險。
+   (主要頁面的導覽列已在部署時寫進 HTML,這裡只會補上選單鈕。) */
 (function(){
   var LINKS=[
     ['pingmian.html','平面作品'],['dongtai.html','動態作品'],['qicai.html','器材租賃'],
@@ -7,20 +8,14 @@
   var here=(location.pathname.split('/').pop()||'index.html').replace(/\.html?$/,'')+'.html';
   var root=document.documentElement;
 
-  function buildNav(){
-    var bar=document.querySelector('.topbar');
-    if(!bar||bar.querySelector('.sitenav'))return;
-    var nav=document.createElement('nav');
-    nav.className='sitenav';nav.id='sitenav';nav.setAttribute('aria-label','主選單');
-    LINKS.forEach(function(l){
-      var a=document.createElement('a');a.href=l[0];a.textContent=l[1];
-      if(l[2])a.className='cta';
-      if(l[0]===here)a.setAttribute('aria-current','page');
-      nav.appendChild(a);
-    });
+  /* 手機的選單鈕:導覽列不論是部署時就寫進 HTML(主要頁面)還是這裡補的,都要有這顆鈕,
+     否則手機版只看得到 logo,整個網站沒有選單可以點。 */
+  function addToggle(bar,nav){
+    if(bar.querySelector('.navtoggle'))return;
     var btn=document.createElement('button');
     btn.className='navtoggle';btn.type='button';
-    btn.setAttribute('aria-controls','sitenav');btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','開啟選單');
+    btn.setAttribute('aria-controls',nav.id||'sitenav');
+    btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','開啟選單');
     btn.innerHTML='<span></span>';
     function setOpen(open){
       root.classList.toggle('nav-open',open);
@@ -29,12 +24,25 @@
     btn.addEventListener('click',function(){setOpen(!root.classList.contains('nav-open'))});
     nav.addEventListener('click',function(e){if(e.target.tagName==='A')setOpen(false)});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false)});
+    bar.appendChild(btn);
+  }
 
-    var back=bar.querySelector('.back');
-    var right=bar.querySelector('.right');
-    if(back)back.remove();
-    if(right){right.appendChild(nav);right.appendChild(btn);}
-    else{bar.appendChild(nav);bar.appendChild(btn);}
+  function buildNav(){
+    var bar=document.querySelector('.topbar');
+    if(!bar)return;
+    var nav=bar.querySelector('.sitenav');
+    if(!nav){
+      nav=document.createElement('nav');
+      nav.className='sitenav';nav.id='sitenav';nav.setAttribute('aria-label','主選單');
+      LINKS.forEach(function(l){
+        var a=document.createElement('a');a.href=l[0];a.textContent=l[1];
+        if(l[2])a.className='cta';
+        if(l[0]===here)a.setAttribute('aria-current','page');
+        nav.appendChild(a);
+      });
+      bar.appendChild(nav);
+    }
+    addToggle(bar,nav);
   }
 
   /* 淡入保險:各頁的 observer 門檻偏高且要等 JSON 載完才開始觀察;
@@ -66,14 +74,23 @@
     var sec=document.createElement('section');sec.className='sitecta';
     sec.innerHTML='<p class="k">Let’s Talk</p><h2>'+c[0]+'</h2><p class="s">'+c[1]+'</p>'+
       '<a class="btn" href="lianluo.html?type='+encodeURIComponent(c[3])+'">'+c[2]+'</a>';
-    document.body.appendChild(sec);
+    /* 一定要放在頁尾之前。頁尾自 #42 起是部署時就寫進 HTML 的,
+       直接 appendChild 會排到頁尾後面,畫面上就變成「頁尾在預約區塊上面」。 */
+    var foot=document.querySelector('footer.sitefoot')||document.querySelector('body > footer');
+    if(foot&&foot.parentNode)foot.parentNode.insertBefore(sec,foot);
+    else document.body.appendChild(sec);
   }
 
   /* 全站頁尾:聯絡資訊由 content/site.json 帶入 */
   function buildFooter(){
-    var old=document.querySelector('body > footer');
-    var f=document.createElement('footer');f.className='sitefoot';
-    if(old)old.replaceWith(f);else document.body.appendChild(f);
+    /* 部署時已經寫好頁尾就沿用它,不要再生一個。
+       (首頁曾同時留著舊的 <footer> 與新的 .sitefoot,結果畫面上出現兩個頁尾) */
+    var f=document.querySelector('footer.sitefoot');
+    if(!f){
+      var old=document.querySelector('body > footer');
+      f=document.createElement('footer');f.className='sitefoot';
+      if(old)old.replaceWith(f);else document.body.appendChild(f);
+    }
     var year=new Date().getFullYear();
     function render(d){
       d=d||{};var items=[];
