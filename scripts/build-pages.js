@@ -229,6 +229,8 @@ function buildGear(gear) {
       lines(g.uses).length ? `<section class="sec"><h2>推薦用途</h2><ul class="specs">${lines(g.uses).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>` : '',
       lines(g.spec).length ? `<section class="sec"><h2>規格重點</h2><ul class="specs">${lines(g.spec).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>` : '',
       g.note ? `<section class="sec"><h2>租借說明</h2><p class="note">${esc(g.note)}</p></section>` : '',
+      // 每個器材頁都要看得到規則,不能只在器材列表頁
+      `<section class="sec"><h2>租借規則</h2><p class="note">租期含取件日與歸還日，最短一天。取件時押一張證件（身分證或健保卡）並簽立本票，歸還點驗無誤後當場返還。取還在屏東工作室當面進行（週一至週五 11:00–20:00，請先以 LINE 約時間），不提供宅配。標示價格未稅，需開立統一編號發票另加 5%。完整條款見<a href="xuzhi.html">租借須知</a>。</p></section>`,
       relatedList(`其他${g.cat || '器材'}`, others),
     ].join('\n');
     const jsonld = {
@@ -243,7 +245,8 @@ function buildGear(gear) {
       availability: (g.qty === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock'),
       priceSpecification: {
         '@type': 'UnitPriceSpecification', price: String(g.price), priceCurrency: 'TWD',
-        unitCode: 'DAY', unitText: '日', referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'DAY' },
+        unitCode: 'DAY', unitText: '日', valueAddedTaxIncluded: false, // 標示價格未稅
+        referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'DAY' },
       },
       seller: { '@type': 'Organization', name: '嶼光映像' },
     };
@@ -269,7 +272,8 @@ function write() {
     fs.writeFileSync(path.join(dir, 'index.html'), p.html);
   }
   const statics = [['/', '1.0'], ['/pingmian.html', '0.9'], ['/dongtai.html', '0.9'], ['/qicai.html', '0.9'],
-    ['/liucheng.html', '0.6'], ['/wenda.html', '0.8'], ['/guanyu.html', '0.6'], ['/lianluo.html', '0.7']];
+    ['/liucheng.html', '0.6'], ['/wenda.html', '0.8'], ['/xuzhi.html', '0.5'],
+    ['/guanyu.html', '0.6'], ['/lianluo.html', '0.7']];
   const urls = statics.concat(pages.map((p) => [p.url, p.priority]));
   // sitemap 也列出每頁的照片(image 擴充),讓 Google 圖片搜尋找得到作品照。
   // 只放 image:loc:title/caption 已被 Google 停用;照片的描述靠頁面上的 alt 與文字。

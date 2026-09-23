@@ -73,6 +73,8 @@ const MAIN = {
   'liucheng.html': { nav: true, min: 400 },
   'guanyu.html': { nav: true, min: 400 },
   'lianluo.html': { nav: true, min: 300 },
+  'wenda.html': { nav: true, min: 1200 },   // 純靜態頁:內容本來就全在 HTML 裡
+  'xuzhi.html': { nav: true, min: 1800 },
 };
 for (const [file, want] of Object.entries(MAIN)) {
   const p = path.join(ROOT, file);
