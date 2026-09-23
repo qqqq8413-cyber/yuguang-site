@@ -232,7 +232,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
       return `<div class="cover">
               <div class="bg" data-imgs="${gatherImgs(node).join('|')}" style="${coverBg(node,grad)}"></div>
                       <div class="grain"></div>
-                              <div class="label"><span class="zh">${node.zh}</span><span class="en">${node.en||''}</span></div>
+                              <div class="label"><span class="zh">${node.zh}</span><span class="en">${[node.sub,node.en].filter(Boolean).join(' · ')}</span></div>
                                       ${c?`<span class="count">${c}</span>`:''}
                                             </div>`;
   }
@@ -249,7 +249,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
   function openCategory(i){
       const a=albums[i];
       if(a.projects&&a.projects.length){renderProjects(i);}
-      else{openPhotos(a.photos||[], a.zh, a.en, 'index');}
+      else{openPhotos(a.photos||[], a.zh, [a.sub,a.en].filter(Boolean).join(' · '), 'index');}
   }
   function renderProjects(i){
       const a=albums[i];
@@ -350,7 +350,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
   function route(y){
       const c=qs(),a=c.cat!=null?albums[c.cat]:null;
       const pj=a&&c.proj!=null&&a.projects?a.projects[c.proj]:null;
-      if(pj){openPhotos(pj.photos||[],pj.zh,pj.en,'projects');document.title=pj.zh+' · '+a.zh+' · '+BASE_TITLE;}
+      if(pj){openPhotos(pj.photos||[],pj.zh,[pj.sub,pj.en].filter(Boolean).join(' · '),'projects');document.title=pj.zh+' · '+a.zh+' · '+BASE_TITLE;}
       else if(a){openCategory(c.cat);document.title=a.zh+' · '+BASE_TITLE;}
       else{albumView.style.display='none';projectView.style.display='none';indexView.style.display='block';
           indexView.classList.remove('fade');void indexView.offsetWidth;indexView.classList.add('fade');document.title=BASE_TITLE;}

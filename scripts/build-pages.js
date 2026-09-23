@@ -147,9 +147,11 @@ function buildAlbums(albums) {
     // 搜尋結果用的標題:專案頁補上「屏東＋分類」,相簿頁在呼叫處指定;都不影響畫面上的標題
     const mk = (node, url, title, parentCrumb, photos, related, docTitle) => {
       const cover = abs(img(firstImg(node) || '', 1200));
-      const desc = clip(`${title}｜${a.zh}．嶼光映像平面攝影作品（屏東），共 ${photos.length} 張照片。`, 150);
+      const sub = String(node.sub || '').trim();   // 副標題:同名作品用它區分(客戶、季節、年份…)
+      const desc = clip(`${title}${sub ? '｜' + sub : ''}｜${a.zh}．嶼光映像平面攝影作品（屏東），共 ${photos.length} 張照片。`, 150);
       const body = [
         `<header class="phead"><div class="kicker">${esc(a.en || 'Photography')}</div><h1>${esc(title)}</h1>`,
+        sub ? `<div class="meta">${esc(sub)}</div>` : '',
         `<div class="meta">${esc(a.zh)}${photos.length ? ` · ${photos.length} 張照片` : ''}</div></header>`,
         photos.length ? `<section class="sec">${photoWall(photos, title)}</section>` : '',
         `<div class="cta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">看更多平面作品</a></div>`,
@@ -176,7 +178,7 @@ function buildAlbums(albums) {
         const pSlug = p.slug;
         const others = projects.filter((x) => x !== p).map((x) => ({ url: `/work/${aSlug}/${x.slug}/`, label: x.zh || '專案' })).slice(0, 6);
         mk(p, `/work/${aSlug}/${pSlug}/`, p.zh || a.zh, `${baseCrumb}<span>›</span><a href="${albumUrl}">${esc(a.zh)}</a><span>›</span>${esc(p.zh || '')}`, p.photos || [], others,
-           `${p.zh || a.zh}｜屏東${a.zh}`);
+           `${p.zh || a.zh}${p.sub ? '｜' + String(p.sub).trim() : ''}｜屏東${a.zh}`);
       });
       // 分類頁:列出各專案
       const body = [
@@ -184,7 +186,7 @@ function buildAlbums(albums) {
         `<div class="meta">${projects.length} 個專案</div></header>`,
         `<section class="sec"><div class="shots">${projects.map((p) => {
           const c = firstImg(p); const u = `/work/${aSlug}/${p.slug}/`;
-          return `<figure><a href="${u}">${c ? `<img src="${attr(img(c, 900))}" alt="${attr(p.zh || '')}" loading="lazy" decoding="async">` : ''}<figcaption class="meta">${esc(p.zh || '')}</figcaption></a></figure>`;
+          return `<figure><a href="${u}">${c ? `<img src="${attr(img(c, 900))}" alt="${attr(p.zh || '')}" loading="lazy" decoding="async">` : ''}<figcaption class="meta">${esc(p.zh || '')}${p.sub ? `<br><small>${esc(String(p.sub).trim())}</small>` : ''}</figcaption></a></figure>`;
         }).join('')}</div></section>`,
         `<div class="cta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">在作品集中瀏覽</a></div>`,
       ].join('\n');
@@ -201,7 +203,8 @@ function buildAlbums(albums) {
         }),
       });
     } else {
-      mk(a, albumUrl, a.zh, `${baseCrumb}<span>›</span>${esc(a.zh)}`, a.photos || [], []);
+      mk(a, albumUrl, a.zh, `${baseCrumb}<span>›</span>${esc(a.zh)}`, a.photos || [], [],
+         `屏東${a.zh}${/(攝影|寫真|照片|紀錄)$/.test(a.zh) ? '' : '攝影'}作品${a.sub ? '｜' + String(a.sub).trim() : ''}`);
     }
   });
 }
