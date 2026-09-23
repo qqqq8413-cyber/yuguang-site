@@ -268,7 +268,7 @@
         },
         {
           "zh": "髮型模特",
-          "en": "Rita",
+          "en": "",
           "slug": "hair-model-2",
           "photos": [
             {
@@ -344,7 +344,8 @@
               "h": 2400
             }
           ],
-          "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961563/xy7pfo8ihkekekhl3jkq.jpg"
+          "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1786961563/xy7pfo8ihkekekhl3jkq.jpg",
+          "sub": "Rita"
         },
         {
           "zh": "髮型模特",
