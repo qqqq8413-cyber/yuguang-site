@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" class="no-js">
 <head>
+<script>/*no-js-off*/document.documentElement.classList.remove("no-js")</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>拍攝製作流程與預約方式 · 嶼光映像</title>
@@ -117,6 +118,9 @@
 
 <div class="topbar">
   <a class="mark" href="index.html"><svg><use href="#logo"/></svg><span class="name">嶼光映像</span></a>
+      <!--pre:nav-->
+<nav class="sitenav" id="sitenav" aria-label="主選單"><a href="pingmian.html">平面作品</a><a href="dongtai.html">動態作品</a><a href="qicai.html">器材租賃</a><a href="liucheng.html" aria-current="page">製作流程</a><a href="guanyu.html">關於嶼光</a><a href="lianluo.html" class="cta">聯絡我們</a></nav>
+<!--/pre:nav-->
   <a class="back" href="index.html">← 返回首頁</a>
 </div>
 
@@ -127,7 +131,9 @@
     <p class="sub">從一個念頭，到最終成品的每一步</p>
   </div>
 
-  <div class="steps" id="steps"></div>
+  <div class="steps" id="steps"><!--pre:steps-->
+<div class="step"><div class="txt"><div class="en">Consultation</div><h3>需求諮詢</h3><p>先聊聊你的想法、目標與預算。無論構想是否成形，我們都會協助釐清方向，一起定義這支作品要傳達的核心。</p></div></div><div class="step"><div class="txt"><div class="en">Proposal</div><h3>企劃提案</h3><p>依需求提出腳本、風格參考與報價。確認拍攝主軸、視覺調性與時程，讓每一分預算都花在對的地方。</p></div></div><div class="step"><div class="txt"><div class="en">Pre-production</div><h3>前期準備</h3><p>場地勘查、器材規劃、分鏡與時程安排。所有細節在開拍前備妥，確保拍攝當天順暢有效率。</p></div></div><div class="step"><div class="txt"><div class="en">Production</div><h3>拍攝執行</h3><p>專業團隊與器材到位，掌握光線與節奏，細膩捕捉每一個關鍵畫面與情緒。</p></div></div><div class="step"><div class="txt"><div class="en">Post-production</div><h3>後期製作</h3><p>剪輯、調光、配樂與字幕。反覆打磨節奏與質感，並提供一至兩次修改調整。</p></div></div><div class="step"><div class="txt"><div class="en">Delivery</div><h3>成品交付</h3><p>交付各平台適用的成品規格，並保留原始素材。後續有任何需求，我們也持續支援。</p></div></div>
+<!--/pre:steps--></div>
 
   <div class="cta">
     <p>準備好開始你的影像計畫了嗎？</p>
@@ -171,6 +177,7 @@ const io=new IntersectionObserver((es)=>{
 },{threshold:.2});
 
 fetch('content/process.json').then(r=>r.json()).then(data=>{
+  box.innerHTML='';   /* 清掉部署時寫入的靜態版本,避免重複 */
   (data.steps||[]).forEach((s)=>{
     const icon=I[s.icon]||I.chat;
     const el=document.createElement('div');
@@ -184,5 +191,8 @@ fetch('content/process.json').then(r=>r.json()).then(data=>{
   document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 }).catch(()=>{box.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無流程資料</p>';});
 </script>
+  <footer class="sitefoot"><!--pre:foot-->
+<div class="brand"><span class="zh">嶼光映像</span><span class="en">PHOS OF ISLE</span></div><div class="contact"><a href="mailto:qqqq8413@gmail.com">qqqq8413@gmail.com</a><a href="https://line.me/R/ti/p/~qqqq8413" target="_blank" rel="noopener">LINE qqqq8413</a><a href="tel:0908192807">0908 192 807</a></div><div class="addr">屏東縣屏東市公園里中華路 80-1 號</div><div class="copy">© 2026 嶼光映像</div>
+<!--/pre:foot--></footer>
 </body>
 </html>
