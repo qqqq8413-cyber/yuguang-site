@@ -18,14 +18,14 @@
 .sitenav a.cta{color:var(--paper);background:var(--ink);padding:7px 16px;letter-spacing:2px}
 .sitenav a.cta::after{display:none}
 .sitenav a.cta:hover{opacity:.85;color:var(--paper)}
-/* 頂欄排版:logo 左、選單正中、右欄留給手機的選單鈕。
-   用格線而不是 flex 的 space-between:這樣選單的位置不受左右有幾個元素影響
-   (以前靠「返回首頁」把選單擠到中間,拿掉之後就會跑掉)。空間不夠時格線會自己讓開,不會疊字。 */
+/* 頂欄排版:logo 靠左、選單靠右。
+   用格線而不是 flex 的 space-between:選單的位置不受左右有幾個元素影響
+   (以前有「返回首頁」時,選單會被擠到中間,拿掉之後又會跑到別的位置)。 */
 @media (min-width:901px){
-  .topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
-  .topbar .sitenav{grid-column:2;justify-self:center}
-  /* 不加這行的話,logo 會被拉成整欄寬,點到旁邊的空白也會回首頁 */
+  .topbar{display:grid;grid-template-columns:1fr auto;align-items:center}
+  /* 不加 justify-self 的話,logo 會被拉成整欄寬,點到旁邊的空白也會回首頁 */
   .topbar .mark{grid-column:1;justify-self:start}
+  .topbar .sitenav{grid-column:2;justify-self:end}
 }
 
 .navtoggle{display:none;pointer-events:auto;background:none;border:0;cursor:pointer;width:40px;height:40px;
