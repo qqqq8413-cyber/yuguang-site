@@ -79,9 +79,14 @@
 
   /* 全站頁尾:聯絡資訊由 content/site.json 帶入 */
   function buildFooter(){
-    var old=document.querySelector('body > footer');
-    var f=document.createElement('footer');f.className='sitefoot';
-    if(old)old.replaceWith(f);else document.body.appendChild(f);
+    /* 部署時已經寫好頁尾就沿用它,不要再生一個。
+       (首頁曾同時留著舊的 <footer> 與新的 .sitefoot,結果畫面上出現兩個頁尾) */
+    var f=document.querySelector('footer.sitefoot');
+    if(!f){
+      var old=document.querySelector('body > footer');
+      f=document.createElement('footer');f.className='sitefoot';
+      if(old)old.replaceWith(f);else document.body.appendChild(f);
+    }
     var year=new Date().getFullYear();
     function render(d){
       d=d||{};var items=[];
