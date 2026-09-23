@@ -1,4 +1,5 @@
-/* 全站共用:把各頁頂欄的「← 返回首頁」換成完整導覽,並補一層淡入保險。 */
+/* 全站共用:沒有導覽列的頁面補上導覽列與手機選單鈕,並補一層淡入保險。
+   (主要頁面的導覽列已在部署時寫進 HTML,這裡只會補上選單鈕。) */
 (function(){
   var LINKS=[
     ['pingmian.html','平面作品'],['dongtai.html','動態作品'],['qicai.html','器材租賃'],
@@ -7,20 +8,14 @@
   var here=(location.pathname.split('/').pop()||'index.html').replace(/\.html?$/,'')+'.html';
   var root=document.documentElement;
 
-  function buildNav(){
-    var bar=document.querySelector('.topbar');
-    if(!bar||bar.querySelector('.sitenav'))return;
-    var nav=document.createElement('nav');
-    nav.className='sitenav';nav.id='sitenav';nav.setAttribute('aria-label','主選單');
-    LINKS.forEach(function(l){
-      var a=document.createElement('a');a.href=l[0];a.textContent=l[1];
-      if(l[2])a.className='cta';
-      if(l[0]===here)a.setAttribute('aria-current','page');
-      nav.appendChild(a);
-    });
+  /* 手機的選單鈕:導覽列不論是部署時就寫進 HTML(主要頁面)還是這裡補的,都要有這顆鈕,
+     否則手機版只看得到 logo,整個網站沒有選單可以點。 */
+  function addToggle(bar,nav){
+    if(bar.querySelector('.navtoggle'))return;
     var btn=document.createElement('button');
     btn.className='navtoggle';btn.type='button';
-    btn.setAttribute('aria-controls','sitenav');btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','開啟選單');
+    btn.setAttribute('aria-controls',nav.id||'sitenav');
+    btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','開啟選單');
     btn.innerHTML='<span></span>';
     function setOpen(open){
       root.classList.toggle('nav-open',open);
@@ -29,12 +24,25 @@
     btn.addEventListener('click',function(){setOpen(!root.classList.contains('nav-open'))});
     nav.addEventListener('click',function(e){if(e.target.tagName==='A')setOpen(false)});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false)});
+    bar.appendChild(btn);
+  }
 
-    var back=bar.querySelector('.back');
-    var right=bar.querySelector('.right');
-    if(back)back.remove();
-    if(right){right.appendChild(nav);right.appendChild(btn);}
-    else{bar.appendChild(nav);bar.appendChild(btn);}
+  function buildNav(){
+    var bar=document.querySelector('.topbar');
+    if(!bar)return;
+    var nav=bar.querySelector('.sitenav');
+    if(!nav){
+      nav=document.createElement('nav');
+      nav.className='sitenav';nav.id='sitenav';nav.setAttribute('aria-label','主選單');
+      LINKS.forEach(function(l){
+        var a=document.createElement('a');a.href=l[0];a.textContent=l[1];
+        if(l[2])a.className='cta';
+        if(l[0]===here)a.setAttribute('aria-current','page');
+        nav.appendChild(a);
+      });
+      bar.appendChild(nav);
+    }
+    addToggle(bar,nav);
   }
 
   /* 淡入保險:各頁的 observer 門檻偏高且要等 JSON 載完才開始觀察;
