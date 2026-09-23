@@ -1,7 +1,7 @@
 # 嶼光映像 PHOS OF ISLE · 官網專案說明
 
 > 本文件整理官網的專案背景、技術架構、後台與資料、UI/UX 設計系統、開發流程與待辦。
-> 最後更新：2026-09-23（對應 PR #1–#40）
+> 最後更新：2026-09-23（對應 PR #1–#41）
 
 ---
 
@@ -89,7 +89,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 
 | 檔案 | 用途 | 主要欄位 |
 |---|---|---|
-| `albums.json` | 平面作品 | `albums[]`：`zh`、`en`、`slug`、`cover`、`featured`（首頁精選）、`photos[]`、`projects[]`（專案也有 `slug` 與 `featured`）；照片 `image`、`caption`、`w`、`h` |
+| `albums.json` | 平面作品 | `albums[]`：`zh`、`en`、`sub`（副標題）、`slug`、`cover`、`featured`（首頁精選）、`photos[]`、`projects[]`（專案也有 `sub`、`slug` 與 `featured`）；照片 `image`、`caption`、`w`、`h` |
 | `videos.json` | 動態作品 | `videos[]`：`title`、`cat`、`yt`、`client`、`year`（作品年份，顯示用）、`publishedAt`（YouTube 上傳日期，給 Google 用）、`featured`、`cover`、`sub`、`desc`、`credits` |
 | `gear.json` | 器材 | `gear[]`：`name`、`slug`、`cat`、`price`（日租）、`qty`（可租數量，0＝暫停出租）、`image`、`spec`（用「・」分隔）、`desc`、`uses`（每行一項）、`note`（租借說明）；`cats[]` 分類順序 |
 | `site.json` | 網站資訊 | 品牌名、Email、LINE、電話、地址、社群連結（頁尾讀這裡） |
@@ -381,6 +381,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #38 | SEO 關鍵字標題：7 個主頁面與相簿／器材單頁的 `<title>`、og:title 加入「屏東攝影／影片製作／器材租借」等搜尋詞（畫面上的 h1 不變） |
 | #39 | 預覽版後台改為唯讀：存檔／上傳／改訂單只能在正式網址做 |
 | #40 | 修正 #38 的標題：相簿不再出現「照片攝影」、專案頁補上「屏東＋分類」、器材頁後綴縮短；檢查程式會提醒重複標題 |
+| #41 | 相簿與專案可填「副標題」：同名作品用它區分，顯示在標題下方，也進搜尋結果標題 |
 
 ---
 

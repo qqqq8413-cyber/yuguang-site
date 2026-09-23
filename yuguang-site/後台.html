@@ -292,7 +292,7 @@
         list.forEach(([o,name,prefix])=>{let b=slugify(name)||prefix+'-'+Math.random().toString(36).slice(2,8),s=b,n=2;while(used.has(s))s=b+'-'+(n++);o.slug=s;used.add(s);});
     }
     /* 把「gear[0].price」這種位置換成看得懂的名稱:「Canon EOS R50」的 日租價 */
-    const FIELD_ZH={price:'日租價',qty:'可租數量',name:'名稱',image:'照片',slug:'代稱',yt:'YouTube 網址',title:'標題',zh:'中文名稱',w:'照片寬度',h:'照片高度',cover:'封面',featured:'首頁精選',publishedAt:'YouTube 上傳日期'};
+    const FIELD_ZH={price:'日租價',qty:'可租數量',name:'名稱',image:'照片',slug:'代稱',yt:'YouTube 網址',title:'標題',zh:'中文名稱',w:'照片寬度',h:'照片高度',cover:'封面',featured:'首頁精選',sub:'副標題',publishedAt:'YouTube 上傳日期'};
     function friendlyPath(msg){
         return msg.replace(/^([a-z]+)\[(\d+)\](?:\.projects\[(\d+)\])?(?:\.photos\[(\d+)\])?(?:\.([a-zA-Z_]+))?/,(m,top,i,j,k,f)=>{
             const it=(DATA[top]||[])[+i];if(!it)return m;
@@ -536,6 +536,7 @@
         h+=`<div class="grid2" style="margin-bottom:20px">
               <input class="f" value="${esc(al.zh)}" oninput="DATA.albums[${curAlbum}].zh=this.value" placeholder="分類中文名稱">
                     <input class="f" value="${esc(al.en||'')}" oninput="DATA.albums[${curAlbum}].en=this.value" placeholder="英文名稱（可留空）">
+                    <input class="f" value="${esc(al.sub||'')}" oninput="DATA.albums[${curAlbum}].sub=this.value" placeholder="副標題（可留空）" title="會出現在分類頁標題下方與搜尋結果">
                     <input class="f" value="${esc(al.slug||'')}" oninput="DATA.albums[${curAlbum}].slug=this.value.trim().toLowerCase()" placeholder="網址代稱（留空則存檔時自動產生）" title="網址中的固定名稱，例如 portrait。只能用小寫英文、數字和 -；改了之後舊的分享連結會失效">
                           </div>`;
         h+='<div class="sechead" style="margin-top:6px"><h2 style="font-size:1.02rem">專案子相簿</h2><button class="btn sm" onclick="addProject()">+ 新增專案</button></div>';
@@ -580,6 +581,7 @@
         h+=`<div class="grid2" style="margin-bottom:14px">
               <input class="f" value="${esc(pj.zh)}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].zh=this.value" placeholder="專案中文名稱">
                     <input class="f" value="${esc(pj.en||'')}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].en=this.value" placeholder="英文名稱（可留空）">
+                    <input class="f" value="${esc(pj.sub||'')}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].sub=this.value" placeholder="副標題（可留空，例如客戶或年份）" title="作品名稱相同時用來區分，也會出現在搜尋結果的標題與頁面標題下方">
                           </div>`;
         h+=photoUploaderHTML('pj');
         h+=`<div class="savebar"><span class="msg" id="pmsg"></span>
