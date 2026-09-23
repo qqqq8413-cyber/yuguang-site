@@ -61,6 +61,7 @@ const ok = (items, start = D(3), end = D(6)) => quote(G, { items, start, end });
   const load = (env) => {
     Object.assign(process.env, { AIRTABLE_TOKEN: '', AIRTABLE_BASE_ID: '' }, env);
     delete require.cache[require.resolve(fnPath)];
+    require('../netlify/functions/lib/ratelimit')._reset(); // 測試之間不要互相踩到節流額度
     return require(fnPath).handler;
   };
   let sent = [];
@@ -149,6 +150,77 @@ const ok = (items, start = D(3), end = D(6)) => quote(G, { items, start, end });
     assert.strictEqual(r.status, 200); assert.strictEqual(r.data.ok, false);
     assert.strictEqual(r.data.quote.days, 4); assert.strictEqual(sent.length, 0);
   });
+  // ---------- LINE ID 白名單:後台會把它放進 HTML,含引號的值等於可執行的程式碼 ----------
+  const lineCase = (v) => call(h, Object.assign({}, base, { line: v }));
+  const badLine = (name, v) => t(name, async () => {
+    const r = await lineCase(v);
+    assert.strictEqual(r.status, 400);
+    assert.strictEqual(r.data.error, 'invalid-line-id');
+  });
+  await badLine('LINE ID 含單引號(XSS 的入口)', "a',alert(1),'");
+  await badLine('LINE ID 含角括號', 'ab<script>');
+  await badLine('LINE ID 含雙引號', 'ab"cd');
+  await badLine('LINE ID 含空白', 'abc def');
+  await badLine('LINE ID 是中文', '嶼光映像');
+  await badLine('LINE ID 太短', 'abc');
+  await badLine('LINE ID 太長', 'a'.repeat(21));
+  await badLine('LINE ID 含 @ 在中間', 'ab@cd');
+  await t('合法 LINE ID 通過', async () => {
+    require('../netlify/functions/lib/ratelimit')._reset(); // 這裡要連送 4 筆成功的,先清掉前面用掉的額度
+    for (const v of ['abc_123', '@abc.def', 'A-b_c.1', '0912345678']) {
+      const r = await lineCase(v);
+      assert.strictEqual(r.status, 200, `${v} 應該通過,卻得到 ${r.status}`);
+      assert.strictEqual(r.data.ok, true);
+    }
+  });
+
+  // ---------- 節流:同一來源 10 分鐘內最多 5 筆 ----------
+  await t('同一來源連送 6 筆:第 6 筆 429 並附 Retry-After', async () => {
+    const rl = require('../netlify/functions/lib/ratelimit');
+    rl._reset();
+    const ip = { 'x-nf-client-connection-ip': '203.0.113.9' };
+    const one6 = () => h({ httpMethod: 'POST', headers: ip, body: JSON.stringify(base) });
+    for (let i = 0; i < 5; i++) assert.strictEqual((await one6()).statusCode, 200, `第 ${i + 1} 筆應該成功`);
+    const r = await one6();
+    assert.strictEqual(r.statusCode, 429);
+    assert.strictEqual(JSON.parse(r.body).error, 'too-many-requests');
+    assert.ok(Number(r.headers['Retry-After']) > 0);
+    rl._reset();
+  });
+  await t('不同來源各自計算,不會被別人用完額度', async () => {
+    const rl = require('../netlify/functions/lib/ratelimit');
+    rl._reset();
+    const post = (ip) => h({ httpMethod: 'POST', headers: { 'x-nf-client-connection-ip': ip }, body: JSON.stringify(base) });
+    for (let i = 0; i < 5; i++) await post('198.51.100.1');
+    assert.strictEqual((await post('198.51.100.1')).statusCode, 429);
+    assert.strictEqual((await post('198.51.100.2')).statusCode, 200);
+    rl._reset();
+  });
+  await t('時間窗過了就回復額度', async () => {
+    const rl = require('../netlify/functions/lib/ratelimit');
+    rl._reset();
+    let t0 = 1e12;
+    rl._cfg.now = () => t0;
+    const post = () => h({ httpMethod: 'POST', headers: { 'x-nf-client-connection-ip': '192.0.2.7' }, body: JSON.stringify(base) });
+    for (let i = 0; i < 5; i++) await post();
+    assert.strictEqual((await post()).statusCode, 429);
+    t0 += 10 * 60 * 1000 + 1;
+    assert.strictEqual((await post()).statusCode, 200);
+    rl._cfg.now = () => Date.now();
+    rl._reset();
+  });
+  await t('內容有誤不佔額度:先送 6 筆壞資料,再送好資料仍成功', async () => {
+    const rl = require('../netlify/functions/lib/ratelimit');
+    rl._reset();
+    const ip = { 'x-nf-client-connection-ip': '198.51.100.55' };
+    for (let i = 0; i < 6; i++) {
+      const r = await h({ httpMethod: 'POST', headers: ip, body: JSON.stringify(Object.assign({}, base, { items: [] })) });
+      assert.strictEqual(r.statusCode, 400);
+    }
+    assert.strictEqual((await h({ httpMethod: 'POST', headers: ip, body: JSON.stringify(base) })).statusCode, 200);
+    rl._reset();
+  });
+
   await t('未設定 Airtable 時,內容有誤仍回 400', async () => {
     const h2 = load({});
     assert.strictEqual((await call(h2, Object.assign({}, base, { items: [] }))).status, 400);

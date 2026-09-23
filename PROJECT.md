@@ -302,6 +302,25 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - **新增外部服務時**（新字型、新圖片來源、新的嵌入或統計），要把網域加進 CSP 對應項目；改成正式 CSP 之後，沒加的會被瀏覽器擋掉
 - 下一步：觀察一段時間 → 改成正式的 `Content-Security-Policy`
 
+### 把資料放進 HTML（後台訂單的 XSS，PR #44 修掉）
+後台會把客人在器材頁自己填的 LINE ID 顯示出來。原本的寫法是把它組進行內事件：
+
+```html
+<button onclick="copyText('資料放這裡',this)">複製 LINE ID</button>
+```
+
+只要資料裡有一個單引號，就會跳出 JS 字串，**後面的內容會以站長的身分執行**（可讀走 `sessionStorage` 的登入密碼，接著改內容、刪訂單）。屬性層的 `&#39;` 擋不住：瀏覽器會先解碼屬性值，才把內容交給 JS。
+
+現在的規則：
+- **客人填的內容一律不進行內事件**。要帶值就放 `data-*` 屬性，用一個掛在 `document` 上的事件委派讀 `dataset`（後台的 `data-copy`／`data-vcat`／`data-gcat`）
+- `create-order.js` 用白名單擋在最前面：LINE ID 只收 `@` 開頭選填＋英數與 `. - _`、4–20 字（LINE 本身的規則），不合格回 400 `invalid-line-id`，器材頁送出前也先檢查一次
+- `esc()` 多跳脫單引號，當作第二層保險
+- `check-scripts.js` 會擋下再次把字串資料組進 `onclick` 的寫法（CI 會失敗）
+- 之後 CSP 改成正式版、拿掉 `'unsafe-inline'`，才是把這一整類問題關起來
+
+### 公開端點的節流（`lib/ratelimit.js`）
+`create-order` 是任何人都能打的端點，Airtable 免費方案有筆數上限、Netlify 表單每月有提交上限，被灌垃圾單會在最需要的時候剛好用完。現在同一來源（IP）**10 分鐘內最多 5 筆**，超過回 429（附 `Retry-After`），器材頁顯示「送出得太頻繁」且**不走表單備援**。內容有誤（日期、數量）被退回的那幾次不算進額度，客人修正重送不會被擋。次數記在函式執行個體的記憶體裡（同 `lib/auth.js`），Netlify 會開多個執行個體、閒置後重啟，所以這是拖慢洗版而不是硬上限。
+
 ### 流量統計
 - 使用 **Cloudflare Web Analytics**：不用 Cookie、不追蹤個人，因此不需要 Cookie 同意視窗
 - 網域是灰色雲朵（DNS only），所以採**手動 JS snippet**（Cloudflare 設定為「Enable with JS Snippet installation」），不是自動注入
@@ -336,11 +355,11 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
   - 每個後端函式都能載入
   - `node scripts/test-preview-guard.js`：預覽版唯讀（27 項：4 支寫入函式在預覽／分支部署回 403、讀取仍可用、正式站與本機不受影響、後台頁面也會先擋）
   - `node scripts/test-admin-auth.js`：後台驗證（28 項：6 支函式對錯密碼、錯 5 次鎖定、鎖定中正確密碼也拒絕、15 分鐘解鎖、不同來源互不影響、每支函式都用共用驗證）
-  - `node scripts/test-create-order.js`：租借報價與下單函式（36 項：金額天數由後端算、偽造金額被忽略、數量／日期／品項各種錯誤、Airtable 失敗與未設定）
+  - `node scripts/test-create-order.js`：租借報價與下單函式（49 項：金額天數由後端算、偽造金額被忽略、數量／日期／品項各種錯誤、Airtable 失敗與未設定、**LINE ID 白名單**、**同來源節流**）
   - `node scripts/build-pages.js`：與 Netlify 部署相同的建置；失敗代表合併後會部署失敗
   - `node scripts/prerender-main.js`：與部署相同，把主要頁面的靜態內容寫進 HTML
   - `node scripts/check-build.js`：產生的頁面 canonical／og:url 正確、標題與 h1、網址格式；sitemap 網址都存在、無重複、沒漏頁；**把順序反過來並改掉所有中文名稱後，網址必須完全相同**；產生的檔案沒被 commit；**7 個主要頁面不執行 JS 時仍有導覽列、足夠文字與作品連結**；**標題重複只提醒（△）**；器材標明出租與按日計價、sitemap 沒有 lastmod 與停用欄位；影片缺上傳日期只提醒（△）不擋
-  - `node scripts/check-scripts.js`：每個頁面（含產生的頁面）的內嵌程式與 assets/*.js 沒有語法錯誤，結構化資料是合法 JSON
+  - `node scripts/check-scripts.js`：每個頁面（含產生的頁面）的內嵌程式與 assets/*.js 沒有語法錯誤，結構化資料是合法 JSON，**行內事件（`onclick="…"`）的 JS 字串裡沒有插入資料**（見下方「把資料放進 HTML」）
   - `node scripts/check-links.js`：網站內部連結（含產生的頁面，約 750 個）都指到存在的檔案
 - **上一頁回歸測試**：38 個情境（首頁、動態、平面、器材、分享連結進入），桌面與手機各跑一次
 - **租借流程**：本機接上真的 `create-order` 函式（Airtable 以假回應代替），測正常送出、後端拒絕（顯示原因）、後端掛掉改走表單、兩邊都失敗、只有表單失敗
@@ -397,6 +416,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #41 | 相簿與專案可填「副標題」：同名作品用它區分，顯示在標題下方，也進搜尋結果標題 |
 | #42 | 主要 7 頁在部署時寫入靜態內容：導覽列、作品清單、關於／流程／聯絡（給不執行 JS 的 AI 爬蟲讀） |
 | #43 | 常見問題頁（16 題：價格、交件、修改、訂金、器材租借規則）＋關於頁工作室事實與合作單位＋LocalBusiness 補齊營業時間／價格級距／社群 |
+| #44 | 修掉後台訂單詳情的 XSS：客人填的 LINE ID 不再進 `onclick`（改 data 屬性＋事件委派）、後端加 LINE ID 白名單、`create-order` 同來源節流、CI 擋下同類寫法 |
 
 ---
 
