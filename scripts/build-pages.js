@@ -35,7 +35,7 @@ const gearImg = (u, w) => cld(u, `e_trim:10/c_limit,w_${w},h_${w}/f_auto,q_auto`
 const abs = (u) => (!u ? `${SITE}/images/og.jpg` : /^https?:/.test(u) ? u : SITE + (u.startsWith('/') ? u : '/' + u));
 const lines = (t) => String(t || '').split(/・|\n/).map((x) => x.trim()).filter(Boolean);
 
-const pages = []; // { url, html, lastmod, priority }
+const pages = []; // { url, title, kind, html, priority, images }
 
 function shell({ url, title, docTitle = title, desc, image, type = 'article', jsonld, crumb, body }) {
   const head = [
@@ -115,7 +115,7 @@ function buildVideos(videos) {
       relatedList(`更多${v.cat || '作品'}`, others),
     ].join('\n');
     pages.push({
-      url, priority: '0.8',
+      url, priority: '0.8', title: v.title || '動態作品', kind: 'video', cat: v.cat || '',
       html: shell({
         url, title: v.title || '動態作品', desc, image: cover, type: 'video.other', crumb: `<a href="index.html">首頁</a><span>›</span><a href="dongtai.html">動態作品</a><span>›</span>${esc(v.title || '')}`,
         jsonld: {
@@ -158,7 +158,7 @@ function buildAlbums(albums) {
         relatedList('同系列', related),
       ].join('\n');
       pages.push({
-        url, priority: '0.7',
+        url, priority: '0.7', title, kind: 'work', cat: a.zh, sub,
         images: photos.map((ph) => abs(img(ph.image, 1600))),
         html: shell({
           url, title, docTitle, desc, image: cover, crumb: parentCrumb,
@@ -191,7 +191,7 @@ function buildAlbums(albums) {
         `<div class="cta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">在作品集中瀏覽</a></div>`,
       ].join('\n');
       pages.push({
-        url: albumUrl, priority: '0.7',
+        url: albumUrl, priority: '0.7', title: a.zh, kind: 'album', cat: a.zh,
         html: shell({
           url: albumUrl, title: a.zh, docTitle: `屏東${a.zh}${/(攝影|寫真|照片|紀錄)$/.test(a.zh) ? '' : '攝影'}作品`, desc: clip(`${a.zh}｜嶼光映像平面攝影作品（屏東），共 ${projects.length} 個專案。`, 150),
           image: abs(img(firstImg(a) || '', 1200)), crumb: `${baseCrumb}<span>›</span>${esc(a.zh)}`,
@@ -248,7 +248,7 @@ function buildGear(gear) {
       seller: { '@type': 'Organization', name: '嶼光映像' },
     };
     pages.push({
-      url, priority: '0.8',
+      url, priority: '0.8', title: g.name, kind: 'gear', cat: g.cat || '', price: has ? g.price : null,
       images: g.image ? [cover] : [],
       html: shell({
         url, title: g.name, docTitle: `${g.name} 出租｜屏東`, desc, image: cover, type: 'product',

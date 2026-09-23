@@ -69,3 +69,16 @@ h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
   .sitefoot .contact{justify-content:flex-start;flex-direction:column}
   .sitefoot .addr{text-align:left}
 }
+
+/* 作品／器材清單(部署時寫入的靜態連結):讓每個獨立頁面都有真正的 <a> 連得到,
+   不用只靠 sitemap;對訪客也是一份可快速掃過的目錄 */
+.sitelinks{max-width:1240px;margin:0 auto;padding:clamp(28px,4vw,52px) clamp(20px,5vw,64px) clamp(36px,5vw,64px);border-top:1px solid var(--hair,rgba(23,22,19,.08))}
+.sitelinks h2{font-family:var(--serif,serif);font-weight:500;font-size:13px;letter-spacing:3px;color:var(--muted,#716a5d);margin-bottom:6px}
+.sitelinks .note{color:var(--muted,#716a5d);font-size:12.5px;letter-spacing:1px;margin-bottom:20px}
+.sitelinks .grps{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px 30px}
+.sitelinks .grp h3{font-family:var(--serif,serif);font-weight:500;font-size:14.5px;letter-spacing:2px;margin:0 0 8px;padding-bottom:7px;border-bottom:1px solid var(--hair,rgba(23,22,19,.08))}
+.sitelinks ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.sitelinks li{font-size:13.5px;letter-spacing:.5px;color:#4f4a42;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sitelinks a{border-bottom:1px solid transparent;transition:border-color .25s}
+.sitelinks a:hover{border-bottom-color:currentColor}
+.sitelinks li span{color:var(--muted,#716a5d);font-size:11.5px;margin-left:7px}

@@ -4,7 +4,8 @@
 //   2. sitemap.xml:網址都是正式網域、沒有重複、都指到存在的頁面;產生的頁面都有列進去
 //   3. 網址穩定:把相簿/專案/器材/影片的順序反過來、中文名稱全部改掉,產生的網址必須完全相同
 //   4. 產生的檔案沒有被 commit 進 repo(它們每次部署都會重新產生)
-//   5. 標題:每頁都要有、不可重複(重複只提醒);結構化資料語意:器材是「出租」(LeaseOut、按日計價);影片有上傳日期(缺的只提醒,不擋)
+//   5. 主要 7 頁:不靠 JS 就有導覽列、聯絡資訊與作品連結(prerender-main.js 的成果)
+//   6. 標題:每頁都要有、不可重複(重複只提醒);結構化資料語意:器材是「出租」(LeaseOut、按日計價);影片有上傳日期(缺的只提醒,不擋)
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -60,6 +61,32 @@ for (const url of built) {
 // 所以只提醒、不擋,請在後台把名稱改得有區別。
 for (const [t, urls] of titles) {
   if (urls.length > 1) warn(`有 ${urls.length} 頁的標題都是「${t}」：${urls.join('、')}　→ 建議在後台把名稱改得有區別（例如加上客戶或年份）`);
+}
+
+// ---------- 主要頁面的靜態內容 ----------
+// AI 搜尋的爬蟲不執行 JS。這幾頁若退回「只有標題」的狀態,等於對 AI 隱形,所以這裡把關。
+const MAIN = {
+  'index.html': { nav: true, min: 150 },
+  'pingmian.html': { nav: true, min: 250, deep: '/work/' },
+  'dongtai.html': { nav: true, min: 300, deep: '/video/' },
+  'qicai.html': { nav: true, min: 300, deep: '/rental/' },
+  'liucheng.html': { nav: true, min: 400 },
+  'guanyu.html': { nav: true, min: 400 },
+  'lianluo.html': { nav: true, min: 300 },
+};
+for (const [file, want] of Object.entries(MAIN)) {
+  const p = path.join(ROOT, file);
+  if (!fs.existsSync(p)) { bad(`找不到 ${file}`); continue; }
+  const html = fs.readFileSync(p, 'utf8');
+  if (/<!--pre:([a-z]+)-->\s*<!--\/pre:\1-->/.test(html)) bad(`${file}：有空的 <!--pre:…--> 區塊，請先執行 node scripts/prerender-main.js`);
+  if (want.nav && !/<nav class="sitenav"/.test(html)) bad(`${file}：靜態 HTML 沒有導覽列（AI 爬蟲會找不到其他頁面）`);
+  // 去掉標籤與 script/style 後的純文字長度
+  const text = html.replace(/<(script|style|svg)[^>]*>[\s\S]*?<\/\1>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (text.length < want.min) bad(`${file}：不執行 JS 時只有 ${text.length} 字（至少要 ${want.min}），靜態內容可能沒寫進去`);
+  if (want.deep) {
+    const n = (html.match(new RegExp(`href="${want.deep}`, 'g')) || []).length;
+    if (n < 5) bad(`${file}：只有 ${n} 個連到 ${want.deep} 的靜態連結，作品頁會只能靠 sitemap 被發現`);
+  }
 }
 
 // ---------- 2. sitemap ----------

@@ -27,6 +27,8 @@ jobs:
       # 與 Netlify 部署時相同的建置步驟;失敗就代表合併後正式站會部署失敗
       - name: 產生作品／影片／器材單頁與 sitemap(與部署相同)
         run: node scripts/build-pages.js
+      - name: 主要頁面寫入靜態內容(與部署相同)
+        run: node scripts/prerender-main.js
       - name: 檢查產生的頁面(網址、canonical、sitemap、排序與改名後網址不變)
         run: node scripts/check-build.js
       - name: 網頁程式語法與結構化資料(含產生的頁面)
