@@ -206,7 +206,7 @@
       "projects": [
         {
           "zh": "髮型模特",
-          "en": "淯涵",
+          "en": "",
           "slug": "hair-model-winter",
           "photos": [
             {
@@ -264,7 +264,8 @@
               "h": 1350
             }
           ],
-          "featured": true
+          "featured": true,
+          "sub": "淯涵"
         },
         {
           "zh": "髮型模特",
