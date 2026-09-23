@@ -200,7 +200,7 @@
     },
     {
       "zh": "人像寫真",
-      "en": "Portrait",
+      "en": "",
       "slug": "portrait",
       "photos": [],
       "projects": [
@@ -484,7 +484,8 @@
           ],
           "sub": "涵宣"
         }
-      ]
+      ],
+      "sub": "Portrait"
     },
     {
       "zh": "活動紀錄",
