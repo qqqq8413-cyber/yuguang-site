@@ -425,6 +425,9 @@
       const g=e.target.closest('[data-gcat]'); if(g){openGearCat(g.dataset.gcat);return;}
       const gr=e.target.closest('[data-gcat-rename]'); if(gr){renameGearCat(gr.dataset.gcatRename);return;}
       const gd=e.target.closest('[data-gcat-del]'); if(gd){delGearCat(gd.dataset.gcatDel);return;}
+      const cp=e.target.closest('[data-cover-pick]'); if(cp){coverPick=!coverPick;renderAlbumDetail();return;}
+      const cc=e.target.closest('[data-cover-clear]'); if(cc){clearAlbumCover();return;}
+      const cs=e.target.closest('[data-cover-set]'); if(cs){const a=cs.dataset.coverSet.split('-');setAlbumCover(+a[0],+a[1]);return;}
     });
     function copyText(t,btn){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{const o=btn.textContent;btn.textContent='已複製 ✓';setTimeout(()=>btn.textContent=o,1500);}).catch(()=>prompt('複製這段文字：',t));}
     async function deleteOrder(o){
@@ -497,7 +500,53 @@
         DATA.albums.push({zh,en,projects:[],photos:[]});renderPhoto();
     }
     function delAlbum(i){if(!confirm('確定刪除整個分類？'))return;DATA.albums.splice(i,1);renderPhoto();}
-    function openAlbum(i){curAlbum=i;curProject=-1;renderAlbumDetail();}
+    function openAlbum(i){curAlbum=i;curProject=-1;coverPick=false;renderAlbumDetail();}
+
+    /* ---- 分類封面 ----
+       平面作品頁上每個分類的大圖。分類底下只有專案時,分類自己沒有照片可以點,
+       所以這裡從各專案的照片裡挑一張存進 al.cover(前台 firstPhoto 會優先用它)。 */
+    let coverPick=false;
+    function admThumb(u){return u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1?u.replace('/upload/','/upload/f_auto,q_auto,w_300/'):u;}
+    function autoAlbumCover(al){
+        if(al.photos&&al.photos.length&&al.photos[0].image)return al.photos[0].image;
+        for(const pj of (al.projects||[])){
+              if(pj.cover)return pj.cover;
+              if(pj.photos&&pj.photos.length&&pj.photos[0].image)return pj.photos[0].image;}
+        return '';
+    }
+    function albumCoverHTML(al){
+        const cur=al.cover||'',auto=autoAlbumCover(al),show=cur||auto;
+        let h=`<div class="sechead" style="margin-top:6px"><h2 style="font-size:1.02rem">分類封面</h2>
+              <button class="btn sm" type="button" data-cover-pick>${coverPick?'收起':(cur?'換一張':'選擇封面')}</button></div>`;
+        h+='<div class="hint">平面作品頁上這個分類的大圖。沒有指定就自動用第一個專案的第一張照片。</div>';
+        h+='<div style="display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin:12px 0 4px">';
+        h+=show?`<img src="${esc(admThumb(show))}" loading="lazy" style="width:150px;height:100px;object-fit:cover;border:1px solid var(--line)">`
+               :'<span style="color:var(--muted);font-size:13px">這個分類還沒有任何照片</span>';
+        h+=`<span style="color:var(--muted);font-size:13px">${cur?'目前：自己指定的封面':'目前：自動（第一個專案的封面）'}</span>`;
+        if(cur)h+='<button class="btn sm ghost" type="button" data-cover-clear>改回自動</button>';
+        h+='</div>';
+        if(coverPick){
+              h+='<div class="hint" style="margin-top:10px">點任一張設為這個分類的封面。</div>';
+              (al.projects||[]).forEach((pj,j)=>{
+                    const ps=pj.photos||[];if(!ps.length)return;
+                    h+=`<div style="margin-top:14px"><div class="lbl" style="margin-bottom:6px">${esc(pj.zh||'未命名專案')}　<span style="color:var(--muted)">${ps.length} 張</span></div><div class="thumbs">`;
+                    ps.forEach((ph,k)=>{
+                          const on=(cur===ph.image);
+                          h+=`<div class="thumb"><img src="${esc(admThumb(ph.image))}" loading="lazy">
+                                <button class="covbtn${on?' on':''}" type="button" data-cover-set="${j}-${k}">${on?'★ 封面':'設為封面'}</button></div>`;
+                    });
+                    h+='</div></div>';
+              });
+              if(!(al.projects||[]).some(pj=>(pj.photos||[]).length))h+='<div class="hint">專案裡還沒有照片可以選。</div>';
+        }
+        return h;
+    }
+    function setAlbumCover(j,k){
+        const al=DATA.albums[curAlbum],ph=((al.projects[j]||{}).photos||[])[k];if(!ph)return;
+        al.cover=(al.cover===ph.image)?'':ph.image;
+        renderAlbumDetail();coverMsg(al.cover?'分類封面已設定，記得按「儲存」':'已改回自動，記得按「儲存」');
+    }
+    function clearAlbumCover(){DATA.albums[curAlbum].cover='';renderAlbumDetail();coverMsg('已改回自動，記得按「儲存」');}
 
     function photoTarget(mode){
         if(mode==='pj'){const pj=DATA.albums[curAlbum].projects[curProject];if(!Array.isArray(pj.photos))pj.photos=[];
@@ -546,6 +595,7 @@
                     <input class="f" value="${esc(al.sub||'')}" oninput="DATA.albums[${curAlbum}].sub=this.value" placeholder="副標題（可留空）" title="會出現在分類頁標題下方與搜尋結果">
                     <input class="f" value="${esc(al.slug||'')}" oninput="DATA.albums[${curAlbum}].slug=this.value.trim().toLowerCase()" placeholder="網址代稱（留空則存檔時自動產生）" title="網址中的固定名稱，例如 portrait。只能用小寫英文、數字和 -；改了之後舊的分享連結會失效">
                           </div>`;
+        if((al.projects||[]).length)h+=albumCoverHTML(al);
         h+='<div class="sechead" style="margin-top:6px"><h2 style="font-size:1.02rem">專案子相簿</h2><button class="btn sm" onclick="addProject()">+ 新增專案</button></div>';
         h+='<div class="hint">建立專案後，網站點進此分類會先看到各專案封面；沒有專案時，則直接顯示下方「未分專案照片」。用 ⣿ 可拖曳排序。</div>';
         h+=featHint();

@@ -143,7 +143,9 @@ function buildAlbums(albums) {
     const aSlug = needSlug(a, `相簿「${a.zh}」`);
     const projects = a.projects || [];
     const albumUrl = `/work/${aSlug}/`;
-    const firstImg = (n) => (n.cover ? n.cover : (n.photos && n.photos[0] && n.photos[0].image) || (n.projects || []).map((p) => (p.photos || [])[0] && p.photos[0].image).find(Boolean));
+    // 代表圖:自己的封面 → 自己的第一張 → 第一個專案的封面 → 第一個專案的第一張
+    const firstImg = (n) => (n.cover ? n.cover : (n.photos && n.photos[0] && n.photos[0].image)
+      || (n.projects || []).map((p) => p.cover || ((p.photos || [])[0] && p.photos[0].image)).find(Boolean));
     // 搜尋結果用的標題:專案頁補上「屏東＋分類」,相簿頁在呼叫處指定;都不影響畫面上的標題
     const mk = (node, url, title, parentCrumb, photos, related, docTitle) => {
       const cover = abs(img(firstImg(node) || '', 1200));
