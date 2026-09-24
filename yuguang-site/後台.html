@@ -509,7 +509,9 @@
     function admThumb(u){return u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1?u.replace('/upload/','/upload/f_auto,q_auto,w_300/'):u;}
     function autoAlbumCover(al){
         if(al.photos&&al.photos.length&&al.photos[0].image)return al.photos[0].image;
-        for(const pj of (al.projects||[]))if(pj.photos&&pj.photos.length&&pj.photos[0].image)return pj.photos[0].image;
+        for(const pj of (al.projects||[])){
+              if(pj.cover)return pj.cover;
+              if(pj.photos&&pj.photos.length&&pj.photos[0].image)return pj.photos[0].image;}
         return '';
     }
     function albumCoverHTML(al){
@@ -520,7 +522,7 @@
         h+='<div style="display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin:12px 0 4px">';
         h+=show?`<img src="${esc(admThumb(show))}" loading="lazy" style="width:150px;height:100px;object-fit:cover;border:1px solid var(--line)">`
                :'<span style="color:var(--muted);font-size:13px">這個分類還沒有任何照片</span>';
-        h+=`<span style="color:var(--muted);font-size:13px">${cur?'目前：自己指定的封面':'目前：自動（第一個專案的第一張）'}</span>`;
+        h+=`<span style="color:var(--muted);font-size:13px">${cur?'目前：自己指定的封面':'目前：自動（第一個專案的封面）'}</span>`;
         if(cur)h+='<button class="btn sm ghost" type="button" data-cover-clear>改回自動</button>';
         h+='</div>';
         if(coverPick){

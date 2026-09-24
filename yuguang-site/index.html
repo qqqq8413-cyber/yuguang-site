@@ -278,11 +278,19 @@
     const rows=document.getElementById('rows');
     function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}return u;}
     function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+    /* 代表圖:自己指定的封面優先,再來才是第一張照片(專案也一樣) */
     function firstPhoto(node){
+        if(node.cover)return node.cover;
         if(node.photos&&node.photos.length)return node.photos[0].image;
-        if(node.projects)for(const pj of node.projects){if(pj.photos&&pj.photos.length)return pj.photos[0].image;}
+        if(node.projects)for(const pj of node.projects){
+              if(pj.cover)return pj.cover;
+              if(pj.photos&&pj.photos.length)return pj.photos[0].image;}
         return null;
     }
+    /* 卡片的輪播圖:封面排第一張 */
+    function tileImgs(node,w){const out=[];if(node.cover)out.push(opt(node.cover,w));
+        (node.photos||[]).forEach(p=>{if(p.image&&p.image!==node.cover)out.push(opt(p.image,w));});
+        return out.slice(0,6);}
     function tile(it){
         const imgs = (it.imgs&&it.imgs.length) ? it.imgs : (it.img?[it.img]:[]);
         const first = imgs[0];
@@ -374,9 +382,9 @@
         const plane=[];
         (a.albums||[]).forEach((al,i)=>{
               if(al.projects&&al.projects.length){
-                      al.projects.forEach((pj,j)=>plane.push({featured:pj.featured===true,href:al.slug&&pj.slug?`pingmian.html?album=${al.slug}&project=${pj.slug}`:`pingmian.html?cat=${i}&proj=${j}`,imgs:(pj.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:pj.zh||al.zh,sub:al.zh}));
+                      al.projects.forEach((pj,j)=>plane.push({featured:pj.featured===true,href:al.slug&&pj.slug?`pingmian.html?album=${al.slug}&project=${pj.slug}`:`pingmian.html?cat=${i}&proj=${j}`,imgs:tileImgs(pj,1200),cap:pj.zh||al.zh,sub:al.zh}));
               }else{
-                      plane.push({featured:al.featured===true,href:al.slug?`pingmian.html?album=${al.slug}`:`pingmian.html?cat=${i}`,imgs:(al.photos||[]).slice(0,6).map(p=>opt(p.image,1200)),cap:al.zh,sub:al.en});
+                      plane.push({featured:al.featured===true,href:al.slug?`pingmian.html?album=${al.slug}`:`pingmian.html?cat=${i}`,imgs:tileImgs(al,1200),cap:al.zh,sub:al.en});
               }
         });
         /* 後台勾了「★ 首頁精選」就只顯示勾選的(順序依後台的分類／專案排序);一個都沒勾時顯示全部 */
