@@ -125,7 +125,8 @@ h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
    全站共用同一組節奏:進場用 expo-out(快速到位、慢慢停),離場比進場短。
    只動 transform／opacity;「減少動態」的系統設定一律尊重。 */
 /* --motion-scale:全站動畫速度倍率。1 = 最初的節奏,數字越大越慢(1.4 = 每段動畫多花 40% 的時間)。
-   site.js 的捲動浮現、首頁的進站動畫也讀這個值,改這裡就全部一起變。 */
+   site.js 的捲動浮現、首頁主視覺的浮現也讀這個值,改這裡就全部一起變。
+   例外:首頁的進站 LOGO 動畫有自己的倍率 --intro-scale(在 index.html),不跟著這裡變。 */
 :root{--motion-scale:1.4;--ease-out:cubic-bezier(.19,1,.22,1);--ease-in:cubic-bezier(.7,0,.84,0);--ease-inout:cubic-bezier(.65,0,.35,1)}
 
 /* 作品格還沒畫出來之前先預留一個畫面的高度:瀏覽器有時會在頁面程式執行前先畫一次,
