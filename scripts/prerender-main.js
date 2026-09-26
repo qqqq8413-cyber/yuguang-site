@@ -99,13 +99,25 @@ const facts = () => {
     (c.length ? `<h2>合作單位</h2><ul class="clients">${c.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');
 };
 
+/* 內容資料直接寫進頁面:頁面程式透過 window.ygFetch 同步拿到,作品格在第一次繪製時就畫好。
+   以前要等 content/*.json 從網路回來才畫,期間作品格是空的,底下的靜態清單與頁尾先出現在畫面裡,
+   等作品一畫出來就被整塊推下去(手機版面位移 CLS 0.5,Google 標準 0.1 以下才算好)。
+   沒有這個區塊時(例如沒跑建置),ygFetch 不存在,頁面照舊用 fetch 去抓,不會壞。 */
+const rawJson = (name) => fs.readFileSync(path.join(ROOT, 'content', name + '.json'), 'utf8');
+const dataBlock = (names) => names.map((n) => {
+  // JSON 放在 <script type="application/json"> 裡:把 </ 寫成 <\/(JSON 允許),避免內容提前結束 script
+  const json = JSON.stringify(JSON.parse(rawJson(n))).replace(/<\//g, '<\\/');
+  return `<script type="application/json" id="yg-data-${n}">${json}</script>`;
+}).join('\n') + '\n<script>/*yg-data*/window.ygFetch=function(u){var m=/content\\/([a-z]+)\\.json$/.exec(u),el=m&&document.getElementById("yg-data-"+m[1]);' +
+  'if(!el)return fetch(u);var t=el.textContent;return Promise.resolve({ok:true,status:200,json:function(){return Promise.resolve(JSON.parse(t))}})};</script>';
+
 const BLOCKS = {
-  'index.html': { nav: nav(''), foot: foot() },
-  'pingmian.html': { nav: nav('pingmian.html'), foot: foot(), list: workList() },
-  'dongtai.html': { nav: nav('dongtai.html'), foot: foot(), list: videoList() },
-  'qicai.html': { nav: nav('qicai.html'), foot: foot(), list: gearList() },
+  'index.html': { nav: nav(''), foot: foot(), data: dataBlock(['albums', 'videos', 'gear']) },
+  'pingmian.html': { nav: nav('pingmian.html'), foot: foot(), list: workList(), data: dataBlock(['albums']) },
+  'dongtai.html': { nav: nav('dongtai.html'), foot: foot(), list: videoList(), data: dataBlock(['videos']) },
+  'qicai.html': { nav: nav('qicai.html'), foot: foot(), list: gearList(), data: dataBlock(['gear']) },
   'liucheng.html': { nav: nav('liucheng.html'), foot: foot(), steps: steps() },
-  'guanyu.html': { nav: nav('guanyu.html'), foot: foot(), manifesto: esc(about.manifesto || ''), story: story(), values: values(), facts: facts() },
+  'guanyu.html': { nav: nav('guanyu.html'), foot: foot(), manifesto: esc(about.manifesto || ''), story: story(), values: values(), facts: facts(), data: dataBlock(['about']) },
   'wenda.html': { nav: nav('wenda.html'), foot: foot() },
   'xuzhi.html': { nav: nav('xuzhi.html'), foot: foot() },   // 租借須知:不進導覽列,從器材頁與器材單頁連進來
   'lianluo.html': {
@@ -121,7 +133,8 @@ for (const [file, blocks] of Object.entries(BLOCKS)) {
   for (const [key, content] of Object.entries(blocks)) {
     const re = new RegExp(`(<!--pre:${key}-->)[\\s\\S]*?(<!--/pre:${key}-->)`);
     if (!re.test(html)) { missing.push(`${file} 少了 <!--pre:${key}--> 標記`); continue; }
-    html = html.replace(re, `$1\n${content}\n$2`);
+    // 用函式替換:內容裡若有 $1、$& 這類字元組合,字串替換會把它們當成特殊符號
+    html = html.replace(re, (_, a, b) => `${a}\n${content}\n${b}`);
     filled++;
   }
   fs.writeFileSync(p, html);

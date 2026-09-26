@@ -378,6 +378,8 @@
   <span class="cb-r"><span id="cartBarP"></span><span class="go">查看清單 →</span></span>
 </button>
 
+<!--pre:data-->
+<!--/pre:data-->
 <script>
 /* ====== 器材資料(由後台 content/gear.json 載入) ====== */
 const GEARGRADS=[["#c7c1b4","#8b857a"],["#c1c4c8","#868a8f"],["#cbc4bb","#8f887c"],["#c9c8c2","#8c8b84"],["#d0cabb","#948d7c"],["#cdc9c0","#918c80"],["#c4c6c9","#888b8f"],["#c6c1ba","#8a857d"],["#c2c5c8","#868a8d"],["#cbc7be","#8f8b80"]];
@@ -389,7 +391,7 @@ const mbCats=document.getElementById('mbCats');
 const mbToggle=document.getElementById('mbToggle');
 const mbLabel=document.getElementById('mbLabel');
 
-fetch('content/gear.json').then(r=>r.json()).then(data=>{
+(window.ygFetch||fetch)('content/gear.json').then(r=>r.json()).then(data=>{
   gear=(data.gear||[]).map((g,i)=>Object.assign({grad:GEARGRADS[i%GEARGRADS.length]},g,{id:i}));
   cats=["全部器材",...[...new Set(gear.map(g=>g.cat))]];
   buildCats(catBox,'cat');buildCats(mbCats,'mb-cat');render();
