@@ -108,7 +108,79 @@
     fetch('content/site.json').then(function(r){return r.json()}).then(render).catch(function(){});
   }
 
-  function init(){buildNav();buildCta();buildFooter();revealNet();}
+  /* ---- 捲動浮現:作品卡片、照片、器材、問答一個一個依序出現 ----
+     規則(全站同一套節奏):
+     - 剛載入時第一屏看得到的:直接顯示(保護 LCP,見下方 calm);看不到的:先隱藏,捲到才浮現
+     - 點進分類、切換篩選等頁面內重畫:新卡片依序浮現
+     - 同一批進場的依畫面位置(上→下、左→右)排序,每張間隔 65ms,最多排 8 張,不會讓後面的等太久
+     - 只動 transform 與 opacity(不影響版面、不造成跳動);圖片在外框裡從 1.1 倍縮回 1 倍,像鏡頭對焦
+     - 用 Web Animations:不改元素的 CSS,hover 等原本的效果照常運作
+     - 系統設定「減少動態」時整段不執行;沒有 JS 時內容本來就全部可見 */
+  var REVEAL_SEL=['.track>.tile','.albums>.album','.grid>.vid','.grid>.prod','.masonry>*','.shots>*',
+    '.grps>.grp','.faqsec>.qa','.wrap>.terms','.keypoints'].join(',');
+  var EASE_OUT='cubic-bezier(.19,1,.22,1)';
+  function motion(){
+    var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(rm||!('IntersectionObserver' in window)||!Element.prototype.animate)return;
+    var queue=[],raf=0;
+    function frameOf(el){
+      var im=el.querySelector('.bg,img');if(!im||!im.parentElement)return null;
+      var o=getComputedStyle(im.parentElement).overflow;
+      return (o==='hidden'||o==='clip')?im:null;
+    }
+    function play(){
+      raf=0;
+      var batch=queue.splice(0).map(function(el){return {el:el,r:el.getBoundingClientRect()}});
+      batch.sort(function(a,b){return Math.abs(a.r.top-b.r.top)>24?a.r.top-b.r.top:a.r.left-b.r.left});
+      batch.forEach(function(b,i){
+        var el=b.el,d=Math.min(i,8)*65,img=frameOf(el),text=el.tagName!=='IMG'&&!el.querySelector('img,.bg');
+        el.classList.remove('rv-wait');
+        /* 起點用 0.01 而不是 0:肉眼一樣看不見,但 Chrome 會把它算成「已經畫出來」。
+           從 0 開始的話,Chrome 要等淡入播完才記錄最大內容繪製(LCP),清單頁會慢將近 1 秒。 */
+        el.animate([{opacity:.01,transform:'translate3d(0,'+(text?18:34)+'px,0)',offset:0}],
+          {duration:text?800:1000,delay:d,easing:EASE_OUT,fill:'backwards'});
+        if(img)img.animate([{transform:'scale(1.1)',offset:0}],{duration:1500,delay:d,easing:EASE_OUT,fill:'backwards'});
+      });
+    }
+    function enqueue(el){queue.push(el);if(!raf)raf=requestAnimationFrame(play);}
+    /* 橫向可滑動的列(首頁每一列作品):右邊還沒滑進來的卡片,不能等你橫向滑到才出現——
+       改成觀察整列,這一列捲進畫面時,整列由左到右依序浮現 */
+    function scrollerOf(el){
+      var p=el.parentElement;if(!p)return null;
+      var o=getComputedStyle(p).overflowX;
+      return (o==='auto'||o==='scroll')?p:null;
+    }
+    /* 使用者第一次操作(點、按鍵、滾輪、觸控)之前,第一屏的卡片直接顯示、不做動畫。
+       Google 的「最大內容繪製」(LCP)只量這段時間;卡片若在這時淡入,Chrome 會等動畫播完才算畫出來,
+       平面作品頁實測從 0.66 秒變成 1.55 秒。操作之後(捲動、點進分類、切換篩選)出現的卡片才依序浮現。 */
+    var calm=true;
+    ['pointerdown','keydown','wheel','touchstart'].forEach(function(t){
+      addEventListener(t,function(){calm=false;},{capture:true,passive:true,once:true});
+    });
+    var waiting=new Map();   // 被觀察的元素 → 要一起浮現的卡片
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting)return;
+        io.unobserve(e.target);
+        (waiting.get(e.target)||[]).forEach(enqueue);waiting.delete(e.target);
+      });
+    },{rootMargin:'0px 0px -6% 0px',threshold:0});
+    function setup(el){
+      if(el.__rv)return;el.__rv=1;
+      var target=scrollerOf(el)||el;
+      var r=target.getBoundingClientRect();
+      var inView=r.width>0&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth;
+      if(inView){if(!calm)enqueue(el);return;}
+      el.classList.add('rv-wait');
+      if(!waiting.has(target)){waiting.set(target,[]);io.observe(target);}
+      waiting.get(target).push(el);
+    }
+    function scan(){document.querySelectorAll(REVEAL_SEL).forEach(setup);}
+    scan();
+    new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
+  }
+
+  function init(){buildNav();buildCta();buildFooter();revealNet();motion();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 

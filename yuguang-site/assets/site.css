@@ -120,3 +120,45 @@ h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
 .facts .clients{flex-direction:row;flex-wrap:wrap;gap:8px 10px}
 .facts .clients li{font-family:var(--serif,serif);font-size:13.5px;letter-spacing:1.5px;color:#403c34;
   border:1px solid var(--hair,rgba(23,22,19,.08));padding:7px 14px;background:var(--paper-2,#eeece6)}
+
+/* ==== 動態 ====
+   全站共用同一組節奏:進場用 expo-out(快速到位、慢慢停),離場比進場短。
+   只動 transform／opacity;「減少動態」的系統設定一律尊重。 */
+:root{--ease-out:cubic-bezier(.19,1,.22,1);--ease-in:cubic-bezier(.7,0,.84,0);--ease-inout:cubic-bezier(.65,0,.35,1)}
+
+/* 捲動浮現:還沒捲到的卡片先隱藏(只有 site.js 會加這個 class,沒有 JS 就不會隱藏) */
+.rv-wait{opacity:0}
+@media print{.rv-wait{opacity:1!important}}
+
+/* 換頁:舊頁面淡出、新頁面淡入並微微上浮;頂欄固定不動,不會每次換頁都閃一下
+   (Chrome、Edge、Safari 18.2 以上支援;其他瀏覽器照常換頁,沒有影響) */
+@view-transition{navigation:auto}
+.topbar{view-transition-name:yg-topbar}
+::view-transition-old(root){animation:.22s var(--ease-in) both yg-vt-out}
+::view-transition-new(root){animation:.6s var(--ease-out) both yg-vt-in}
+@keyframes yg-vt-out{to{opacity:0}}
+@keyframes yg-vt-in{from{opacity:0;transform:translate3d(0,14px,0)}}
+
+/* 桌機導覽列:滑過時底線從左邊畫出來,離開時往右收掉 */
+@media (min-width:901px) and (hover:hover){
+  .sitenav a:not(.cta)::after{content:"";position:absolute;left:0;right:2.5px;bottom:0;height:1px;background:currentColor;
+    transform:scaleX(0);transform-origin:right center;transition:transform .55s var(--ease-out)}
+  .sitenav a:not(.cta):hover::after,.sitenav a[aria-current="page"]::after{transform:scaleX(1);transform-origin:left center}
+}
+
+/* 手機選單:打開時連結由上往下依序浮現;關上時一起淡出(比打開快) */
+@media (max-width:900px){
+  .sitenav a{opacity:0;transform:translate3d(0,16px,0);transition:opacity .25s var(--ease-in),transform .25s var(--ease-in)}
+  .nav-open .sitenav a{opacity:1;transform:none;transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
+  .nav-open .sitenav a:nth-child(1){transition-delay:.08s}.nav-open .sitenav a:nth-child(2){transition-delay:.13s}
+  .nav-open .sitenav a:nth-child(3){transition-delay:.18s}.nav-open .sitenav a:nth-child(4){transition-delay:.23s}
+  .nav-open .sitenav a:nth-child(5){transition-delay:.28s}.nav-open .sitenav a:nth-child(6){transition-delay:.33s}
+  .nav-open .sitenav a:nth-child(7){transition-delay:.4s}
+}
+
+@media (prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  .rv-wait{opacity:1!important}
+  .sitenav a,.nav-open .sitenav a{opacity:1;transform:none;transition:none}
+  .sitenav a:not(.cta)::after{transition:none}
+}
