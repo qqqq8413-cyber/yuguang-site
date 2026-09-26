@@ -143,6 +143,8 @@
   </div>
 </div>
 
+<!--pre:data-->
+<!--/pre:data-->
 <script>
 const VICONS={
   aperture:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="20"/><path d="M32 12v40M12 32h40M18 18l28 28M46 18L18 46"/></svg>`,
@@ -153,7 +155,7 @@ const io=new IntersectionObserver((es)=>{
   es.forEach((e)=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target)}})
 },{threshold:.15});
 
-fetch('content/about.json').then(r=>r.json()).then(d=>{
+(window.ygFetch||fetch)('content/about.json').then(r=>r.json()).then(d=>{
   document.getElementById('manifesto').textContent=d.manifesto||'';
   document.getElementById('storyLab').innerHTML='Who We Are<span class="cn">'+(d.storyHeading||'我們是誰')+'</span>';
   const body=document.getElementById('storyBody');body.innerHTML='';   /* 清掉部署時寫入的靜態版本,避免重複 */

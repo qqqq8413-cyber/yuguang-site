@@ -222,21 +222,24 @@
       footer{text-align:center;padding:28px 20px;border-top:1px solid var(--hair);
                  font-family:var(--serif);font-size:11px;letter-spacing:2.5px;color:var(--muted)}
       /* ---- 進站動畫:在暗處用光把 LOGO 一筆一筆畫出來,再像暗房顯影一樣淡出成主視覺 ----
-         只在每次開瀏覽器後第一次進首頁時播放(sessionStorage),約 2.2 秒;點一下、按鍵、滾動就立刻跳過。
+         只在每次開瀏覽器後第一次進首頁時播放(sessionStorage),約 2 秒;點一下、按鍵、滾動就立刻跳過。
          「減少動態」、網址帶 #錨點、自動化工具(爬蟲)都不播。網址加 ?intro=1 可強制重看。
          緩動曲線直接寫數值,不依賴 site.css 的變數:萬一 site.css 晚到,動畫也不會失效。 */
       /* 注意:<html> 上的旗標是 is-intro,遮罩是 .intro,兩者不可同名——
          同名的話 .intro{display:none} 會連 <html> 一起隱藏,整頁在動畫結束前完全不會畫出來 */
+      /* --intro-scale:進站動畫自己的速度倍率,和全站的 --motion-scale 分開。1 = 最初的節奏(約 2.2 秒),數字越小越快。
+         全站動畫放慢後(#50)進站跟著變成 3 秒多,等太久,所以進站單獨調快 */
+      :root{--intro-scale:.9}
       .intro{display:none}
       html.is-intro .intro{display:flex;position:fixed;inset:0;z-index:2000;flex-direction:column;align-items:center;justify-content:center;
-        background:var(--ink);color:#f3f1ec;animation:intro-out .65s cubic-bezier(.65,0,.35,1) 1.6s forwards}
+        background:var(--ink);color:#f3f1ec;animation:intro-out calc(.65s * var(--intro-scale)) cubic-bezier(.65,0,.35,1) calc(1.6s * var(--intro-scale)) forwards}
       .intro svg{width:clamp(52px,6vw,76px);height:auto;aspect-ratio:192/208;overflow:visible}
-      .intro line{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:intro-draw var(--t) cubic-bezier(.65,0,.35,1) var(--d) forwards}
+      .intro line{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:intro-draw calc(var(--t) * var(--intro-scale)) cubic-bezier(.65,0,.35,1) calc(var(--d) * var(--intro-scale)) forwards}
       .intro line.ray{filter:drop-shadow(0 0 5px rgba(243,241,236,.55))}
       .intro .nm{font-family:var(--serif);font-size:clamp(18px,1.9vw,24px);letter-spacing:12px;text-indent:12px;margin-top:30px;opacity:0;
-        animation:intro-name 1s cubic-bezier(.19,1,.22,1) .8s forwards}
+        animation:intro-name calc(1s * var(--intro-scale)) cubic-bezier(.19,1,.22,1) calc(.8s * var(--intro-scale)) forwards}
       .intro .lt{font-family:var(--serif);font-size:11px;letter-spacing:7px;text-indent:7px;margin-top:12px;opacity:0;
-        animation:intro-fade .9s cubic-bezier(.19,1,.22,1) .98s forwards}
+        animation:intro-fade calc(.9s * var(--intro-scale)) cubic-bezier(.19,1,.22,1) calc(.98s * var(--intro-scale)) forwards}
       @keyframes intro-draw{to{stroke-dashoffset:0}}
       @keyframes intro-name{from{opacity:0;letter-spacing:24px;text-indent:24px}to{opacity:1}}
       @keyframes intro-fade{to{opacity:.62}}
@@ -245,13 +248,13 @@
       /* ---- 主視覺文字依序浮現(純 CSS,第一次繪製就套用,不會先閃一下) ----
          播進站動畫時整體往後延,接在顯影之後;跳過進站動畫時 JS 拿掉 is-intro-hero,就改用一般的時間點 */
       @media (prefers-reduced-motion:no-preference){
-        .hero .inner>*,.hero .actions,.hero .foot{animation:hero-in 1.1s cubic-bezier(.19,1,.22,1) both}
-        .hero .inner>:nth-child(1){animation-delay:.12s}.hero .inner>:nth-child(2){animation-delay:.2s}
-        .hero .inner>:nth-child(3){animation-delay:.3s}.hero .inner>:nth-child(4){animation-delay:.4s}
-        .hero .actions{animation-delay:.52s}.hero .foot{animation-delay:.66s}
-        html.is-intro-hero .hero .inner>:nth-child(1){animation-delay:1.62s}html.is-intro-hero .hero .inner>:nth-child(2){animation-delay:1.7s}
-        html.is-intro-hero .hero .inner>:nth-child(3){animation-delay:1.8s}html.is-intro-hero .hero .inner>:nth-child(4){animation-delay:1.9s}
-        html.is-intro-hero .hero .actions{animation-delay:2.02s}html.is-intro-hero .hero .foot{animation-delay:2.16s}
+        .hero .inner>*,.hero .actions,.hero .foot{animation:hero-in calc(1.1s * var(--motion-scale,1.4)) cubic-bezier(.19,1,.22,1) both}
+        .hero .inner>:nth-child(1){animation-delay:calc(.12s * var(--motion-scale,1.4))}.hero .inner>:nth-child(2){animation-delay:calc(.2s * var(--motion-scale,1.4))}
+        .hero .inner>:nth-child(3){animation-delay:calc(.3s * var(--motion-scale,1.4))}.hero .inner>:nth-child(4){animation-delay:calc(.4s * var(--motion-scale,1.4))}
+        .hero .actions{animation-delay:calc(.52s * var(--motion-scale,1.4))}.hero .foot{animation-delay:calc(.66s * var(--motion-scale,1.4))}
+        html.is-intro-hero .hero .inner>:nth-child(1){animation-delay:calc(1.5s * var(--intro-scale) + .12s * var(--motion-scale,1.4))}html.is-intro-hero .hero .inner>:nth-child(2){animation-delay:calc(1.5s * var(--intro-scale) + .2s * var(--motion-scale,1.4))}
+        html.is-intro-hero .hero .inner>:nth-child(3){animation-delay:calc(1.5s * var(--intro-scale) + .3s * var(--motion-scale,1.4))}html.is-intro-hero .hero .inner>:nth-child(4){animation-delay:calc(1.5s * var(--intro-scale) + .4s * var(--motion-scale,1.4))}
+        html.is-intro-hero .hero .actions{animation-delay:calc(1.5s * var(--intro-scale) + .52s * var(--motion-scale,1.4))}html.is-intro-hero .hero .foot{animation-delay:calc(1.5s * var(--intro-scale) + .66s * var(--motion-scale,1.4))}
       }
       @keyframes hero-in{from{opacity:0;transform:translate3d(0,20px,0)}}
     </style>
@@ -324,6 +327,8 @@
   <div class="rows" id="rows"></div>
   
   
+  <!--pre:data-->
+<!--/pre:data-->
   <script>
     const rows=document.getElementById('rows');
     function opt(u,w){if(!u)return u;if(u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1){return u.replace('/upload/',`/upload/f_auto,q_auto,w_${w}/`);}return u;}
@@ -425,9 +430,9 @@
     })();
 
     Promise.all([
-        fetch('content/albums.json').then(r=>r.json()).catch(()=>({albums:[]})),
-        fetch('content/videos.json').then(r=>r.json()).catch(()=>({videos:[]})),
-        fetch('content/gear.json').then(r=>r.json()).catch(()=>({gear:[]}))
+        (window.ygFetch||fetch)('content/albums.json').then(r=>r.json()).catch(()=>({albums:[]})),
+        (window.ygFetch||fetch)('content/videos.json').then(r=>r.json()).catch(()=>({videos:[]})),
+        (window.ygFetch||fetch)('content/gear.json').then(r=>r.json()).catch(()=>({gear:[]}))
       ]).then(([a,v,g])=>{
         const plane=[];
         (a.albums||[]).forEach((al,i)=>{
@@ -490,7 +495,8 @@
   }
   evs.forEach(function(t){addEventListener(t,skip,{capture:true,passive:true})});
   el.addEventListener('animationend',function(e){if(e.target===el&&e.animationName==='intro-out')end();});
-  setTimeout(end,2500);
+  var S=parseFloat(getComputedStyle(root).getPropertyValue('--intro-scale'))||.9;
+  setTimeout(end,2500*S);
 })();
 </script>
 </body>

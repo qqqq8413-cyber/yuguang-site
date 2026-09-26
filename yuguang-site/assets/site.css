@@ -124,7 +124,15 @@ h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
 /* ==== 動態 ====
    全站共用同一組節奏:進場用 expo-out(快速到位、慢慢停),離場比進場短。
    只動 transform／opacity;「減少動態」的系統設定一律尊重。 */
-:root{--ease-out:cubic-bezier(.19,1,.22,1);--ease-in:cubic-bezier(.7,0,.84,0);--ease-inout:cubic-bezier(.65,0,.35,1)}
+/* --motion-scale:全站動畫速度倍率。1 = 最初的節奏,數字越大越慢(1.4 = 每段動畫多花 40% 的時間)。
+   site.js 的捲動浮現、首頁主視覺的浮現也讀這個值,改這裡就全部一起變。
+   例外:首頁的進站 LOGO 動畫有自己的倍率 --intro-scale(在 index.html),不跟著這裡變。 */
+:root{--motion-scale:1.4;--ease-out:cubic-bezier(.19,1,.22,1);--ease-in:cubic-bezier(.7,0,.84,0);--ease-inout:cubic-bezier(.65,0,.35,1)}
+
+/* 作品格還沒畫出來之前先預留一個畫面的高度:瀏覽器有時會在頁面程式執行前先畫一次,
+   那一瞬間作品格是空的,底下的靜態清單與頁尾會先出現在畫面裡,接著被推下去(版面位移 CLS)。
+   只在 JS 有開的時候預留(沒有 JS 就不會有作品格,不該留一大塊空白);畫出來之後 :empty 就不成立。 */
+html:not(.no-js) #grid:empty,html:not(.no-js) #albumGrid:empty,html:not(.no-js) #rows:empty{min-height:100vh}
 
 /* 捲動浮現:還沒捲到的卡片先隱藏(只有 site.js 會加這個 class,沒有 JS 就不會隱藏) */
 .rv-wait{opacity:0}
@@ -134,26 +142,27 @@ h1,h2,h3,.manifesto,.tagline,.sitecta .s{text-wrap:balance}
    (Chrome、Edge、Safari 18.2 以上支援;其他瀏覽器照常換頁,沒有影響) */
 @view-transition{navigation:auto}
 .topbar{view-transition-name:yg-topbar}
-::view-transition-old(root){animation:.22s var(--ease-in) both yg-vt-out}
-::view-transition-new(root){animation:.6s var(--ease-out) both yg-vt-in}
+::view-transition-old(root){animation:calc(.22s * var(--motion-scale)) var(--ease-in) both yg-vt-out}
+::view-transition-new(root){animation:calc(.6s * var(--motion-scale)) var(--ease-out) both yg-vt-in}
 @keyframes yg-vt-out{to{opacity:0}}
 @keyframes yg-vt-in{from{opacity:0;transform:translate3d(0,14px,0)}}
 
 /* 桌機導覽列:滑過時底線從左邊畫出來,離開時往右收掉 */
 @media (min-width:901px) and (hover:hover){
   .sitenav a:not(.cta)::after{content:"";position:absolute;left:0;right:2.5px;bottom:0;height:1px;background:currentColor;
-    transform:scaleX(0);transform-origin:right center;transition:transform .55s var(--ease-out)}
+    transform:scaleX(0);transform-origin:right center;transition:transform calc(.55s * var(--motion-scale)) var(--ease-out)}
   .sitenav a:not(.cta):hover::after,.sitenav a[aria-current="page"]::after{transform:scaleX(1);transform-origin:left center}
 }
 
 /* 手機選單:打開時連結由上往下依序浮現;關上時一起淡出(比打開快) */
 @media (max-width:900px){
-  .sitenav a{opacity:0;transform:translate3d(0,16px,0);transition:opacity .25s var(--ease-in),transform .25s var(--ease-in)}
-  .nav-open .sitenav a{opacity:1;transform:none;transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
-  .nav-open .sitenav a:nth-child(1){transition-delay:.08s}.nav-open .sitenav a:nth-child(2){transition-delay:.13s}
-  .nav-open .sitenav a:nth-child(3){transition-delay:.18s}.nav-open .sitenav a:nth-child(4){transition-delay:.23s}
-  .nav-open .sitenav a:nth-child(5){transition-delay:.28s}.nav-open .sitenav a:nth-child(6){transition-delay:.33s}
-  .nav-open .sitenav a:nth-child(7){transition-delay:.4s}
+  .sitenav a{opacity:0;transform:translate3d(0,16px,0);--i:0;
+    transition:opacity .25s var(--ease-in),transform .25s var(--ease-in)}   /* 關上:一起快速淡出,不隨倍率變慢 */
+  .nav-open .sitenav a{opacity:1;transform:none;
+    transition:opacity calc(.7s * var(--motion-scale)) var(--ease-out),transform calc(.7s * var(--motion-scale)) var(--ease-out);
+    transition-delay:calc((.08s + var(--i) * .05s) * var(--motion-scale))}
+  .sitenav a:nth-child(2){--i:1}.sitenav a:nth-child(3){--i:2}.sitenav a:nth-child(4){--i:3}
+  .sitenav a:nth-child(5){--i:4}.sitenav a:nth-child(6){--i:5}.sitenav a:nth-child(7){--i:6.4}
 }
 
 @media (prefers-reduced-motion:reduce){

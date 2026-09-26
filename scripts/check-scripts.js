@@ -42,7 +42,12 @@ const walk = (dir, rel = '') => fs.readdirSync(path.join(dir, rel), { withFileTy
 for (const f of walk(root)) {
   const html = fs.readFileSync(path.join(root, f), 'utf8');
   let i = 0, j = 0;
-  for (const m of html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="(?:application\/ld\+json|module)")[^>]*>([\s\S]*?)<\/script>/g)) {
+  // 部署時寫進頁面的內容資料(<script type="application/json" id="yg-data-…">)必須是合法 JSON
+  for (const m of html.matchAll(/<script[^>]*type="application\/json"[^>]*id="(yg-data-[a-z]+)"[^>]*>([\s\S]*?)<\/script>/g)) {
+    n++;
+    try { JSON.parse(m[2]); } catch (e) { bad++; console.log(`✗ ${f} 的 ${m[1]}：不是合法 JSON（${e.message}）`); }
+  }
+  for (const m of html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="(?:application\/ld\+json|application\/json|module)")[^>]*>([\s\S]*?)<\/script>/g)) {
     i++; if (m[1].trim()) parse(m[1], `${f} 第 ${i} 段 script`);
   }
   for (const m of html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)) {

@@ -194,6 +194,8 @@
   <span class="nav next" id="lbNext">›</span>
 </div>
 
+<!--pre:data-->
+<!--/pre:data-->
 <script>
 /* ====== 從後台資料載入(content/albums.json) ====== */
 const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"],["#c4c8cd","#8b8f95"],["#d8cdbf","#b0a48f"],["#cdc6bd","#948d80"]];
@@ -206,7 +208,7 @@ const PALETTE=[["#c9c3b6","#8f897d"],["#d7cfc2","#a99f8c"],["#b9beb9","#7d827c"]
   const masonry=document.getElementById('masonry');
   let current={index:0, shots:[]};
 
-  fetch('content/albums.json').then(r=>r.json()).then(data=>{
+  (window.ygFetch||fetch)('content/albums.json').then(r=>r.json()).then(data=>{
       albums=(data.albums||[]).map((a,i)=>Object.assign({grad:PALETTE[i%PALETTE.length],photos:[],projects:[]},a));
       buildIndex();route(0);{const c=qs(),u=urlFor(c);if(u!==location.pathname+location.search)history.replaceState(history.state,'',c.cat!=null&&albums[c.cat]?u:PAGE);}if(albumView.style.display!=='block')window.loadSiteFont();
   }).catch(()=>{grid.innerHTML='<p style="color:var(--muted);font-family:var(--serif);letter-spacing:2px">尚無相簿資料</p>';});

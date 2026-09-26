@@ -122,6 +122,8 @@
   function motion(){
     var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
     if(rm||!('IntersectionObserver' in window)||!Element.prototype.animate)return;
+    /* 速度倍率:讀 site.css 的 --motion-scale(改那裡就好) */
+    var S=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--motion-scale'))||1;
     var queue=[],raf=0;
     function frameOf(el){
       var im=el.querySelector('.bg,img');if(!im||!im.parentElement)return null;
@@ -133,13 +135,13 @@
       var batch=queue.splice(0).map(function(el){return {el:el,r:el.getBoundingClientRect()}});
       batch.sort(function(a,b){return Math.abs(a.r.top-b.r.top)>24?a.r.top-b.r.top:a.r.left-b.r.left});
       batch.forEach(function(b,i){
-        var el=b.el,d=Math.min(i,8)*65,img=frameOf(el),text=el.tagName!=='IMG'&&!el.querySelector('img,.bg');
+        var el=b.el,d=Math.min(i,8)*65*S,img=frameOf(el),text=el.tagName!=='IMG'&&!el.querySelector('img,.bg');
         el.classList.remove('rv-wait');
         /* 起點用 0.01 而不是 0:肉眼一樣看不見,但 Chrome 會把它算成「已經畫出來」。
            從 0 開始的話,Chrome 要等淡入播完才記錄最大內容繪製(LCP),清單頁會慢將近 1 秒。 */
         el.animate([{opacity:.01,transform:'translate3d(0,'+(text?18:34)+'px,0)',offset:0}],
-          {duration:text?800:1000,delay:d,easing:EASE_OUT,fill:'backwards'});
-        if(img)img.animate([{transform:'scale(1.1)',offset:0}],{duration:1500,delay:d,easing:EASE_OUT,fill:'backwards'});
+          {duration:(text?800:1000)*S,delay:d,easing:EASE_OUT,fill:'backwards'});
+        if(img)img.animate([{transform:'scale(1.1)',offset:0}],{duration:1500*S,delay:d,easing:EASE_OUT,fill:'backwards'});
       });
     }
     function enqueue(el){queue.push(el);if(!raf)raf=requestAnimationFrame(play);}

@@ -184,6 +184,8 @@
   
   <div id="detail" class="wrap"></div>
   
+  <!--pre:data-->
+<!--/pre:data-->
   <script>
     let videos=[];
     let activeCat="精選作品";
@@ -198,7 +200,7 @@
     function trim(u){return u&&u.indexOf('res.cloudinary.com')>-1&&u.indexOf('/upload/')>-1?u.replace('/upload/','/upload/e_trim:20/f_auto,q_auto,w_1400/'):u;}
     function ytid(s){s=(s||'').trim();const m=s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:s;}
 
-    fetch('content/videos.json').then(r=>r.json()).then(data=>{
+    (window.ygFetch||fetch)('content/videos.json').then(r=>r.json()).then(data=>{
         videos=(data.videos||[]).map((v,i)=>Object.assign({grad:GRADS[i%GRADS.length]},v));
         buildFilters();route(0);
         {const c=qs(),u=urlFor(c);if(u!==location.pathname+location.search)history.replaceState(history.state,'',u);}
