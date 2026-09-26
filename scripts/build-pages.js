@@ -33,11 +33,21 @@ const cld = (u, t) => (u && u.includes('res.cloudinary.com') && u.includes('/upl
 const img = (u, w) => cld(u, `f_auto,q_auto,w_${w}`) || u;
 const gearImg = (u, w) => cld(u, `e_trim:10/c_limit,w_${w},h_${w}/f_auto,q_auto`) || u;
 const abs = (u) => (!u ? `${SITE}/images/og.jpg` : /^https?:/.test(u) ? u : SITE + (u.startsWith('/') ? u : '/' + u));
+/* 分享預覽圖(og:image):LINE、Facebook 會把分享圖裁成約 1.91:1 的橫幅,只留中間一條——
+   直式的人像照會被切掉頭,又小又瘦長的器材去背圖只剩中間一段。所以分享圖一律請 Cloudinary 做成 1200×630:
+   照片用 g_auto 自動找主體再裁;器材整台縮進框裡、四周補紙色。
+   用 f_jpg 不用 f_auto:各家爬蟲支援的圖片格式不一,JPG 最保險。結構化資料(JSON-LD)仍用原比例的圖。 */
+const DEFAULT_SHARE = `${SITE}/images/og.jpg`;   // 首頁那張分享卡,也是 1200×630
+const isCld = (u) => !!u && u.includes('res.cloudinary.com') && u.includes('/upload/');
+const sharePhoto = (u, pre = '') => (isCld(u) ? cld(u, `${pre}c_fill,g_auto,w_1200,h_630/f_jpg,q_auto`) : null);
+const shareGear = (u) => (isCld(u) ? cld(u, 'e_trim:10/c_fit,w_1000,h_500/c_lpad,w_1200,h_630,b_rgb:f3f1ec/f_jpg,q_auto') : null);
 const lines = (t) => String(t || '').split(/・|\n/).map((x) => x.trim()).filter(Boolean);
 
 const pages = []; // { url, title, kind, html, priority, images }
 
-function shell({ url, title, docTitle = title, desc, image, type = 'article', jsonld, crumb, body }) {
+function shell({ url, title, docTitle = title, desc, image, share, type = 'article', jsonld, crumb, body }) {
+  // share:分享專用的 1200×630 圖;沒有時(例如 YouTube 縮圖)就用 image,尺寸不確定就不寫 width/height
+  const og = share || image, sized = !!share || og === DEFAULT_SHARE;
   const head = [
     '<!DOCTYPE html>', '<html lang="zh-Hant">', '<head>',
     '<meta charset="UTF-8">',
@@ -57,7 +67,8 @@ function shell({ url, title, docTitle = title, desc, image, type = 'article', js
     `<meta property="og:title" content="${attr(docTitle)} · 嶼光映像">`,
     `<meta property="og:description" content="${attr(desc)}">`,
     `<meta property="og:url" content="${SITE}${url}">`,
-    `<meta property="og:image" content="${attr(image)}">`,
+    `<meta property="og:image" content="${attr(og)}">`,
+    ...(sized ? ['<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="630">'] : []),
     `<meta property="og:image:alt" content="${attr(title)}">`,
     '<meta name="twitter:card" content="summary_large_image">',
     `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`,
@@ -117,7 +128,7 @@ function buildVideos(videos) {
     pages.push({
       url, priority: '0.8', title: v.title || '動態作品', kind: 'video', cat: v.cat || '',
       html: shell({
-        url, title: v.title || '動態作品', desc, image: cover, type: 'video.other', crumb: `<a href="index.html">首頁</a><span>›</span><a href="dongtai.html">動態作品</a><span>›</span>${esc(v.title || '')}`,
+        url, title: v.title || '動態作品', desc, image: cover, share: v.cover ? sharePhoto(v.cover, 'e_trim:20/') : null, type: 'video.other', crumb: `<a href="index.html">首頁</a><span>›</span><a href="dongtai.html">動態作品</a><span>›</span>${esc(v.title || '')}`,
         jsonld: {
           '@context': 'https://schema.org', '@type': 'VideoObject', name: v.title || '動態作品', description: desc,
           thumbnailUrl: cover, embedUrl: `https://www.youtube.com/embed/${id}`, url: SITE + url,
@@ -163,7 +174,7 @@ function buildAlbums(albums) {
         url, priority: '0.7', title, kind: 'work', cat: a.zh, sub,
         images: photos.map((ph) => abs(img(ph.image, 1600))),
         html: shell({
-          url, title, docTitle, desc, image: cover, crumb: parentCrumb,
+          url, title, docTitle, desc, image: cover, share: sharePhoto(firstImg(node)), crumb: parentCrumb,
           jsonld: {
             '@context': 'https://schema.org', '@type': 'ImageGallery', name: title, description: desc, url: SITE + url,
             image: photos.slice(0, 10).map((p) => abs(img(p.image, 1200))),
@@ -196,7 +207,7 @@ function buildAlbums(albums) {
         url: albumUrl, priority: '0.7', title: a.zh, kind: 'album', cat: a.zh,
         html: shell({
           url: albumUrl, title: a.zh, docTitle: `屏東${a.zh}${/(攝影|寫真|照片|紀錄)$/.test(a.zh) ? '' : '攝影'}作品`, desc: clip(`${a.zh}｜嶼光映像平面攝影作品（屏東），共 ${projects.length} 個專案。`, 150),
-          image: abs(img(firstImg(a) || '', 1200)), crumb: `${baseCrumb}<span>›</span>${esc(a.zh)}`,
+          image: abs(img(firstImg(a) || '', 1200)), share: sharePhoto(firstImg(a)), crumb: `${baseCrumb}<span>›</span>${esc(a.zh)}`,
           jsonld: {
             '@context': 'https://schema.org', '@type': 'CollectionPage', name: a.zh, url: SITE + albumUrl,
             hasPart: projects.map((p) => ({ '@type': 'ImageGallery', name: p.zh || '', url: `${SITE}/work/${aSlug}/${p.slug}/` })),
@@ -256,7 +267,7 @@ function buildGear(gear) {
       url, priority: '0.8', title: g.name, kind: 'gear', cat: g.cat || '', price: has ? g.price : null,
       images: g.image ? [cover] : [],
       html: shell({
-        url, title: g.name, docTitle: `${g.name} 出租｜屏東`, desc, image: cover, type: 'product',
+        url, title: g.name, docTitle: `${g.name} 出租｜屏東`, desc, image: cover, share: g.image ? shareGear(g.image) : null, type: 'product',
         crumb: `<a href="index.html">首頁</a><span>›</span><a href="qicai.html">器材租賃</a><span>›</span>${esc(g.name)}`,
         jsonld, body,
       }),
