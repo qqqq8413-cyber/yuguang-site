@@ -1,16 +1,13 @@
 #!/usr/bin/env node
 /* 產生主要頁面的分享預覽圖 yuguang-site/images/share-card.jpg(1200×630)。
  *
- * 版面照搬首頁主視覺:照片滿版＋同樣的暗色漸層,左邊 LOGO、嶼光映像、PHOS OF ISLE、標語,
- * 底下一條細線,左邊服務項目、右邊網址(對應主視覺底部那一列)。
- * 底圖用主視覺輪播裡沒有人像的「好屏友市集」夜景;封面左上、右上角有活動主辦的標誌,
- * 所以照片放大到 1560px 寬、往左上對齊再往上推 80px:上方兩個角落的標誌裁掉,亮燈的攤位移到右半邊,
- * 左邊夜空的暗處留給文字(攤位或路人壓在字後面會看不清楚)。
+ * 設計:不用照片(刻意不放人像),深色底、左邊「嶼光映像／PHOS OF ISLE／標語」,右邊是用光畫出來的 LOGO——
+ * 線條帶一點光暈,那道「光」(斜線)最亮,呼應標語「以光為筆」與首頁的進站動畫。
+ * 底下一條細線,左邊服務項目、右邊網址。字級刻意放大:LINE 裡的預覽只有約 230px 寬。
  *
- * 用本機的 Chrome 開一個 1200×630 的頁面截圖(不是每次部署都跑,改了文案或想換底圖時手動執行):
+ * 用本機的 Chrome 開一個 1200×630 的頁面截圖(不是每次部署都跑,改了文案時手動執行):
  *   node scripts/make-share-card.mjs
- * 換底圖:改下面的 PHOTO(Cloudinary 網址);換了之後記得看一眼成品,避開人像與別人的標誌。
- * 換完圖檔檔名最好也改(例如 share-card-2.jpg,並更新各頁的 og:image):LINE、Facebook 會記住舊圖,
+ * 改完圖最好連檔名一起改(例如 share-card-2.jpg,並更新各頁的 og:image):LINE、Facebook 會依網址記住舊圖,
  * 檔名不變的話,已經分享過的網址很久都不會更新。
  */
 import { spawn } from 'node:child_process';
@@ -21,7 +18,6 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'yuguang-site');
 const OUT = path.join(ROOT, 'images', 'share-card.jpg');
-const PHOTO = 'https://res.cloudinary.com/wy6xqh42/image/upload/e_trim:20/f_jpg,q_90,w_2400/v1788184813/cxckswzccoyupvsdkaug.jpg';
 const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const TEXT = '嶼光映像以光為筆，紀錄島嶼的每一道影像平面攝影動態影片器材租賃·PHOSOFISLEphosofisle.com';
 
@@ -29,33 +25,32 @@ const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&display=block&text=${encodeURIComponent(TEXT)}">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{width:1200px;height:630px;overflow:hidden;background:#171613}
-  .card{position:relative;width:1200px;height:630px;overflow:hidden;color:#f3f1ec;font-family:"Noto Serif TC",serif}
-  .bg{position:absolute;inset:0;background:url("${PHOTO}") no-repeat 0 -80px/1560px auto}
-  /* 與首頁 .hero::after 相同的漸層,左側再加深一點:分享圖在 LINE 裡很小,字要更清楚 */
-  .card::after{content:"";position:absolute;inset:0;
-    background:linear-gradient(to bottom,rgba(20,18,15,.35),rgba(20,18,15,0) 28%,rgba(20,18,15,.15) 50%,rgba(20,18,15,.8)),
-               linear-gradient(to right,rgba(20,18,15,.78),rgba(20,18,15,.35) 45%,rgba(20,18,15,0) 70%)}
-  .inner{position:absolute;z-index:2;left:80px;top:74px}
-  .logo{display:block;width:62px;height:auto;aspect-ratio:192/208;margin-bottom:26px}
-  h1{font-weight:500;font-size:84px;letter-spacing:22px;line-height:1.1}
-  .latin{font-size:17px;letter-spacing:9px;opacity:.82;margin-top:18px}
-  .tagline{font-size:27px;letter-spacing:4px;margin-top:30px;opacity:.94}
-  .foot{position:absolute;z-index:2;left:80px;right:80px;bottom:44px;display:flex;justify-content:space-between;align-items:flex-end;
-    border-top:1px solid rgba(243,241,236,.28);padding-top:18px;font-size:17px;letter-spacing:5px;opacity:.9}
-  .foot .url{letter-spacing:3px;opacity:.8}
+  html,body{width:1200px;height:630px;overflow:hidden;background:#141311}
+  .card{position:relative;width:1200px;height:630px;overflow:hidden;background:#141311;color:#f3f1ec;font-family:"Noto Serif TC",serif}
+  /* 光從 LOGO 那道斜線附近散出來,整體再帶一點點亮 */
+  .card::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(circle 150px at 1012px 178px,rgba(255,238,210,.10),rgba(255,238,210,0)),
+               radial-gradient(ellipse 520px 420px at 930px 260px,rgba(243,241,236,.05),rgba(243,241,236,0))}
+  .txt{position:absolute;left:84px;top:150px;z-index:2}
+  h1{font-weight:500;font-size:86px;letter-spacing:22px;line-height:1.1}
+  .latin{font-size:16px;letter-spacing:10px;opacity:.7;margin-top:20px}
+  .tag{font-size:25px;letter-spacing:4px;opacity:.92;margin-top:40px}
+  .logo{position:absolute;right:104px;top:92px;height:388px;width:auto;aspect-ratio:192/208;overflow:visible}
+  .logo .b{stroke:rgba(243,241,236,.9);filter:drop-shadow(0 0 3px rgba(255,240,215,.35))}
+  .logo .r{stroke:#fff6e6;filter:drop-shadow(0 0 4px rgba(255,236,200,.95)) drop-shadow(0 0 14px rgba(255,226,180,.7))}
+  .foot{position:absolute;left:84px;right:84px;bottom:48px;display:flex;justify-content:space-between;
+    border-top:1px solid rgba(243,241,236,.2);padding-top:18px;font-size:15px;letter-spacing:5px;opacity:.72}
+  .foot .url{letter-spacing:3px}
 </style></head><body>
 <div class="card">
-  <div class="bg"></div>
-  <div class="inner">
-    <svg class="logo" viewBox="0 0 192 208"><g fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="butt">
-      <line x1="97" y1="8" x2="97" y2="200"/><line x1="127" y1="70" x2="165" y2="23"/>
-      <line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
-      <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>
-      <line x1="184" y1="200" x2="184" y2="172"/></g></svg>
+  <svg class="logo" viewBox="0 0 192 208"><g fill="none" stroke-width="2.4">
+    <g class="b"><line x1="97" y1="8" x2="97" y2="200"/><line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>
+      <line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/><line x1="184" y1="200" x2="184" y2="172"/></g>
+    <g class="r"><line x1="127" y1="70" x2="165" y2="23"/></g></g></svg>
+  <div class="txt">
     <h1>嶼光映像</h1>
     <div class="latin">PHOS OF ISLE</div>
-    <p class="tagline">以光為筆，紀錄島嶼的每一道影像</p>
+    <p class="tag">以光為筆，紀錄島嶼的每一道影像</p>
   </div>
   <div class="foot"><span>平面攝影 · 動態影片 · 器材租賃</span><span class="url">phosofisle.com</span></div>
 </div></body></html>`;
@@ -78,11 +73,15 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1200, height: 630, deviceScaleFactor: 1, mobile: false });
   const frameId = (await send('Page.getFrameTree')).frameTree.frame.id;
   await send('Page.setDocumentContent', { frameId, html });
-  // 等字型與底圖都載入,缺一個就不要輸出(不然會產生沒有字型或沒有照片的圖)
-  const ok = await ev(`(async()=>{await document.fonts.load('500 84px "Noto Serif TC"','嶼光映像');await document.fonts.ready;
-    const img=new Image();img.src=${JSON.stringify(PHOTO)};await img.decode();
-    const loaded=[...document.fonts].filter(f=>/Noto Serif TC/.test(f.family)&&f.status==='loaded').map(f=>f.weight);
-    return !!document.querySelector('.card h1')&&loaded.includes('400')&&loaded.includes('500')})()`);
+  // 等兩個字重(400、500)都真的載入;字型樣式表是非同步抓的,所以最多輪詢 15 秒。
+  // 沒載入就不要輸出,不然會產生用系統字型的圖
+  const ok = await ev(`(async()=>{const want=['400','500'],t0=Date.now();
+    while(Date.now()-t0<15000){
+      await Promise.all([document.fonts.load('500 86px "Noto Serif TC"','嶼光映像'),document.fonts.load('400 25px "Noto Serif TC"','以光為筆')]);
+      const got=[...document.fonts].filter(f=>/Noto Serif TC/.test(f.family)&&f.status==='loaded').map(f=>f.weight);
+      if(want.every(w=>got.includes(w)))return !!document.querySelector('.card h1');
+      await new Promise(r=>setTimeout(r,250));}
+    return false})()`);
   if (!ok) throw new Error('Noto Serif TC 沒有載入成功(需要網路),沒有輸出圖檔');
   await sleep(300);
   const shot = await send('Page.captureScreenshot', { format: 'jpeg', quality: 88, clip: { x: 0, y: 0, width: 1200, height: 630, scale: 1 } });
