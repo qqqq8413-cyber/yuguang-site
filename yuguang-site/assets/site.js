@@ -116,7 +116,7 @@
      - 只動 transform 與 opacity(不影響版面、不造成跳動);圖片在外框裡從 1.1 倍縮回 1 倍,像鏡頭對焦
      - 用 Web Animations:不改元素的 CSS,hover 等原本的效果照常運作
      - 系統設定「減少動態」時整段不執行;沒有 JS 時內容本來就全部可見 */
-  var REVEAL_SEL=['.track>.tile','.albums>.album','.grid>.vid','.grid>.prod','.masonry>*','.shots>*',
+  var REVEAL_SEL=['.track>.tile','.albums>.album','.bento .it','.grid>.prod','.masonry>*','.shots>*',
     '.grps>.grp','.faqsec>.qa','.wrap>.terms','.keypoints'].join(',');
   var EASE_OUT='cubic-bezier(.19,1,.22,1)';
   function motion(){

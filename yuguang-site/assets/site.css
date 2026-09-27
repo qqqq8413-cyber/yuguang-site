@@ -171,3 +171,64 @@ html:not(.no-js) #grid:empty,html:not(.no-js) #albumGrid:empty,html:not(.no-js) 
   .sitenav a,.nav-open .sitenav a{opacity:1;transform:none;transition:none}
   .sitenav a:not(.cta)::after{transition:none}
 }
+
+/* ---- 作品集版面(平面作品、動態作品共用) ----
+   參考 sola-production.com/book.html:上方一條分類列,作品用「一大兩小、左右交錯」排,標題放在圖片下方。
+   四列一循環:A 左大右兩小 → B 兩張對半 → B 兩張對半 → D 左兩小右大;最後不夠一列時,剩兩張就對半、剩一張置中。
+   列怎麼切由頁面程式決定(dongtai.html、pingmian.html 的 bento()),這裡只管長相。手機一律單欄。 */
+.wtabs{display:flex;justify-content:center;flex-wrap:wrap;gap:clamp(16px,2.4vw,34px);
+  position:sticky;top:53px;z-index:30;background:var(--paper);padding:14px 0 16px;border-bottom:1px solid var(--hair)}
+@media(min-width:721px){.wtabs{gap:clamp(34px,4.6vw,72px)}}
+.wtab{font-family:var(--serif);font-size:14px;letter-spacing:3px;color:var(--muted);cursor:pointer;
+  padding:0 0 7px;border:0;border-bottom:1px solid transparent;background:none;outline:none;
+  -webkit-tap-highlight-color:transparent;transition:color .3s,border-color .3s}
+.wtab:hover{color:var(--ink)}
+.wtab.active{color:var(--ink);border-bottom-color:var(--ink)}
+.wtab:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+
+.bento{--bgap:clamp(16px,2.2vw,32px);display:flex;flex-direction:column;gap:clamp(30px,3.6vw,52px);
+  max-width:1240px;margin:0 auto;padding:clamp(26px,3.4vw,44px) 0 clamp(70px,10vw,120px)}
+.brow{display:grid;gap:var(--bgap);align-items:stretch}
+.brow-a{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.brow-d{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.brow-b{grid-template-columns:repeat(2,minmax(0,1fr))}
+.brow-one{grid-template-columns:minmax(0,1fr)}
+.brow-one .it{width:66.6%;margin:0 auto}
+.bstack{display:flex;flex-direction:column;gap:var(--bgap)}
+.it{display:flex;flex-direction:column;min-width:0;cursor:pointer;color:inherit}
+.it .ph{position:relative;overflow:hidden;background:#e7e4dd;aspect-ratio:var(--ratio,3/2)}
+/* 大張:高度跟著旁邊兩張小圖(含標題)走,圖片填滿剩下的空間 */
+.brow-a>.it,.brow-d>.it{min-height:0}
+.brow-a>.it .ph,.brow-d>.it .ph{flex:1;aspect-ratio:auto;min-height:clamp(220px,26vw,420px)}
+.it .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--pos,50% 40%);
+  transition:transform 1.1s var(--ease-out)}
+.it:hover .ph img{transform:scale(1.04)}
+.it .cap{text-align:center;padding-top:14px;font-family:var(--serif)}
+.it .cap .t{display:inline-block;position:relative;font-size:clamp(.95rem,1.15vw,1.08rem);letter-spacing:2px;line-height:1.45}
+.it .cap .t::after{content:"";position:absolute;left:50%;right:50%;bottom:-3px;height:1px;background:currentColor;
+  transition:left .5s var(--ease-out),right .5s var(--ease-out)}
+.it:hover .cap .t::after{left:0;right:0}
+.it .cap .s{display:block;font-size:12px;letter-spacing:1.5px;color:var(--muted);margin-top:5px}
+.it:focus-visible{outline:1px solid var(--ink);outline-offset:6px}
+/* 影片:16:9,中間一個播放圈 */
+.bento-v{--ratio:16/9}
+.bento-v .ph::after{content:"";position:absolute;inset:0;background:rgba(20,18,15,.08);transition:background .4s}
+.bento-v .it:hover .ph::after{background:rgba(20,18,15,.22)}
+.it .play{position:absolute;top:50%;left:50%;z-index:2;transform:translate(-50%,-50%);width:clamp(42px,3.6vw,54px);height:clamp(42px,3.6vw,54px);
+  border-radius:50%;border:1px solid rgba(255,255,255,.8);background:rgba(20,18,15,.18);display:flex;align-items:center;justify-content:center;transition:transform .4s,background .4s}
+.it .play::before{content:"";margin-left:3px;border-style:solid;border-width:6px 0 6px 11px;border-color:transparent transparent transparent #fff}
+.it:hover .play{transform:translate(-50%,-50%) scale(1.08);background:rgba(255,255,255,.16)}
+@media(max-width:640px){
+  .wtabs{top:72px;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;gap:24px;
+    margin:0 calc(-1 * clamp(20px,5vw,72px));padding:12px clamp(20px,5vw,72px) 0;scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(to right,#000 85%,transparent);mask-image:linear-gradient(to right,#000 85%,transparent)}
+  .wtabs::-webkit-scrollbar{display:none}
+  .wtab{flex:none;padding:6px 0 12px;font-size:15px}
+  .bento{gap:34px;padding-top:22px}
+  .brow,.brow-a,.brow-d,.brow-b{grid-template-columns:minmax(0,1fr);gap:34px}
+  .bstack{display:contents}
+  .brow-one .it{width:100%}
+  .brow-a>.it .ph,.brow-d>.it .ph{flex:none;aspect-ratio:var(--ratio,3/2);min-height:0}
+  .it .cap{text-align:left;padding-top:12px}
+  .it .cap .t{font-size:1.05rem;letter-spacing:1.5px}
+}
