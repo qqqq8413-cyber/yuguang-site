@@ -32,12 +32,12 @@ const ytid = (s) => { const m = String(s || '').trim().match(/(?:youtu\.be\/|v=|
 const cld = (u, t) => (u && u.includes('res.cloudinary.com') && u.includes('/upload/') ? u.replace('/upload/', `/upload/${t}/`) : u);
 const img = (u, w) => cld(u, `f_auto,q_auto,w_${w}`) || u;
 const gearImg = (u, w) => cld(u, `e_trim:10/c_limit,w_${w},h_${w}/f_auto,q_auto`) || u;
-const abs = (u) => (!u ? `${SITE}/images/og.jpg` : /^https?:/.test(u) ? u : SITE + (u.startsWith('/') ? u : '/' + u));
+const abs = (u) => (!u ? `${SITE}/images/share-card.jpg` : /^https?:/.test(u) ? u : SITE + (u.startsWith('/') ? u : '/' + u));
 /* 分享預覽圖(og:image):LINE、Facebook 會把分享圖裁成約 1.91:1 的橫幅,只留中間一條——
    直式的人像照會被切掉頭,又小又瘦長的器材去背圖只剩中間一段。所以分享圖一律請 Cloudinary 做成 1200×630:
    照片用 g_auto 自動找主體再裁;器材整台縮進框裡、四周補紙色。
    用 f_jpg 不用 f_auto:各家爬蟲支援的圖片格式不一,JPG 最保險。結構化資料(JSON-LD)仍用原比例的圖。 */
-const DEFAULT_SHARE = `${SITE}/images/og.jpg`;   // 首頁那張分享卡,也是 1200×630
+const DEFAULT_SHARE = `${SITE}/images/share-card.jpg`;   // 首頁那張分享卡,也是 1200×630
 const isCld = (u) => !!u && u.includes('res.cloudinary.com') && u.includes('/upload/');
 const sharePhoto = (u, pre = '') => (isCld(u) ? cld(u, `${pre}c_fill,g_auto,w_1200,h_630/f_jpg,q_auto`) : null);
 const shareGear = (u) => (isCld(u) ? cld(u, 'e_trim:10/c_fit,w_1000,h_500/c_lpad,w_1200,h_630,b_rgb:f3f1ec/f_jpg,q_auto') : null);
@@ -229,7 +229,7 @@ function buildGear(gear) {
     const slug = g.slug;
     const url = `/rental/${slug}/`;
     const has = typeof g.price === 'number' && g.price > 0;
-    const cover = g.image ? abs(gearImg(g.image, 1200)) : `${SITE}/images/og.jpg`;
+    const cover = g.image ? abs(gearImg(g.image, 1200)) : `${SITE}/images/share-card.jpg`;
     const desc = clip(g.desc || `${g.name}｜嶼光映像影像器材日租（屏東）。${has ? `日租 NT$ ${g.price}。` : ''}`, 150);
     const others = gear.filter((x) => x !== g && x.cat === g.cat).slice(0, 5).map((x) => ({ url: `/rental/${x.slug}/`, label: x.name }));
     const body = [

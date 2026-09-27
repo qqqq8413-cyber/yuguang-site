@@ -64,7 +64,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
    ├─ assets/site.js          全站共用腳本（導覽列、手機選單、頁尾資料、淡入保險）
    ├─ assets/gear-icons/*.svg 器材分類線稿圖示（沒有照片時使用）
    ├─ content/*.json          網站內容資料
-   ├─ images/                 og.jpg（分享預覽圖）、網站圖示、logo
+   ├─ images/                 share-card.jpg（分享預覽圖）、網站圖示、logo
    ├─ favicon.svg / favicon-32.png / apple-touch-icon.png / site.webmanifest
    ├─ assets/vendor/          第三方程式放自己主機（Sortable 1.15.0，與 cdnjs 官方檔案 SHA-512 相同）
    └─ _headers                Netlify 標頭設定（全站安全標頭、CSP Report-Only、manifest 的 Content-Type）
@@ -395,9 +395,11 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - token 是公開識別碼（本來就出現在網頁原始碼），不是密碼
 
 ### 分享預覽
-7 個公開頁面都有 Open Graph／Twitter 卡片標籤、頁面描述、網站圖示與 PWA manifest；分享圖為 `images/og.jpg`。
+7 個公開頁面都有 Open Graph／Twitter 卡片標籤、頁面描述、網站圖示與 PWA manifest；分享圖為 `images/share-card.jpg`。
 
-**主要頁面**（首頁、作品、器材、流程、關於、聯絡、租借須知）分享出去都是 `images/og.jpg`：左邊一張人像、右邊深色底放 LOGO、名字、標語與服務項目，1200×630。
+**主要頁面**（首頁、作品、器材、流程、關於、聯絡、租借須知）分享出去都是 `images/share-card.jpg`（1200×630，JPG）。這張圖是**使用者提供的設計**：米白紙色底、置中的 LOGO／嶼光映像／PHOS OF ISLE／短線／標語／服務項目，外圍一圈淡色細框；刻意不用照片、不放人像。要換圖就直接換檔案（尺寸維持 1200×630），最好連檔名一起改並更新 9 個主要頁面的 `og:image` 與首頁結構化資料，因為 LINE、Facebook 會依網址記住舊圖。
+
+> **LINE 的預覽框約 1.8:1**，比分享圖的 1.91:1 窄，所以左右各會被裁掉約 30px（上下不裁）。設計分享圖時，左右 40px 內不要放重要的東西（文字、框線）。
 
 **作品頁、分類頁、影片頁、器材頁**用自己的照片，但一律交給 Cloudinary 做成 1200×630 的分享版（`build-pages.js` 的 `sharePhoto`／`shareGear`）。原因：LINE、Facebook 會把分享圖裁成約 1.91:1 的橫幅、只留中間一條，直式人像會被切掉頭，又小又瘦長的器材去背圖只剩中間一段。
 
@@ -504,6 +506,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #49 | 全站動態：首頁進站 LOGO 動畫（光畫出 LOGO → 顯影成主視覺）、作品卡片捲動依序浮現、換頁淡入淡出、導覽列與手機選單動態；全部尊重「減少動態」 |
 | #50 | 動畫整體放慢（新增全站速度倍率 `--motion-scale`，目前 1.4；進站 LOGO 動畫另用 `--intro-scale` 0.9，約 2 秒）；修版面位移：內容資料在部署時寫進頁面、空的作品格先預留高度，CLS 全部降到 0，手機 LCP 快約 0.8 秒 |
 | #51 | 作品／器材／影片單頁的分享圖改成 1200×630（照片自動找主體裁切、器材整台放進紙色框），LINE 分享不再切掉人頭或只剩器材中段；CI 會檢查。主要頁面的描述拿掉開頭重複的品牌名 |
+| #52 | 主要頁面的分享圖換成使用者提供的設計（米白紙色、置中文字、不用照片、不放人像）；新檔名 `share-card.jpg`，舊的 `og.jpg` 刪除 |
 
 ---
 
