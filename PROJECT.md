@@ -64,7 +64,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
    ├─ assets/site.js          全站共用腳本（導覽列、手機選單、頁尾資料、淡入保險）
    ├─ assets/gear-icons/*.svg 器材分類線稿圖示（沒有照片時使用）
    ├─ content/*.json          網站內容資料
-   ├─ images/                 og.jpg（分享預覽圖）、網站圖示、logo
+   ├─ images/                 share-card.jpg（分享預覽圖）、網站圖示、logo
    ├─ favicon.svg / favicon-32.png / apple-touch-icon.png / site.webmanifest
    ├─ assets/vendor/          第三方程式放自己主機（Sortable 1.15.0，與 cdnjs 官方檔案 SHA-512 相同）
    └─ _headers                Netlify 標頭設定（全站安全標頭、CSP Report-Only、manifest 的 Content-Type）
@@ -395,9 +395,11 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 - token 是公開識別碼（本來就出現在網頁原始碼），不是密碼
 
 ### 分享預覽
-7 個公開頁面都有 Open Graph／Twitter 卡片標籤、頁面描述、網站圖示與 PWA manifest；分享圖為 `images/og.jpg`。
+7 個公開頁面都有 Open Graph／Twitter 卡片標籤、頁面描述、網站圖示與 PWA manifest；分享圖為 `images/share-card.jpg`。
 
-**主要頁面**（首頁、作品、器材、流程、關於、聯絡、租借須知）分享出去都是 `images/og.jpg`：左邊一張人像、右邊深色底放 LOGO、名字、標語與服務項目，1200×630。
+**主要頁面**（首頁、作品、器材、流程、關於、聯絡、租借須知）分享出去都是 `images/share-card.jpg`（1200×630），版面照搬首頁主視覺：照片滿版＋同樣的暗色漸層，左邊 LOGO、嶼光映像、PHOS OF ISLE、標語，底下細線上是服務項目與網址。**刻意不放人像**：底圖用主視覺輪播裡的「好屏友市集」夜景，照片放大、往左上對齊，把封面角落活動主辦的標誌裁掉，亮燈的攤位在右半邊、文字落在左邊夜空的暗處。
+
+這張圖由 `scripts/make-share-card.mjs` 用本機 Chrome 截圖產生（不在部署時跑）。改標語、換底圖時執行 `node scripts/make-share-card.mjs`，看過成品再提交；換了圖最好連檔名一起改（並更新各頁 `og:image`），因為 LINE、Facebook 會依網址記住舊圖。
 
 **作品頁、分類頁、影片頁、器材頁**用自己的照片，但一律交給 Cloudinary 做成 1200×630 的分享版（`build-pages.js` 的 `sharePhoto`／`shareGear`）。原因：LINE、Facebook 會把分享圖裁成約 1.91:1 的橫幅、只留中間一條，直式人像會被切掉頭，又小又瘦長的器材去背圖只剩中間一段。
 
@@ -504,6 +506,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #49 | 全站動態：首頁進站 LOGO 動畫（光畫出 LOGO → 顯影成主視覺）、作品卡片捲動依序浮現、換頁淡入淡出、導覽列與手機選單動態；全部尊重「減少動態」 |
 | #50 | 動畫整體放慢（新增全站速度倍率 `--motion-scale`，目前 1.4；進站 LOGO 動畫另用 `--intro-scale` 0.9，約 2 秒）；修版面位移：內容資料在部署時寫進頁面、空的作品格先預留高度，CLS 全部降到 0，手機 LCP 快約 0.8 秒 |
 | #51 | 作品／器材／影片單頁的分享圖改成 1200×630（照片自動找主體裁切、器材整台放進紙色框），LINE 分享不再切掉人頭或只剩器材中段；CI 會檢查。主要頁面的描述拿掉開頭重複的品牌名 |
+| #52 | 主要頁面的分享圖換成跟首頁主視覺同樣的版面（夜景底圖＋LOGO、名字、標語），不放人像；新檔名 `share-card.jpg`，附產生腳本 `scripts/make-share-card.mjs` |
 
 ---
 

@@ -42,7 +42,7 @@ for (const url of built) {
   const ogW = attrOf(html, /<meta property="og:image:width" content="([^"]*)">/);
   if (!ogImg) bad(`${url}：缺少分享圖 og:image`);
   // 只有 YouTube 縮圖(影片沒設封面)尺寸不固定,可以不寫;其他都必須是 1200×630 的分享版
-  else if (!/img\.youtube\.com/.test(ogImg) && (ogW !== '1200' || !/w_1200,h_630|\/images\/og\.jpg$/.test(ogImg)))
+  else if (!/img\.youtube\.com/.test(ogImg) && (ogW !== '1200' || !/w_1200,h_630|\/images\/share-card\.jpg$/.test(ogImg)))
     bad(`${url}：分享圖不是 1200×630 的分享版（${ogImg.slice(0, 90)}）`);
   const h1 = (html.match(/<h1[\s>]/g) || []).length;
   if (h1 !== 1) bad(`${url}：h1 應該剛好 1 個，目前 ${h1} 個`);
