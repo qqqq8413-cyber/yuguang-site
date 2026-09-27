@@ -196,7 +196,16 @@ html:not(.no-js) #grid:empty,html:not(.no-js) #albumGrid:empty,html:not(.no-js) 
 .brow-one .it{width:66.6%;margin:0 auto}
 .bstack{display:flex;flex-direction:column;gap:var(--bgap)}
 .it{display:flex;flex-direction:column;min-width:0;cursor:pointer;color:inherit}
-.it .ph{position:relative;overflow:hidden;background:#e7e4dd;aspect-ratio:var(--ratio,3/2)}
+.it .ph{position:relative;overflow:hidden;background:#e7e4dd;aspect-ratio:var(--ratio,3/2);
+  border-radius:var(--r-s);isolation:isolate}   /* isolation:Safari 放大圖片時圓角才不會破 */
+/* 邊角:每張都是小圓角,每一列有一張有「一個特別圓的角」(參考 sola-production 的處理)。
+   四列一輪剛好輪過四個角:左大右小的大圖→右下、第一個對半列的右張→右上、第二個對半列的左張→左下、左小右大的大圖→左上。
+   單獨置中的那張→右下。列的順序是固定的 abbd,所以用 nth-child 就能分出兩個對半列 */
+.bento{--r-s:6px;--r-l:clamp(28px,4vw,64px)}
+.brow-a>.it .ph,.brow-one .it .ph{border-bottom-right-radius:var(--r-l)}
+.brow-b:nth-child(4n+2)>.it:last-child .ph{border-top-right-radius:var(--r-l)}
+.brow-b:nth-child(4n+3)>.it:first-child .ph{border-bottom-left-radius:var(--r-l)}
+.brow-d>.it .ph{border-top-left-radius:var(--r-l)}
 /* 大張:高度跟著旁邊兩張小圖(含標題)走,圖片填滿剩下的空間 */
 .brow-a>.it,.brow-d>.it{min-height:0}
 .brow-a>.it .ph,.brow-d>.it .ph{flex:1;aspect-ratio:auto;min-height:clamp(220px,26vw,420px)}
@@ -229,6 +238,7 @@ html:not(.no-js) #grid:empty,html:not(.no-js) #albumGrid:empty,html:not(.no-js) 
   .bstack{display:contents}
   .brow-one .it{width:100%}
   .brow-a>.it .ph,.brow-d>.it .ph{flex:none;aspect-ratio:var(--ratio,3/2);min-height:0}
+  .bento{--r-l:32px}
   .it .cap{text-align:left;padding-top:12px}
   .it .cap .t{font-size:1.05rem;letter-spacing:1.5px}
 }
