@@ -1,3 +1,7 @@
 # 舊的 Netlify 網址一律轉到正式網域(保留路徑與參數);部署預覽 deploy-preview-N--… 是不同網址,不受影響
 https://super-bombolone-186f83.netlify.app/* https://phosofisle.com/:splat 301!
 http://super-bombolone-186f83.netlify.app/* https://phosofisle.com/:splat 301!
+
+# 舊的分享圖網址(#52 之前)改成直接送新圖(200 = 網址不變、內容換掉)。
+# LINE、Facebook 會記住「已經分享過的網址」當時的預覽,裡面存的是 og.jpg;它們之後若只重抓圖片,就會拿到新設計,而不是 404
+/images/og.jpg /images/share-card.jpg 200
