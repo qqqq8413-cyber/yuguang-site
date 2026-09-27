@@ -6,6 +6,7 @@
 //   4. 產生的檔案沒有被 commit 進 repo(它們每次部署都會重新產生)
 //   5. 主要 7 頁:不靠 JS 就有導覽列、聯絡資訊與作品連結(prerender-main.js 的成果)
 //   6. 標題:每頁都要有、不可重複(重複只提醒);結構化資料語意:器材是「出租」(LeaseOut、按日計價);影片有上傳日期(缺的只提醒,不擋)
+//   7. 分享圖:每頁都有 og:image;照片／器材頁要是 1200×630 的分享版(LINE、Facebook 會把直式圖從中間裁掉)
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -37,6 +38,12 @@ for (const url of built) {
   const tm = html.match(/<title>([^<]+) · 嶼光映像<\/title>/);
   if (!tm) bad(`${url}：缺少頁面標題`);
   else titles.set(tm[1], (titles.get(tm[1]) || []).concat(url));
+  const ogImg = attrOf(html, /<meta property="og:image" content="([^"]*)">/);
+  const ogW = attrOf(html, /<meta property="og:image:width" content="([^"]*)">/);
+  if (!ogImg) bad(`${url}：缺少分享圖 og:image`);
+  // 只有 YouTube 縮圖(影片沒設封面)尺寸不固定,可以不寫;其他都必須是 1200×630 的分享版
+  else if (!/img\.youtube\.com/.test(ogImg) && (ogW !== '1200' || !/w_1200,h_630|\/images\/og\.jpg$/.test(ogImg)))
+    bad(`${url}：分享圖不是 1200×630 的分享版（${ogImg.slice(0, 90)}）`);
   const h1 = (html.match(/<h1[\s>]/g) || []).length;
   if (h1 !== 1) bad(`${url}：h1 應該剛好 1 個，目前 ${h1} 個`);
   // Netlify 會把網址轉小寫,所以一律小寫;影片用 YouTube ID(可能有 _),其餘用代稱
