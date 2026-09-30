@@ -72,7 +72,8 @@
               "h": 1600
             }
           ],
-          "featured": true
+          "featured": true,
+          "featuredOrder": 1
         },
         {
           "zh": "業務形象",
@@ -265,7 +266,8 @@
             }
           ],
           "featured": true,
-          "sub": "淯涵"
+          "sub": "淯涵",
+          "featuredOrder": 3
         },
         {
           "zh": "髮型模特",
@@ -1432,7 +1434,8 @@
             }
           ],
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024556/qsfwwiwu1k9jutstpgzt.jpg",
-          "featured": true
+          "featured": true,
+          "featuredOrder": 2
         }
       ]
     },
@@ -1640,7 +1643,8 @@
               "h": 1600
             }
           ],
-          "featured": true
+          "featured": true,
+          "featuredOrder": 4
         }
       ]
     },
@@ -1938,7 +1942,8 @@
             }
           ],
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024895/qpmpaz1p8gstykyiw8pr.jpg",
-          "featured": true
+          "featured": true,
+          "featuredOrder": 5
         }
       ],
       "photos": []
@@ -2567,7 +2572,8 @@
             }
           ],
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787889775/mffmmnlnawfxjnogcao6.jpg",
-          "featured": true
+          "featured": true,
+          "featuredOrder": 6
         }
       ],
       "photos": []
@@ -2890,7 +2896,8 @@
             }
           ],
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787891315/yc6wz7u4ky9byyayhbex.jpg",
-          "featured": true
+          "featured": true,
+          "featuredOrder": 7
         }
       ],
       "photos": []
