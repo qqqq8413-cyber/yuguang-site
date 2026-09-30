@@ -9,7 +9,8 @@
       "featured": true,
       "credits": "導演 Director：王振旭\n企劃 Producer：吳翊綸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
       "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788234404/xvce5t3hz0krjzkvsx00.jpg",
-      "publishedAt": "2026-03-05T19:51:13-08:00"
+      "publishedAt": "2026-03-05T19:51:13-08:00",
+      "featuredOrder": 1
     },
     {
       "title": "政風處反賄選微電影",
@@ -30,7 +31,8 @@
       "featured": true,
       "credits": "導演 Director：王振旭\n企劃 Producer：成宸\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
       "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788184797/j1ik5xklttshgqpddqrz.jpg",
-      "publishedAt": "2026-01-19T02:40:02-08:00"
+      "publishedAt": "2026-01-19T02:40:02-08:00",
+      "featuredOrder": 2
     },
     {
       "title": "水月囍樓｜豬腳湯",
@@ -40,7 +42,8 @@
       "yt": "https://youtu.be/CLFTrR3pp5w",
       "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
       "featured": true,
-      "publishedAt": "2025-05-05T00:59:23-07:00"
+      "publishedAt": "2025-05-05T00:59:23-07:00",
+      "featuredOrder": 3
     },
     {
       "title": "水月囍樓｜月子餐",
@@ -50,7 +53,8 @@
       "yt": "https://youtu.be/fUWHHLb8W3k",
       "credits": "導演 Director：王振旭\n攝影 Cinematographer：吳翊綸\n燈光 Lighting：吳翊綸\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
       "featured": true,
-      "publishedAt": "2025-05-19T23:10:34-07:00"
+      "publishedAt": "2025-05-19T23:10:34-07:00",
+      "featuredOrder": 4
     },
     {
       "title": "成旻企業｜開幕典禮",
@@ -60,7 +64,8 @@
       "year": "",
       "featured": true,
       "credits": "攝影 Cinematographer：吳翊綸、紀柏先\n剪輯 Editor：吳翊綸",
-      "publishedAt": "2026-05-22T02:42:58-07:00"
+      "publishedAt": "2026-05-22T02:42:58-07:00",
+      "featuredOrder": 6
     },
     {
       "title": "好屏友市集",
@@ -71,7 +76,8 @@
       "featured": true,
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
       "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1788184813/cxckswzccoyupvsdkaug.jpg",
-      "publishedAt": "2026-08-31T01:43:41-07:00"
+      "publishedAt": "2026-08-31T01:43:41-07:00",
+      "featuredOrder": 7
     },
     {
       "title": "愛心育苗計畫 x 小小藝術班",
@@ -112,7 +118,8 @@
       "year": "",
       "featured": true,
       "credits": "攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
-      "publishedAt": "2026-05-05T04:26:47-07:00"
+      "publishedAt": "2026-05-05T04:26:47-07:00",
+      "featuredOrder": 8
     },
     {
       "title": "2025｜YouthQuake校際隊呼比賽",
@@ -132,7 +139,8 @@
       "year": "",
       "featured": true,
       "credits": "攝影 Cinematographer：紀柏先\n剪輯 Editor：吳翊綸\n調色 Colorist：吳翊綸",
-      "publishedAt": "2025-12-03T23:09:21-08:00"
+      "publishedAt": "2025-12-03T23:09:21-08:00",
+      "featuredOrder": 9
     },
     {
       "title": " 種籽文化基金會",
@@ -142,7 +150,8 @@
       "year": "",
       "featured": true,
       "credits": "導演 Director：吳翊綸\n企劃 Producer：王振旭\n攝影 Cinematographer：吳翊綸\n剪輯 Editor：吳翊綸",
-      "publishedAt": "2025-12-27T00:55:04-08:00"
+      "publishedAt": "2025-12-27T00:55:04-08:00",
+      "featuredOrder": 5
     }
   ]
 }
