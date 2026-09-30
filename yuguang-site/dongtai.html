@@ -186,7 +186,8 @@
     }
     const SIZES={big:'(max-width:640px) 100vw, 800px',half:'(max-width:640px) 100vw, 600px',small:'(max-width:640px) 100vw, 400px'};
     function render(){
-        const list=videos.filter(v=>activeCat==="精選作品"?isFeatured(v):v.cat===activeCat);
+        /* 精選作品照後台「首頁精選」分頁的順序(featuredOrder,1 最前;沒有的排最後、彼此照原本順序) */
+        const list=activeCat==="精選作品"?videos.filter(isFeatured).map((x,i)=>[x,i]).sort((a,b)=>((a[0].featuredOrder||1e9)-(b[0].featuredOrder||1e9))||(a[1]-b[1])).map(p=>p[0]):videos.filter(v=>v.cat===activeCat);
         bento(grid,list,(v,i,kind)=>{
               const a=document.createElement('a');a.className='it';a.href=urlFor({v:vkey(v)});
               const src=v.cover?trim(v.cover,kind==='big'?1400:900):(v.yt?`https://img.youtube.com/vi/${ytid(v.yt)}/maxresdefault.jpg`:'');
