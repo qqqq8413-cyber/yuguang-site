@@ -1666,7 +1666,8 @@
           ],
           "sub": "南方文化",
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1790859832/qxp1iq4r1egaktkyll2u.jpg",
-          "slug": "project-o7btow"
+          "slug": "project-o7btow",
+          "featured": true
         }
       ]
     },
