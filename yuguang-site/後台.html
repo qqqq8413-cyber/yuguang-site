@@ -84,6 +84,10 @@
       .hfadd summary{cursor:pointer;font-family:var(--serif);font-size:13px;letter-spacing:1px;color:var(--ink);padding:6px 0}
       .hfadd .hfi{background:var(--paper2)}
       @media(max-width:640px){.hfi{gap:8px;padding:8px}.hfi img,.hfi .noimg{width:72px;height:48px}.hfi .no{display:none}}
+      /* 上傳框:照片或整個資料夾可以直接拖進來 */
+      .drop{border:1px dashed var(--line);padding:14px;margin-top:4px;transition:background .2s,border-color .2s}
+      .drop.over{border-color:var(--ink);background:#fff}
+      .drophint{color:var(--muted);font-size:12px;margin-top:10px;letter-spacing:.5px}
       .savebar{position:sticky;bottom:0;background:var(--paper);border-top:1px solid var(--line);
                    padding:14px 0;display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:8px}
       .savebar .msg{font-family:var(--serif);font-size:13px;letter-spacing:1px;color:var(--muted)}
@@ -265,20 +269,34 @@
     async function shrink(file){try{if(!/^image\//.test(file.type)||/gif/.test(file.type))return file;const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file);});let w=img.naturalWidth,h=img.naturalHeight;const MAX=2400;if(w<=MAX&&h<=MAX&&file.size<=8388608){URL.revokeObjectURL(img.src);return file;}if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85));URL.revokeObjectURL(img.src);return b&&b.size<file.size?b:file;}catch(e){return file;}}
     /* 上傳後記下照片長寬,前台相簿用來預先排好版面 */
     const UPLOAD_DIMS={};
+    /* 一律簽名上傳:簽名只有登入後台才拿得到。拿不到簽名就停止上傳,不退回未簽名的方式(fail closed)。
+       Cloudinary 的簽名 1 小時內有效,所以一批照片共用一個(50 分鐘後換新):
+       整個資料夾 200 張不必呼叫 200 次後端函式(Netlify 依呼叫次數計費)。
+       拿簽名失敗時丟出 SigError,整批上傳會停下來,因為後面每一張也一定會失敗 */
+    class SigError extends Error{}
+    let SIG=null,SIG_P=null;
+    async function getSig(){
+        if(SIG&&Date.now()/1000-SIG.timestamp<3000)return SIG;
+        if(SIG_P)return SIG_P;   // 同時上傳好幾張時只要一次
+        SIG_P=(async()=>{
+              const sg=await api('sign-upload',{method:'POST'});
+              if(sg.status===401)throw new SigError('登入已失效，請重新整理頁面、再輸入一次後台密碼。');
+              if(!(sg.status===200&&sg.data&&sg.data.ok)){
+                    if(sg.data&&sg.data.reason==='cloudinary-not-configured')
+                          throw new SigError('Netlify 還讀不到 CLOUDINARY_API_KEY／CLOUDINARY_API_SECRET：可能加完變數後還沒重新部署（Deploys → Trigger deploy），或變數名稱打錯。');
+                    throw new SigError('暫時拿不到上傳簽名，請稍後再試一次。\n\n（技術訊息：sign-upload '+sg.status+'）');
+              }
+              SIG=sg.data;return SIG;
+        })();
+        try{return await SIG_P;}finally{SIG_P=null;}
+    }
     async function uploadImage(file){
         if(IS_PREVIEW){previewStop();throw new Error('預覽版後台不能上傳照片，請到正式網址的後台操作。');}
         const fd=new FormData();
         fd.append('file',await shrink(file));
-        /* 一律簽名上傳:簽名只有登入後台才拿得到。拿不到簽名就停止上傳,不退回未簽名的方式(fail closed) */
-        const sg=await api('sign-upload',{method:'POST'});
-        if(sg.status===401)throw new Error('登入已失效，請重新整理頁面、再輸入一次後台密碼。');
-        if(!(sg.status===200&&sg.data&&sg.data.ok)){
-              if(sg.data&&sg.data.reason==='cloudinary-not-configured')
-                    throw new Error('Netlify 還讀不到 CLOUDINARY_API_KEY／CLOUDINARY_API_SECRET：可能加完變數後還沒重新部署（Deploys → Trigger deploy），或變數名稱打錯。');
-              throw new Error('暫時拿不到上傳簽名，請稍後再試一次。\n\n（技術訊息：sign-upload '+sg.status+'）');
-        }
-        const cloud=sg.data.cloud;
-        fd.append('api_key',sg.data.api_key);fd.append('timestamp',sg.data.timestamp);fd.append('signature',sg.data.signature);
+        const sig=await getSig();
+        const cloud=sig.cloud;
+        fd.append('api_key',sig.api_key);fd.append('timestamp',sig.timestamp);fd.append('signature',sig.signature);
         let res,data={};
         try{res=await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/upload`,{method:'POST',body:fd});data=await res.json().catch(()=>({}));}
         catch(e){throw new Error('連不上 Cloudinary，請檢查網路後再試一次。');}
@@ -286,6 +304,7 @@
               /* 把 Cloudinary 的錯誤翻成看得懂、知道該去哪裡修的說明 */
               const m=String((data.error&&data.error.message)||res.status);
               let why;
+              if(/invalid signature|stale request/i.test(m))SIG=null;   // 簽名過期或失效:下一張重新拿
               if(/invalid signature/i.test(m))why='API Secret 不正確：Netlify 裡的 CLOUDINARY_API_SECRET 跟 API Key 不是同一組，或是重新產生 Secret 之後，Netlify 裡還是舊的。';
               else if(/api.?key/i.test(m))why='API Key 不正確：請確認 Netlify 裡的 CLOUDINARY_API_KEY 是 Cloudinary 上那串純數字的 API Key。';
               else if(/file size|too large/i.test(m))why='檔案太大，請換一張較小的照片。';
@@ -569,6 +588,67 @@
     }
     function clearAlbumCover(){DATA.albums[curAlbum].cover='';renderAlbumDetail();coverMsg('已改回自動，記得按「儲存」');}
 
+    /* ---- 批次上傳:多選、整個資料夾、拖曳進來都走這裡 ----
+       只收照片;RAW(相機原始檔,一張幾十 MB)、影片、隱藏檔(.DS_Store)自動略過。
+       依「資料夾/檔名」自然排序(2 在 10 前面),同時傳 3 張,結果照原本順序排回去。
+       某一張失敗不影響其他張,最後列出失敗的檔名;拿不到上傳簽名時整批停下。 */
+    const RAW_EXT=/\.(cr2|cr3|crw|nef|nrw|arw|srf|sr2|raf|dng|orf|rw2|rwl|pef|srw|x3f|3fr|iiq|erf|mos|mrw|kdc|dcr)$/i;
+    const IMG_EXT=/\.(jpe?g|png|webp|heic|heif|gif|avif|tiff?)$/i;
+    const relPath=f=>f.relPath||f.webkitRelativePath||f.name;
+    function pickImages(files){
+        const ok=[],skip=[];
+        [...files].forEach(f=>{
+              const name=f.name||'';
+              if(name.startsWith('.')||!f.size)return;   // 隱藏檔、空檔:不算略過,直接忽略
+              if(!RAW_EXT.test(name)&&(IMG_EXT.test(name)||/^image\//.test(f.type)))ok.push(f);else skip.push(name);
+        });
+        ok.sort((a,b)=>relPath(a).localeCompare(relPath(b),'zh-Hant',{numeric:true,sensitivity:'base'}));
+        return {ok,skip};
+    }
+    /* 拖進來的東西:資料夾要一層一層讀(readEntries 一次最多回 100 個,要讀到空為止)。
+       webkitGetAsEntry 必須在 drop 事件當下取,所以先同步取完再慢慢讀 */
+    async function filesFromDrop(dt){
+        const entries=[...(dt.items||[])].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
+        if(!entries.length)return [...(dt.files||[])];
+        const out=[];
+        async function walk(e,dir){
+              if(e.isFile){const f=await new Promise((res,rej)=>e.file(res,rej));f.relPath=dir+f.name;out.push(f);}
+              else if(e.isDirectory){const r=e.createReader();let b;do{b=await new Promise((res,rej)=>r.readEntries(res,rej));for(const x of b)await walk(x,dir+e.name+'/');}while(b.length);}
+        }
+        for(const e of entries)await walk(e,'');
+        return out;
+    }
+    async function uploadBatch(files,progress){
+        if(IS_PREVIEW){previewStop();return {photos:[],failed:[],stop:null};}   // 預覽版:提示一次就好,不要每張都跳
+        const res=new Array(files.length),failed=[];let done=0,next=0,stop=null;
+        async function worker(){
+              while(!stop&&next<files.length){
+                    const k=next++;
+                    try{const url=await uploadImage(files[k]);res[k]=Object.assign({image:url,caption:''},UPLOAD_DIMS[url]||{});}
+                    catch(err){if(err instanceof SigError){stop=err;break;}failed.push(relPath(files[k])+'：'+String(err.message||err).split('\n')[0]);}
+                    done++;progress(done,files.length,failed.length);
+              }
+        }
+        await Promise.all([worker(),worker(),worker()]);
+        return {photos:res.filter(Boolean),failed,stop};
+    }
+    function batchReport(r,skip){
+        const lines=[];
+        if(r.stop)lines.push('上傳中斷：'+r.stop.message);
+        if(r.failed.length)lines.push(`有 ${r.failed.length} 張沒有上傳成功（其他照片已經上傳）：\n・`+r.failed.slice(0,15).join('\n・')+(r.failed.length>15?`\n…另外 ${r.failed.length-15} 張`:''));
+        if(skip.length)lines.push(`略過 ${skip.length} 個不是照片的檔案（RAW、影片等）：\n・`+skip.slice(0,10).join('\n・')+(skip.length>10?`\n…另外 ${skip.length-10} 個`:''));
+        if(lines.length)alert(lines.join('\n\n'));
+    }
+    const CAN_DIR='webkitdirectory' in document.createElement('input')&&!matchMedia('(pointer:coarse)').matches;   // 手機選不了資料夾
+
+    function bindDrop(el,onFiles){
+        if(!el||!CAN_DIR)return;
+        let depth=0;   // 拖過框裡的子元素時 dragleave 會一直觸發,用計數判斷真的離開
+        el.addEventListener('dragenter',e=>{e.preventDefault();depth++;el.classList.add('over');});
+        el.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';});
+        el.addEventListener('dragleave',()=>{if(--depth<=0){depth=0;el.classList.remove('over');}});
+        el.addEventListener('drop',async e=>{e.preventDefault();depth=0;el.classList.remove('over');const f=await filesFromDrop(e.dataTransfer);if(f.length)onFiles(f);});
+    }
     function photoTarget(mode){
         if(mode==='pj'){const pj=DATA.albums[curAlbum].projects[curProject];if(!Array.isArray(pj.photos))pj.photos=[];
                             return {photos:pj.photos, path:`DATA.albums[${curAlbum}].projects[${curProject}].photos`, rerender:renderProjectDetail};}
@@ -577,8 +657,12 @@
     }
     function coverOwner(mode){return mode==='pj'?DATA.albums[curAlbum].projects[curProject]:DATA.albums[curAlbum];} function coverMsg(s){const m=document.getElementById('pmsg');if(m)m.textContent=s;} function setCover(mode,j){const t=photoTarget(mode);coverOwner(mode).cover=t.photos[j].image;t.rerender();coverMsg('封面已設定，記得按「儲存」');} function clearCover(mode){coverOwner(mode).cover='';const t=photoTarget(mode);t.rerender();coverMsg('已改回自動使用第一張，記得按「儲存」');} function covBtn(mode,j){const t=photoTarget(mode);const on=(coverOwner(mode).cover||'')===t.photos[j].image;return '<button class="covbtn'+(on?' on':'')+'" onclick="'+(on?"clearCover('"+mode+"')":"setCover('"+mode+"',"+j+")")+'">'+(on?'★ 封面':'設為封面')+'</button>';} function photoUploaderHTML(mode){
         const t=photoTarget(mode);const rr=mode==='pj'?'renderProjectDetail':'renderAlbumDetail';
-        let h=`<button class="btn dark" onclick="$('photoFile').click()">+ 上傳照片（可多選）</button>
-              <input type="file" id="photoFile" accept="image/*" multiple class="hidden">`;
+        let h=`<div class="drop" id="photoDrop"><div class="row" style="gap:10px;flex-wrap:wrap">
+              <button class="btn dark" type="button" onclick="$('photoFile').click()">+ 上傳照片（可多選）</button>
+              ${CAN_DIR?`<button class="btn" type="button" onclick="$('photoDir').click()">+ 上傳整個資料夾</button>`:''}</div>
+              ${CAN_DIR?'<div class="drophint">也可以把照片或整個資料夾直接拖進這個框。照片依檔名排序，RAW 檔與影片會自動略過。</div>':''}</div>
+              <input type="file" id="photoFile" accept="image/*" multiple class="hidden">
+              ${CAN_DIR?'<input type="file" id="photoDir" webkitdirectory multiple class="hidden">':''}`;
         h+='<div class="thumbs" id="thumbs">';
         t.photos.forEach((p,j)=>{
               h+=`<div class="thumb">
@@ -594,15 +678,18 @@
     function bindPhotoUploader(mode){
         const t=photoTarget(mode);
         initSort('thumbs',t.photos,()=>{t.rerender();const m=$('pmsg');if(m)m.textContent='順序已調整，記得按「儲存」';});
-        $('photoFile').onchange=async e=>{
-              const files=[...e.target.files];if(!files.length)return;const msg=$('pmsg');
-              for(let k=0;k<files.length;k++){
-                      msg.textContent=`上傳中 ${k+1}/${files.length}…`;
-                      try{const path=await uploadImage(files[k]);t.photos.push(Object.assign({image:path,caption:''},UPLOAD_DIMS[path]||{}));}
-                      catch(err){alert('有一張照片上傳失敗：\n'+err.message);break;}
-              }
-              msg.textContent='照片已上傳，記得按「儲存」';t.rerender();
+        const run=async files=>{
+              const {ok,skip}=pickImages(files);
+              if(!ok.length){batchReport({failed:[],stop:null},skip);if(!skip.length)alert('沒有找到照片。');return;}
+              if(ok.length>=40&&!confirm(`要上傳 ${ok.length} 張照片${skip.length?`（另有 ${skip.length} 個非照片檔會略過）`:''}，大約需要 ${Math.max(1,Math.round(ok.length*1.5/3/60))} 分鐘。上傳時請不要關掉這個頁面。\n\n確定開始？`))return;
+              const r=await uploadBatch(ok,(d,n,f)=>{const m=$('pmsg');if(m)m.textContent=`上傳中 ${d}/${n}…${f?`（${f} 張失敗）`:''}`;});
+              t.photos.push(...r.photos);t.rerender();
+              const m=$('pmsg');if(m)m.textContent=r.photos.length?`已上傳 ${r.photos.length} 張，記得按「儲存」`:'沒有照片上傳成功';
+              batchReport(r,skip);
         };
+        $('photoFile').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)run(f);};
+        const dir=$('photoDir');if(dir)dir.onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)run(f);};
+        bindDrop($('photoDrop'),run);
     }
 
     function renderAlbumDetail(){
@@ -617,7 +704,11 @@
                     <input class="f" value="${esc(al.slug||'')}" oninput="DATA.albums[${curAlbum}].slug=this.value.trim().toLowerCase()" placeholder="網址代稱（留空則存檔時自動產生）" title="網址中的固定名稱，例如 portrait。只能用小寫英文、數字和 -；改了之後舊的分享連結會失效">
                           </div>`;
         if((al.projects||[]).length)h+=albumCoverHTML(al);
-        h+='<div class="sechead" style="margin-top:6px"><h2 style="font-size:1.02rem">專案子相簿</h2><button class="btn sm" onclick="addProject()">+ 新增專案</button></div>';
+        h+=`<div class="sechead" style="margin-top:6px"><h2 style="font-size:1.02rem">專案子相簿</h2><div class="row" style="gap:8px">
+              ${CAN_DIR?`<button class="btn sm" type="button" onclick="$('projDir').click()">+ 用資料夾建立專案</button>`:''}
+              <button class="btn sm" onclick="addProject()">+ 新增專案</button></div></div>`;
+        if(CAN_DIR)h+=`<div class="drop" id="projDrop" style="margin-bottom:14px"><div class="drophint" style="margin:0">把一個或多個資料夾拖進這個框：<b>每個資料夾建立成一個專案</b>（資料夾名稱就是專案名稱），裡面的照片自動上傳。選的資料夾底下還有子資料夾時，每個子資料夾各建一個專案。</div></div>
+              <input type="file" id="projDir" webkitdirectory multiple class="hidden">`;
         h+='<div class="hint">建立專案後，網站點進此分類會先看到各專案封面；沒有專案時，則直接顯示下方「未分專案照片」。用 ⣿ 可拖曳排序。</div>';
         h+=featHint();
         h+='<div id="projList">';
@@ -640,7 +731,33 @@
             <button class="btn dark" onclick="savePhoto(this)">儲存</button></div>`;
         box.innerHTML=h;
         initSort('projList',al.projects,()=>{renderAlbumDetail();const m=$('pmsg');if(m)m.textContent='順序已調整，記得按「儲存」';});
+        const pd=$('projDir');if(pd)pd.onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)projectsFromFolders(f);};
+        bindDrop($('projDrop'),projectsFromFolders);
         bindPhotoUploader('al');
+    }
+    /* 用資料夾建立專案:資料夾名稱 → 專案名稱。
+       路徑「根/子/檔」:有子資料夾就每個子資料夾一個專案;直接放在根資料夾的照片用根資料夾的名稱。
+       拖進好幾個資料夾(「A/檔」「B/檔」)就是 A、B 兩個專案。開始前先列出會建立哪些專案讓人確認 */
+    async function projectsFromFolders(files){
+        if(IS_PREVIEW)return previewStop();
+        const {ok,skip}=pickImages(files);
+        if(!ok.length){batchReport({failed:[],stop:null},skip);if(!skip.length)alert('沒有找到照片。');return;}
+        const groups=new Map();
+        ok.forEach(f=>{const p=relPath(f).split('/');const name=(p.length>=3?p[1]:p.length===2?p[0]:'新專案').trim()||'新專案';
+              if(!groups.has(name))groups.set(name,[]);groups.get(name).push(f);});
+        const list=[...groups].map(([name,fs])=>({name,fs}));
+        if(!confirm(`將建立 ${list.length} 個專案、上傳 ${ok.length} 張照片：\n\n${list.slice(0,20).map(g=>'・'+g.name+'（'+g.fs.length+' 張）').join('\n')}${list.length>20?`\n…另外 ${list.length-20} 個`:''}${skip.length?`\n\n另有 ${skip.length} 個不是照片的檔案（RAW、影片等）會略過。`:''}\n\n大約需要 ${Math.max(1,Math.round(ok.length*1.5/3/60))} 分鐘，上傳時請不要關掉這個頁面。確定開始？`))return;
+        const al=DATA.albums[curAlbum];if(!Array.isArray(al.projects))al.projects=[];
+        let made=0,total=0,stop=null;const failed=[];
+        for(let gi=0;gi<list.length&&!stop;gi++){
+              const g=list[gi];
+              const r=await uploadBatch(g.fs,(d,n,fl)=>{const m=$('pmsg');if(m)m.textContent=`建立「${g.name}」（第 ${gi+1}/${list.length} 個專案）上傳中 ${d}/${n}…${fl?`（${fl} 張失敗）`:''}`;});
+              if(r.photos.length){al.projects.push({zh:g.name,en:'',photos:r.photos});made++;total+=r.photos.length;}   // 一張都沒成功就不建立空專案
+              failed.push(...r.failed);stop=r.stop;
+        }
+        if(DATA.albums[curAlbum]===al&&curProject<0)renderAlbumDetail();
+        const m=$('pmsg');if(m)m.textContent=made?`已建立 ${made} 個專案、上傳 ${total} 張照片，記得按「儲存」`:'沒有建立任何專案';
+        batchReport({failed,stop},skip);
     }
     function addProject(){
         const zh=prompt('專案名稱（中文）：');if(!zh)return;
