@@ -267,7 +267,7 @@
           ],
           "featured": true,
           "sub": "淯涵",
-          "featuredOrder": 4
+          "featuredOrder": 3
         },
         {
           "zh": "髮型模特",
@@ -1434,8 +1434,7 @@
             }
           ],
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024556/qsfwwiwu1k9jutstpgzt.jpg",
-          "featured": true,
-          "featuredOrder": 2
+          "featured": false
         },
         {
           "zh": "職想書市",
@@ -1667,7 +1666,8 @@
           "sub": "南方文化",
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1790859832/qxp1iq4r1egaktkyll2u.jpg",
           "slug": "project-o7btow",
-          "featured": true
+          "featured": true,
+          "featuredOrder": 7
         }
       ]
     },
@@ -1876,7 +1876,7 @@
             }
           ],
           "featured": true,
-          "featuredOrder": 3
+          "featuredOrder": 2
         }
       ]
     },
@@ -2175,7 +2175,7 @@
           ],
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787024895/qpmpaz1p8gstykyiw8pr.jpg",
           "featured": true,
-          "featuredOrder": 5
+          "featuredOrder": 4
         }
       ],
       "photos": []
@@ -2805,7 +2805,7 @@
           ],
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787889775/mffmmnlnawfxjnogcao6.jpg",
           "featured": true,
-          "featuredOrder": 6
+          "featuredOrder": 5
         }
       ],
       "photos": []
@@ -3129,7 +3129,7 @@
           ],
           "cover": "https://res.cloudinary.com/wy6xqh42/image/upload/v1787891315/yc6wz7u4ky9byyayhbex.jpg",
           "featured": true,
-          "featuredOrder": 7
+          "featuredOrder": 6
         }
       ],
       "photos": []
