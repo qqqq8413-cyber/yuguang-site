@@ -113,7 +113,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 |---|---|
 | 器材租賃 · 訂單 → 租借訂單 | 統計（全部／待處理／已確認／租借中）、依狀態篩選、精簡列表；點進單筆看完整需求、複製 LINE ID／用 LINE 加好友、改狀態、刪除 |
 | 器材租賃 · 訂單 → 器材管理 | 依分類管理器材：名稱、分類、日租價、可租數量、規格、介紹、推薦用途、租借說明、照片；拖曳排序；分類新增／改名／刪除 |
-| 平面作品 · 照片 | 分類 → 專案 → 照片；多張上傳、**整個資料夾上傳**、設封面、拖曳排序（分類封面可從各專案的照片裡挑）；分類頁可**用資料夾建立專案** |
+| 平面作品 · 照片 | 分類 → 專案 → 照片（專案可改網址代稱）；多張上傳、**整個資料夾上傳**、設封面、拖曳排序（分類封面可從各專案的照片裡挑）；分類頁可**用資料夾建立專案** |
 | 動態作品 · 影片 | 依分類管理；YouTube ID、客戶、年份、精選、自訂封面、簡介、製作團隊 |
 | 首頁精選 | 首頁「平面作品」「動態作品」兩排的先後：拖曳排序、加入、移出，**放開就自動儲存**；只管首頁，不改動平面／動態作品頁本身的排列 |
 
@@ -443,6 +443,20 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 
 ---
 
+### 網址一致性（canonical，PR #57）
+2026-10-07 Google Search Console 通知「替代頁面（有適當的標準標記）」。診斷結果：sitemap 的 53 個網址全部正常（200、canonical 指向自己、沒有 noindex），http／www／舊 netlify.app 網域／大小寫／少尾斜線都正確 301；預覽版有 `X-Robots-Tag: noindex`、後台有 meta noindex。**真正的問題是站內連結跟 canonical 說法不一致：**
+
+- **Netlify 的 Pretty URLs** 會在部署時改寫 HTML：導覽列 `href="pingmian.html"` 被改成 `href='/pingmian'`，但 canonical／sitemap／og:url 都是 `/pingmian.html`，兩個網址又都能打開 → Google 把 `/pingmian` 等 8 個列為替代頁面。已在 `netlify.toml` 用 `[build.processing.html] pretty_urls = false` 關掉（寫在 repo 裡，會蓋過 Netlify 後台的設定）
+- `_redirects`：`/pingmian`、`/dongtai`…等 8 個不帶 .html 的網址 301 到正式網址（要加 `!`，因為 Netlify 本來就能用 /pingmian 打開 pingmian.html）
+- Pretty URLs 原本也會把 `href="index.html"` 改成 `/`；關掉之後，**連首頁一律寫 `/`**（LOGO、麵包屑、404），否則會連到 /index.html（canonical 是 /，又變替代頁面）
+- **首頁的作品／影片／器材與大圖輪播直接連到正式頁面** `/work/…/…/`、`/video/…/`、`/rental/…/`，不再連 `pingmian.html?album=…&project=…`、`dongtai.html?v=…`、`qicai.html?item=…`。影片網址規則必須和 `build-pages.js` 的 `buildVideos` 一樣（小寫，只差大小寫的重複 ID 加 -2）
+- 單頁的「看更多」：影片頁連 `dongtai.html`（原本 `?v=自己`）；作品頁連所屬分類 `/work/分類/`；分類頁連 `pingmian.html`
+- 影片頁「預約諮詢」的 `?type=` 改成表單真的有的「動態影片」（原本寫「動態影像」，表單不會自動勾選）
+
+**仍然會是替代頁面、而且是正常的**：`lianluo.html?type=…`（預約表單自動選類型）、器材頁「加入租借」的 `qicai.html?item=…`、外部舊連結的 `?album=`／`?cat=`、`?utm_` 追蹤參數。canonical 指回主頁面是刻意的，不需要處理。
+
+**check-build 的檢查**：任何頁面不得連到 `index.html`；聯絡表單的 `?type=` 必須是表單的選項。Pretty URLs 是部署時才發生的改寫，CI 看不到——上線後抽查正式站導覽列的 `href` 應該是 `pingmian.html`。
+
 ## 8. 開發流程
 
 1. 從 `main` 開分支（例：`gear-qty`）
@@ -537,6 +551,7 @@ Netlify ──────────────┬─ 靜態檔案：yuguang-
 | #54 | 平面作品、動態作品改成作品集版面（參考 sola-production）：上方分類列，作品「一大兩小、左右交錯」四列一循環，標題在圖下；平面作品不再先進分類卡片，直接列出所有專案 |
 | #55 | 後台新增「首頁精選」分頁：拖曳調整首頁平面／動態兩排的先後（`featuredOrder`），也能直接加入、移出精選；不影響平面／動態作品頁的排列 |
 | #56 | 後台照片可整個資料夾上傳（按鈕或拖曳），分類頁可用資料夾直接建立專案；略過 RAW／影片、依檔名排序、同時傳 3 張、上傳簽名整批共用 |
+| #57 | 修 Search Console「替代頁面」：關掉 Netlify Pretty URLs（導覽列不再被改成 /pingmian）、不帶 .html 的網址 301、連首頁一律寫 /、首頁卡片直接連作品／影片／器材正式頁面、影片頁預約表單類型修正；後台專案頁可改網址代稱；check-build 新增站內連結檢查 |
 
 ---
 

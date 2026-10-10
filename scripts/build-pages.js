@@ -85,7 +85,7 @@ function shell({ url, title, docTitle = title, desc, image, share, type = 'artic
     '<line x1="99" y1="102" x2="184" y2="102"/><line x1="8" y1="94" x2="8" y2="200"/>',
     '<line x1="8" y1="200" x2="97" y2="200"/><line x1="97" y1="200" x2="184" y2="200"/>',
     '<line x1="184" y1="200" x2="184" y2="172"/></g></symbol></svg>',
-    '<div class="topbar"><a class="mark" href="index.html"><svg><use href="#logo"/></svg><span class="name">嶼光映像</span></a></div>',
+    '<div class="topbar"><a class="mark" href="/"><svg><use href="#logo"/></svg><span class="name">嶼光映像</span></a></div>',
     '<div class="wrap">',
     `<nav class="crumb">${crumb}</nav>`,
   ].join('\n');
@@ -122,13 +122,13 @@ function buildVideos(videos) {
       v.desc ? `<p class="lead">${esc(v.desc)}</p>` : '', '</header>',
       `<div class="player"><iframe src="https://www.youtube.com/embed/${id}?rel=0" title="${attr(v.title)}" allow="encrypted-media; fullscreen" allowfullscreen loading="lazy"></iframe></div>`,
       credits.length ? `<section class="sec"><h2>製作團隊</h2><div class="credits">${credits.map((c) => `<div class="credit">${c.role ? `<div class="role">${esc(c.role)}</div>` : ''}<div class="name">${esc(c.name)}</div></div>`).join('')}</div></section>` : '',
-      `<div class="pagecta"><a class="solid" href="lianluo.html?type=動態影像">預約諮詢</a><a href="dongtai.html?v=${id}">看更多動態作品</a></div>`,
+      `<div class="pagecta"><a class="solid" href="lianluo.html?type=動態影片">預約諮詢</a><a href="dongtai.html">看更多動態作品</a></div>`,
       relatedList(`更多${v.cat || '作品'}`, others),
     ].join('\n');
     pages.push({
       url, priority: '0.8', title: v.title || '動態作品', kind: 'video', cat: v.cat || '',
       html: shell({
-        url, title: v.title || '動態作品', desc, image: cover, share: v.cover ? sharePhoto(v.cover, 'e_trim:20/') : null, type: 'video.other', crumb: `<a href="index.html">首頁</a><span>›</span><a href="dongtai.html">動態作品</a><span>›</span>${esc(v.title || '')}`,
+        url, title: v.title || '動態作品', desc, image: cover, share: v.cover ? sharePhoto(v.cover, 'e_trim:20/') : null, type: 'video.other', crumb: `<a href="/">首頁</a><span>›</span><a href="dongtai.html">動態作品</a><span>›</span>${esc(v.title || '')}`,
         jsonld: {
           '@context': 'https://schema.org', '@type': 'VideoObject', name: v.title || '動態作品', description: desc,
           thumbnailUrl: cover, embedUrl: `https://www.youtube.com/embed/${id}`, url: SITE + url,
@@ -167,7 +167,7 @@ function buildAlbums(albums) {
         sub ? `<div class="meta">${esc(sub)}</div>` : '',
         `<div class="meta">${esc(a.zh)}${photos.length ? ` · ${photos.length} 張照片` : ''}</div></header>`,
         photos.length ? `<section class="sec">${photoWall(photos, title)}</section>` : '',
-        `<div class="pagecta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">看更多平面作品</a></div>`,
+        `<div class="pagecta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a>${url === albumUrl ? '<a href="pingmian.html">看全部平面作品</a>' : `<a href="${albumUrl}">看更多${esc(a.zh)}</a>`}</div>`,
         relatedList('同系列', related),
       ].join('\n');
       pages.push({
@@ -184,7 +184,7 @@ function buildAlbums(albums) {
         }),
       });
     };
-    const baseCrumb = `<a href="index.html">首頁</a><span>›</span><a href="pingmian.html">平面作品</a>`;
+    const baseCrumb = `<a href="/">首頁</a><span>›</span><a href="pingmian.html">平面作品</a>`;
     if (projects.length) {
       projects.forEach((p) => needSlug(p, `相簿「${a.zh}」的專案「${p.zh}」`));
       projects.forEach((p) => {
@@ -201,7 +201,7 @@ function buildAlbums(albums) {
           const c = firstImg(p); const u = `/work/${aSlug}/${p.slug}/`;
           return `<figure><a href="${u}">${c ? `<img src="${attr(img(c, 900))}" alt="${attr(p.zh || '')}" loading="lazy" decoding="async">` : ''}<figcaption class="meta">${esc(p.zh || '')}${p.sub ? `<br><small>${esc(String(p.sub).trim())}</small>` : ''}</figcaption></a></figure>`;
         }).join('')}</div></section>`,
-        `<div class="pagecta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html?album=${encodeURIComponent(aSlug)}">在作品集中瀏覽</a></div>`,
+        `<div class="pagecta"><a class="solid" href="lianluo.html?type=平面攝影">預約拍攝</a><a href="pingmian.html">看全部平面作品</a></div>`,
       ].join('\n');
       pages.push({
         url: albumUrl, priority: '0.7', title: a.zh, kind: 'album', cat: a.zh,
@@ -268,7 +268,7 @@ function buildGear(gear) {
       images: g.image ? [cover] : [],
       html: shell({
         url, title: g.name, docTitle: `${g.name} 出租｜屏東`, desc, image: cover, share: g.image ? shareGear(g.image) : null, type: 'product',
-        crumb: `<a href="index.html">首頁</a><span>›</span><a href="qicai.html">器材租賃</a><span>›</span>${esc(g.name)}`,
+        crumb: `<a href="/">首頁</a><span>›</span><a href="qicai.html">器材租賃</a><span>›</span>${esc(g.name)}`,
         jsonld, body,
       }),
     });
