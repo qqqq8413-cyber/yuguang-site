@@ -777,7 +777,9 @@
               <input class="f" value="${esc(pj.zh)}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].zh=this.value" placeholder="專案中文名稱">
                     <input class="f" value="${esc(pj.en||'')}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].en=this.value" placeholder="英文名稱（可留空）">
                     <input class="f" value="${esc(pj.sub||'')}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].sub=this.value" placeholder="副標題（可留空，例如客戶或年份）" title="作品名稱相同時用來區分，也會出現在搜尋結果的標題與頁面標題下方">
-                          </div>`;
+                    <input class="f" value="${esc(pj.slug||'')}" oninput="DATA.albums[${curAlbum}].projects[${curProject}].slug=this.value.trim().toLowerCase()" placeholder="網址代稱（留空則存檔時自動產生）" title="網址中的固定名稱，例如 aga-jiahui-wedding。只能用小寫英文、數字和 -；改了之後舊的分享連結會失效">
+                          </div>
+              <div class="hint" style="margin:-4px 0 14px">網址代稱就是這個作品網址的最後一段：<b>phosofisle.com/work/${esc(al.slug||'分類')}/${esc(pj.slug||'代稱')}/</b>。用中文名稱建立的專案會自動產生像 project-o7btow 這樣的隨機代稱，建議改成看得懂的英文（例如 jinxiang-book-fair），對搜尋比較好；已經分享出去的連結改了會失效，所以越早改越好。</div>`;
         h+=photoUploaderHTML('pj');
         h+=`<div class="savebar"><span class="msg" id="pmsg"></span>
             <button class="btn dark" onclick="savePhoto(this)">儲存</button></div>`;

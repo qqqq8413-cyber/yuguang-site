@@ -7,3 +7,10 @@
 
 [functions]
   directory = "netlify/functions"
+
+# 關掉 Netlify 的「Pretty URLs」後處理。它會在部署時把 HTML 裡的 href="pingmian.html" 改寫成 href='/pingmian',
+# 但 canonical、sitemap、og:url 都是 /pingmian.html:全站導覽列連到的網址跟「正式網址」不一致,
+# Google Search Console 因此把 /pingmian 等列為「替代頁面」(2026-10 通知)。關掉後 HTML 照原樣送出。
+# 它原本也會把 href="index.html" 改成 "/";關掉之後,全站連到首頁一律直接寫 "/"(check-build 會擋)。
+[build.processing.html]
+  pretty_urls = false

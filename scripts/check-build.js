@@ -7,6 +7,7 @@
 //   5. 主要 7 頁:不靠 JS 就有導覽列、聯絡資訊與作品連結(prerender-main.js 的成果)
 //   6. 標題:每頁都要有、不可重複(重複只提醒);結構化資料語意:器材是「出租」(LeaseOut、按日計價);影片有上傳日期(缺的只提醒,不擋)
 //   7. 分享圖:每頁都有 og:image;照片／器材頁要是 1200×630 的分享版(LINE、Facebook 會把直式圖從中間裁掉)
+//   8. 站內連結:連首頁寫 "/" 不寫 index.html;聯絡表單的 ?type= 要是表單的選項
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -168,6 +169,23 @@ try {
 } catch (e) { /* 沒有 git 的環境就略過 */ }
 
 warns.forEach((m) => console.log('△ ' + m));
+// ---------- 5. 站內連結的網址形式(2026-10 Search Console「替代頁面」通知後加的) ----------
+// 連首頁一律寫 "/":href="index.html" 會連到 /index.html,它的 canonical 是 /,Google 會列為首頁的替代頁面。
+// (以前 Netlify 的 Pretty URLs 會在部署時自動改掉;netlify.toml 關掉它之後就要自己寫對。)
+// 聯絡表單的 ?type= 必須是表單真的有的選項,不然點進去不會自動勾選(影片頁曾經寫成「動態影像」,表單選項是「動態影片」)
+const lianluoHtml = fs.readFileSync(path.join(ROOT, 'lianluo.html'), 'utf8');
+const FORM_TYPES = new Set([...lianluoHtml.matchAll(/name="type" value="([^"]+)"/g)].map((m) => m[1]));
+for (const rel of [...Object.keys(MAIN), '404.html', ...built.map((u) => u + 'index.html')]) {
+  const f = path.join(ROOT, rel);
+  if (!fs.existsSync(f)) continue;
+  const html = fs.readFileSync(f, 'utf8');
+  if (/href=["']index\.html/.test(html)) bad(`${rel}：有連到 index.html 的連結，連首頁請寫 "/"（/index.html 會被 Google 當成首頁的替代頁面）`);
+  for (const m of html.matchAll(/lianluo\.html\?type=([^"'&<\s]+)/g)) {
+    const t = decodeURIComponent(m[1]);
+    if (!FORM_TYPES.has(t)) bad(`${rel}：連到聯絡表單的 type=${t} 不是表單的選項（${[...FORM_TYPES].join('、')}），點進去不會自動勾選`);
+  }
+}
+
 if (errs.length) {
   errs.forEach((m) => console.log('✗ ' + m));
   console.log(`\n${errs.length} 個問題`);
